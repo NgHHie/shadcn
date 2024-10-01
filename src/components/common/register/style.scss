@@ -1,0 +1,28 @@
+// src/Register.scss
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f2f5;
+
+    .logo-container {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .logo-container span {
+        color: #0984e3;
+    }
+
+    .register-form {
+        width: 450px;
+        padding: 24px;
+        background: #fff;
+        border-radius: 8px;
+    }
+
+    .register-form-button {
+        width: 100%;
+        padding: 15px !important;
+    }
+}

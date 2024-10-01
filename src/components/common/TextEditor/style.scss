@@ -1,0 +1,25 @@
+.ql-container {
+    min-height: 20vh;
+  }
+  .ql-font-times-new-roman {
+    font-family: 'Times New Roman', Times, serif;
+  }
+
+  /* Styles for quill-better-table */
+.ql-editor .ql-better-table-wrapper {
+  overflow: auto;
+}
+
+.ql-editor .ql-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.ql-editor .ql-table td, .ql-editor .ql-table th {
+  position: relative;
+  border: 1px solid #ccc;
+}
+
+.ql-editor .ql-table td .ql-better-table-picker {
+  display: none;
+}
