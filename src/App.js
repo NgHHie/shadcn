@@ -7,6 +7,7 @@ import '../src/config/common-css.scss'
 import QuestionHome from './components/QuestionHome';
 import QuestionDetail from './components/pages/QuestionDetail';
 import { SubmitPage } from './components/pages/submitPage';
+import { TopUserPage } from './components/pages/topUserPage';
 function App() {
   return (
     <div>
@@ -17,6 +18,7 @@ function App() {
             <Route path='/ide' element={<SqlEditor></SqlEditor>}></Route>
             <Route path='/question-detail/:questionId' element={<QuestionDetail></QuestionDetail>}></Route>
             <Route path='/submit-history' element={<SubmitPage></SubmitPage>}></Route>
+            <Route path='/top-user' element={<TopUserPage></TopUserPage>}></Route>
           </Route> 
         </Routes>
       </BrowserRouter>

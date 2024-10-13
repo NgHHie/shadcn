@@ -21,10 +21,10 @@ export const ApiEnpoint = {
     getQuestionDetail:  `${BASE_URL}/api/question/`,
     getTableCreated: `${BASE_URL}/api/table/created`,
 
-    login: `${BASE_URL}/api/user/login`,
-    register: `${BASE_URL}/api/user/register`,
+    login: `${BASE_URL}/api/user/auth/login`,
+    register: `${BASE_URL}/api/user/auth/register`,
 
     getUserInfo: `${BASE_URL}/api/user/info`,
 
-    refreshToken:  `${BASE_URL}/api/user/login`,
+    refreshToken:  `${BASE_URL}/api/user/auth/refresh-token`,
 }

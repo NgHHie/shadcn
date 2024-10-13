@@ -2,7 +2,7 @@ import React from 'react';
 import './style.scss'
 import { isValid } from '../../../utils/Util';
 export const renderTable = (data) => {
-    if(!isValid(data) || data.length === 0) {
+    if (!isValid(data) || data.length === 0) {
         return "No data can be found!"
     }
     if (!data || !Array.isArray(data) || data.length === 0) {
@@ -14,7 +14,12 @@ export const renderTable = (data) => {
         ));
     }
 
-    const headers = Object.keys(data[0]);
+    const headersSet = new Set();
+    data.forEach(row => {
+        Object.keys(row).forEach(key => headersSet.add(key));
+    });
+    const headers = Array.from(headersSet);
+
 
     return (
         <div className="result-execute-sql-container">
@@ -30,7 +35,9 @@ export const renderTable = (data) => {
                     {data.map((row, index) => (
                         <tr key={index}>
                             {headers.map((header, headerIndex) => (
-                                <td key={headerIndex}>{row[header]}</td>
+                                <td key={headerIndex}>
+                                    {row[header] !== undefined ? row[header] : 'N/A'}
+                                </td>
                             ))}
                         </tr>
                     ))}

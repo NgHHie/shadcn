@@ -31,6 +31,7 @@ const QuestionDetail = () => {
     const [activeTab, setActiveTab] = useState('1');
     const fileInputRef = useRef(null);
     const [selectData,setSelectData] = useState('')
+    const [loadingSubmit,setLoadingSubmit] = useState(false)
 
     const onSelectData = (value) => {
         setSelectData(value)
@@ -70,7 +71,6 @@ const QuestionDetail = () => {
 
     const getSubmitHis = async (page) => {
         const url = getUrlPage(`${ApiEnpoint.getSubmitHisByUserId}${user?.id}?questionId=${questionId}`, page, PAGE_SIZE)
-        console.log(url)
         const data = await fetchApiGet(url)
         if (responseOk(data)) {
             setSubmitHistory(data.data?.content)
@@ -81,6 +81,7 @@ const QuestionDetail = () => {
     const onPageSubmit = (page) => {
         getSubmitHis(page)
     }
+
     const onChangeSql = (value) => {
         setSqlCommand(value)
     }
@@ -102,6 +103,7 @@ const QuestionDetail = () => {
             toast(NotifyType.WARNING, "Vui lòng chọn database!")
             return;
         }
+        setLoadingSubmit(true)
         const formData = new FormData();
         formData.append('file', file);
 
@@ -130,6 +132,7 @@ const QuestionDetail = () => {
                 return updatedHistory.slice(0, PAGE_SIZE);
             });
         }
+        setLoadingSubmit(false)
     };
 
     const handleSubmitDirect = async () => {
@@ -146,7 +149,7 @@ const QuestionDetail = () => {
             'questionId': question?.id,
             'typeDatabaseId': selectData
         }
-
+        setLoadingSubmit(true)
         const response = await fetchApiPost(ApiEnpoint.submitQuestion, data, MEDIA_TYPE.JSON)
         if (response !== null) {
             console.log(response.data)
@@ -169,6 +172,7 @@ const QuestionDetail = () => {
                 return updatedHistory.slice(0, PAGE_SIZE);
             });
         }
+        setLoadingSubmit(false)
     }
     const handleSubmit = () => {
         if(!user) {
@@ -246,7 +250,7 @@ const QuestionDetail = () => {
                         {/* Container to allow scrolling for "Lịch sử submit" */}
                         <div className="scrollable-tab-content">
                             <div className="main-submit-container">
-                                <SubmitHistory data={submitHistory} totalElements={totaSubmit} onPage={onPageSubmit} />
+                                <SubmitHistory data={submitHistory} totalElements={totaSubmit} onPage={onPageSubmit} loading={loadingSubmit}/>
                             </div>
                         </div>
                     </Tabs.TabPane>

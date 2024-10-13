@@ -5,7 +5,7 @@ import { formatDate } from '../../../utils/Util';
 import { Pagination, Spin } from 'antd';
 import { PAGE_SIZE } from '../../../config/data';
 
-const SubmitHistory = ({ data, totalElements, onPage }) => {
+const SubmitHistory = ({ data, totalElements, onPage ,loading}) => {
 
   const [currentPage, setCurrentPage] = useState(0)
 
@@ -14,7 +14,14 @@ const SubmitHistory = ({ data, totalElements, onPage }) => {
       onPage(page)
     }
   };
-
+  if(loading) {
+    return (
+      <div className='text-center'>
+        <Spin></Spin>
+        <p className='mt-2'>Loading...</p>
+      </div>
+    )
+  }
   return (
     <div className="submit-history">
       <h3 className='text-[17px] mb-2'>Trạng thái giải bài</h3>

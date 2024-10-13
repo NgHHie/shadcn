@@ -39,6 +39,11 @@ export const QUESTION_TYPE = [
   }
 ];
 
+export const CONTEST_TYPE = {
+  PRACTICE: "PRACTICE",
+  CONTEST: "CONTEST"
+}
+
 export const DATABASE = [
   {
     "id": 1,

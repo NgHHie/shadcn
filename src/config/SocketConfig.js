@@ -1,12 +1,12 @@
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 
-let stompClient;
+var stompClient;
 let url = process.env.REACT_APP_BASE_ENDPOINT_SOCKET;
 let reconnectAttempts = 0;
 
 export const getSocket = () => {
-    if (!stompClient) {
+    if (!stompClient || !stompClient.connected) {
         const socket = new SockJS(url);
         stompClient = new Client({
             webSocketFactory: () => socket,
@@ -56,7 +56,7 @@ export const attemptReconnect = () => {
         if (stompClient && !stompClient.connected) {
             attemptReconnect(); // Recursive call to keep trying
         }
-    }, 5000); // Retry every 5 seconds
+    }, 1000); // Retry every 5 seconds
 };
 
 export const disconnectSocket = () => {
