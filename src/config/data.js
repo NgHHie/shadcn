@@ -39,6 +39,17 @@ export const QUESTION_TYPE = [
   }
 ];
 
+export const CONTEST_STATUS = {
+  OPEN: 'OPEN',
+  CLOSE: 'CLOSE',
+  SCHEDULED: 'SCHEDULED'
+}
+
+export const CONTEST_MODE = {
+  PRACTICE: "PRACTICE",
+  EXAM: "EXAM"
+}
+
 export const CONTEST_TYPE = {
   PRACTICE: "PRACTICE",
   CONTEST: "CONTEST"

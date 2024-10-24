@@ -152,7 +152,6 @@ const QuestionDetail = () => {
         setLoadingSubmit(true)
         const response = await fetchApiPost(ApiEnpoint.submitQuestion, data, MEDIA_TYPE.JSON)
         if (response !== null) {
-            console.log(response.data)
             setSubmitHistory((prevHistory) => {
                 // Update the specific submission
                 const updatedHistory = [...(prevHistory || []), {
@@ -168,7 +167,6 @@ const QuestionDetail = () => {
                 }]
                 // Sort the updated array by created_at or time in descending order (most recent first)
                 updatedHistory.sort((a, b) => new Date(b?.timeSubmit) - new Date(a?.timeSubmit));
-                console.log(updatedHistory)
                 return updatedHistory.slice(0, PAGE_SIZE);
             });
         }

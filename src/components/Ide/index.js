@@ -132,7 +132,7 @@ const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, data
         </div>
         {
           hasSubmit && (
-            <div className='flex items-center'>
+            <div className='flex items-center justify-end'>
               <Button onClick={toggleTerminalVisibility} type="default" className="flex items-center w-32 rounded-lg ml-2">
                 <CodeOutlined className="mr-2" />
                 {isTerminalVisible ? (
@@ -163,7 +163,7 @@ const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, data
       </div>
       {
         !hasSubmit && (
-          <div className='flex items-center mt-3'>
+          <div className='flex items-center mt-3 justify-end'>
             {
               hasSubmit && (
                 <Button onClick={toggleTerminalVisibility} type="default" className={`flex items-center w-32 rounded-lg ml-2`}>
@@ -180,7 +180,7 @@ const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, data
                 </Button>
               )
             }
-            <Button onClick={handleSave} type="primary" className='flex m-w-[60px] rounded-lg' loading={loading}>
+            <Button onClick={handleSave} type="primary" className='flex m-w-[60px] rounded-lg justify-end' loading={loading}>
               Run
             </Button>
           </div>

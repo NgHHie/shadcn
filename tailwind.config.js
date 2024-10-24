@@ -22,6 +22,7 @@ module.exports = {
       backgroundColor: {
         btnColor: '#92d6d7',
         btnActive: '#3a9697',
+        primary: '#bb2019',
         layout: {
           100: '#9DCCFF',
         },

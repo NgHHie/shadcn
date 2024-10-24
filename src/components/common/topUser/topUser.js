@@ -50,10 +50,6 @@ const TopUser = ({ data, totalElements, onPage, loading }) => {
                   {submission?.rank}
                 </span>
               </td>
-
-
-
-
             </tr>
           ))}
         </tbody>

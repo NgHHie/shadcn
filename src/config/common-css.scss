@@ -1,7 +1,6 @@
 .flex {
     display: flex;
     gap: 10px;
-    justify-content: flex-end;
 }
 
 .flex-col {
@@ -80,4 +79,23 @@
     margin-top: 20px;
     background-color: #cd251c;
     color: #2ed172;
+}
+.spin-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 60vh;
+
+    p {
+        color: gray;
+    }
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
