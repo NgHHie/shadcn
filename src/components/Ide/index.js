@@ -114,7 +114,7 @@ const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, data
       <div className='editor-container'>
         <div className='editor-sql'>
           <Editor
-            height="350px" // Set height to fill parent container
+            height="250px" // Set height to fill parent container
             width="100%"
             language="sql"
             theme={theme}

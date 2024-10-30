@@ -4,7 +4,7 @@
     font-family: Arial, sans-serif;
     padding: 20px;
     margin-top: 15px;
-    box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.2); 
+    box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.2);
     background-color: white;
     border-radius: 5px;
     min-height: 70vh;
@@ -12,16 +12,19 @@
     flex-direction: column;
 
     .select-custom .ant-select-selector {
-        border-radius: 20px !important; /* Bo góc */
-        padding: 15px !important; /* Padding */
+        border-radius: 20px !important;
+        /* Bo góc */
+        padding: 15px !important;
+        /* Padding */
     }
+
     .header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
     }
-    
+
     .filters button {
         background: none;
         border: none;
@@ -33,13 +36,13 @@
         margin-right: 20px;
         min-width: 90px;
     }
-    
+
     .filters .active {
         background-color: #000;
         color: #fff;
         border-radius: 5px;
     }
-    
+
     .search-container {
         display: flex;
         align-items: center;
@@ -47,7 +50,7 @@
         border-radius: 20px;
         width: 20vw;
     }
-    
+
     .search-container input {
         padding: 10px;
         font-size: 16px;
@@ -58,49 +61,68 @@
         border: none;
         flex: 1;
     }
+
     .icon-search {
         margin-right: 15px;
     }
-    
+
     .database-table {
         width: 100%;
         border-collapse: collapse;
         text-align: left;
         margin-bottom: 20px;
+
+        .ant-table {
+            font-size: 15px;
+            font-family: Arial, Helvetica, sans-serif;
+            /* Equivalent to Tailwind's text-xl */
+        }
+
+        .ant-table-thead>tr>th,
+        .ant-table-tbody>tr>td {
+            font-size: 15px;
+            /* Ensure headers and cells have larger font */
+        }
+        .ant-table-tbody > tr:hover > td {
+            background-color: inherit !important; /* Keep the original background color */
+          }
     }
-    
-    .database-table th, .database-table td {
+
+    .database-table th,
+    .database-table td {
         padding: 12px;
         border-bottom: 1px solid #ddd;
         height: fit-content;
     }
-    
+
     .database-table th {
         background-color: #f8f9fa;
     }
-    
+
     // .database-table tbody tr:hover {
     //     background-color: #f1f1f1;
     // }
-    
+
     .database-table td .frequency-lock {
         text-align: center;
     }
-    
+
     .medium {
         color: #d4a107;
     }
-    
+
     .easy {
         color: #28a745;
     }
+
     .hard {
         color: #db770c;
     }
-    
+
     .done {
         color: #54c985;
     }
+
     .database-table td button {
         padding: 5px 10px;
         background-color: #007bff;
@@ -109,11 +131,12 @@
         border-radius: 3px;
         cursor: pointer;
     }
+
     .title-question {
         color: #bd262e;
     }
+
     .empty-div {
         flex: 1;
     }
 }
-

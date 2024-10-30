@@ -53,7 +53,7 @@ const Header = () => {
         <ul>
           <li><Link to="/">Bài Tập</Link></li>
           <li><Link to="/submit-history">Lịch sử</Link></li>
-          <li><Link to="/top-user">Top user</Link></li>
+          <li><Link to="/top-user">Bảng xếp hạng</Link></li>
           <li><Link to="/contest">Các cuộc thi</Link></li>
           {/* <li><Link to="/cong-dong">Cộng Đồng</Link></li>
           <li><Link to="/thong-tin">Thông Tin</Link></li> */}

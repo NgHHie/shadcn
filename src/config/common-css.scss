@@ -21,9 +21,11 @@
 .text-left {
     text-align: left;
 }
+
 .text-center {
     text-align: center;
 }
+
 .cursor-pointer {
     cursor: pointer;
 }
@@ -80,6 +82,7 @@
     background-color: #cd251c;
     color: #2ed172;
 }
+
 .spin-center {
     display: flex;
     justify-content: center;
@@ -94,8 +97,10 @@
 
 .line-clamp-3 {
     display: -webkit-box;
-    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    -webkit-line-clamp: 3;
+    /* Limit to 3 lines */
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+

@@ -3,20 +3,21 @@ import React, { createContext, useEffect, useState } from 'react';
 import { getUserInfo } from '../utils/masterData';
 import { responseOk } from '../utils/FetchUtil';
 import { Spin } from 'antd';
+import { getCurrentContestExamRunning } from '../services/contestService';
 
 const GlobalContext = createContext();
 
 const GlobalProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-
-  const [loading, setLoading] = useState(true);  // Thêm trạng thái loading
+  const [loading, setLoading] = useState(true);
+  const [currentContest,setCurrentContest] = useState({})
+  const [fullScreen,setFullScreen] = useState(false)
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       const userInfo = await getUserInfo();
       if (userInfo) {
         setUser(userInfo);
-        console.log('User information has been set:', userInfo);
       }
       setLoading(false);  // Đặt loading là false sau khi dữ liệu đã được tải
     };
@@ -34,7 +35,7 @@ const GlobalProvider = ({ children }) => {
   }
 
   return (
-    <GlobalContext.Provider value={{ user, setUser}}>
+    <GlobalContext.Provider value={{ user, setUser,currentContest,setCurrentContest,fullScreen,setFullScreen}}>
       {children}
     </GlobalContext.Provider>
   );

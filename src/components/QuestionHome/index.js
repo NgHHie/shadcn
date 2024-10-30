@@ -1,7 +1,7 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import './style.scss';
-import { Input, Pagination, Select, Spin } from 'antd';
+import { Input, Pagination, Select, Spin, Table, Tag } from 'antd';
 import { fetchApiGet, fetchApiPost, responseOk } from '../../utils/FetchUtil';
 import { ApiEnpoint } from '../../config/ApiEnpoint';
 import toast, { NotifyType } from '../../utils/Toast';
@@ -39,7 +39,6 @@ const QuestionHome = () => {
                 }
                 const response = await fetchApiPost(ApiEnpoint.checkQuestionComplete, payload)
                 if (responseOk(response)) {
-                    console.log(response.data)
                     setCompletes(response.data)
                 }
             } else {
@@ -71,6 +70,77 @@ const QuestionHome = () => {
         getQuestions(page)
     }
 
+    const columns = [
+        {
+            title: 'Mã',
+            dataIndex: 'questionCode',
+            key: 'questionCode',
+            render: (text, record) => (
+                <span
+                    role="img"
+                    aria-label="calendar"
+                    className="cursor-pointer"
+                    onClick={() => handleRedirect(record.id)}
+                >
+                    {text}
+                </span>
+            ),
+        },
+        {
+            title: 'Câu hỏi',
+            dataIndex: 'title',
+            key: 'title',
+            render: (text, record) => (
+                <span
+                    className="cursor-pointer title-question"
+                    onClick={() => handleRedirect(record.id)}
+                >
+                    {text}
+                </span>
+            ),
+        },
+        {
+            title: 'Số lần sub',
+            dataIndex: 'totalSub',
+            key: 'totalSub',
+            align: 'center',
+        },
+        {
+            title: 'Tỉ lệ đúng',
+            dataIndex: 'acceptance',
+            key: 'acceptance',
+            align: 'center',
+            render: (acceptance) => `${acceptance.toFixed(1)}%`,
+        },
+        {
+            title: 'Độ khó',
+            dataIndex: 'level',
+            key: 'level',
+            align: 'center',
+            render: (level) => (
+                <Tag
+                    className={`capitalize rounded-full px-3 py-1`}
+                    color={getColorForLevel(level)}
+                >
+                    {level.toLowerCase()}
+                </Tag>
+            ),
+        },
+    ];
+
+    const getColorForLevel = (level) => {
+        switch (level?.toLowerCase()) {
+          case 'easy':
+            return 'green';
+          case 'medium':
+            return 'orange';
+          case 'hard':
+            return 'red';
+          default:
+            return 'default';
+        }
+      };
+
     useEffect(() => {
         getQuestions()
 
@@ -79,35 +149,35 @@ const QuestionHome = () => {
     return (
         <div className="database-list-container">
             <div className="header">
-            <div className="filters">
-                    <Select
-                        placeholder="Chọn loại câu hỏi"
-                        style={{ width: 200, marginRight: 10 }}
-                        className='select-custom'
-                    >
-                        <Option value="easy">Easy</Option>
-                        <Option value="medium">Medium</Option>
-                        <Option value="hard">Hard</Option>
-                    </Select>
-                    <Select
-                        placeholder="Chọn loại database"
-                        style={{ width: 200 }}
-                        className='select-custom'
-                    >
-                        <Option value="mysql">MySQL</Option>
-                        <Option value="postgresql">PostgreSQL</Option>
-                        <Option value="mongodb">MongoDB</Option>
-                        <Option value="sqlite">SQLite</Option>
-                    </Select>
-                </div>
-                <Input
-                    placeholder="Search by title or code"
-                    //   value={searchTerm}
-                    //   onChange={handleSearch}
-                    prefix={<SearchOutlined />}
-                    className='w-[20%] rounded-full'
-                />
-            </div>
+                        <div className="filters">
+                            <Select
+                                placeholder="Chọn loại câu hỏi"
+                                style={{ width: 200, marginRight: 10 }}
+                                className='select-custom'
+                            >
+                                <Option value="easy">Easy</Option>
+                                <Option value="medium">Medium</Option>
+                                <Option value="hard">Hard</Option>
+                            </Select>
+                            <Select
+                                placeholder="Chọn loại database"
+                                style={{ width: 200 }}
+                                className='select-custom'
+                            >
+                                <Option value="mysql">MySQL</Option>
+                                <Option value="postgresql">PostgreSQL</Option>
+                                <Option value="mongodb">MongoDB</Option>
+                                <Option value="sqlite">SQLite</Option>
+                            </Select>
+                        </div>
+                        <Input
+                            placeholder="Search by title or code"
+                            //   value={searchTerm}
+                            //   onChange={handleSearch}
+                            prefix={<SearchOutlined />}
+                            className='w-[20%] rounded-full'
+                        />
+                    </div>
             {
                 loading ? (
                     <div className="spin-center">
@@ -118,34 +188,19 @@ const QuestionHome = () => {
 
                     </div>
                 ) : (
-                    <table className="database-table">
-                        <thead>
-                            <tr>
-                                <th className='cursor-pointer'>Mã</th>
-                                <th className='cursor-pointer'>Câu hỏi</th>
-                                <th className='text-center'>Số lần sub</th>
-                                <th className='text-center'>Tỉ lệ đúng</th>
-                                <th className='text-center '>Độ khó</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {questions?.map((item, index) => (
-                                <tr key={index} className={`${getColorQuestionComplete(item.id)} text-gray-800`}>
-                                    <td className='cursor-pointer' onClick={() => handleRedirect(item.id)}><span role="img" aria-label="calendar">{item?.questionCode}</span></td>
-                                    <td className='cursor-pointer title-question' onClick={() => handleRedirect(item.id)}>{item?.title}</td>
-                                    <td className='text-center'>{item?.totalSub}</td>
-                                    <td className='text-center'>{item?.acceptance.toFixed(1)}%</td>
-                                    <td className={`text-center capitalize text-center`}>
-                                        <span className={`bg-[#ecf0f1] px-2 py-[5px] rounded-xl text-[14px] ${item?.level?.toLowerCase()}`}>{item?.level?.toLowerCase()}</span></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <Table
+                        className="database-table"
+                        columns={columns}
+                        dataSource={questions}
+                        rowKey={(record) => record.id}
+                        rowClassName={(record) => `${getColorQuestionComplete(record.id)}`}
+                        pagination={false} // Adjust page size as needed
+                    />
                 )
             }
 
             <div className='empty-div'></div>
-            <div className='pagination-container pagination-custom'>
+            <div className='pagination-container pagination-custom mt-3'>
                 <Pagination align="end" defaultCurrent={currentPage} total={totalPage} pageSize={PAGE_SIZE_QUESTION} onChange={handleChangePage} />
             </div>
         </div>

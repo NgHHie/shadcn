@@ -4,10 +4,12 @@ import { formatDate } from '../../../../utils/Util';
 import { GlobalContext } from '../../../../globalContext';
 import { joinContest } from '../../../../services/contestService';
 import { CONTEST_MODE, CONTEST_STATUS, CONTEST_TYPE } from '../../../../config/data';
+import { useNavigate } from 'react-router-dom';
 
 const ContestCard = ({ contest, joinStatus }) => {
     const { user } = useContext(GlobalContext)
     const [contestJoined, setContestJoined] = useState([])
+    const navi = useNavigate()
 
     const getProgressPercentage = () => {
         const now = new Date();
@@ -51,6 +53,9 @@ const ContestCard = ({ contest, joinStatus }) => {
             })
     };
 
+    const handleDoContest = (contestId) => {
+        navi(`/contest-wating/${contestId}`)
+    }
     useEffect(() => {
         if (joinStatus) {
             setContestJoined(joinStatus)
@@ -119,7 +124,7 @@ const ContestCard = ({ contest, joinStatus }) => {
             {/* Join Button */}
             {hasUserJoinedContest(contest?.id) ? (
                 contest?.status === CONTEST_STATUS.OPEN ? (
-                    <Button type="primary" className="w-full bg-primary hover:!bg-[#e74c3c]">
+                    <Button type="primary" className="w-full bg-primary hover:!bg-[#e74c3c]" onClick={() => handleDoContest(contest?.id)}>
                         Vào làm bài
                     </Button>
                 ) : (

@@ -40,7 +40,7 @@ const SubmitHistory = ({ data, totalElements, onPage ,loading}) => {
           {data?.map((submission, index) => (
             <tr key={index}>
               <td>{submission?.question?.title}</td>
-              <td>{submission?.user?.userCode} ({submission?.user?.fullName})</td>
+              <td>{submission?.user?.userCode} ({submission?.user?.fullName ? submission?.user?.fullName : submission?.user?.lastName +' '+ submission?.user?.firstName})</td>
               <td>{formatDate(submission?.timeSubmit)}</td>
               <td className={`text-center ${submission?.status?.toLowerCase()}`}>
                 {

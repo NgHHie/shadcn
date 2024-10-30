@@ -12,6 +12,8 @@ export const ApiEnpoint = {
     getSubmitHisAll: `${BASE_URL}/api/submit-history`,
     getSubmitHisByUserId: `${BASE_URL}/api/submit-history/user/`,
     checkQuestionComplete: `${BASE_URL}/api/submit-history/check/complete`,
+    getSubmitContestHisByUserId: `${BASE_URL}/api/submit-contest/user`,
+    checkQuestionContestComplete: `${BASE_URL}/api/submit-contest/check/complete`,
 
     createTestCase: `${BASE_URL}/api/executor/generate/testcase`,
     createQuestion: `${BASE_URL}/api/question`,

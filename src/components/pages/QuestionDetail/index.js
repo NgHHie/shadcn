@@ -14,11 +14,12 @@ import { getUrlPage, isValid } from '../../../utils/Util';
 import { GlobalContext } from '../../../globalContext';
 import { disconnectSocket, getSocket } from '../../../config/SocketConfig';
 import toast, { NotifyType } from '../../../utils/Toast';
-import { CommentOutlined, FileTextOutlined, HistoryOutlined, UploadOutlined } from '@ant-design/icons';
+import { CommentOutlined, FileTextOutlined, HistoryOutlined, LeftOutlined, UploadOutlined } from '@ant-design/icons';
+import CommentSection from '../Comment';
 const { TextArea } = Input;
 
-const QuestionDetail = () => {
-    const { questionId } = useParams()
+const QuestionDetail = ({ questionContest }) => {
+    const { questionId, questionContestId } = useParams()
     const [question, setQuestion] = useState({})
     const [sqlCommand, setSqlCommand] = useState('');
     const [submitHistory, setSubmitHistory] = useState([])
@@ -30,8 +31,8 @@ const QuestionDetail = () => {
     const rightPanelRef = useRef(null);
     const [activeTab, setActiveTab] = useState('1');
     const fileInputRef = useRef(null);
-    const [selectData,setSelectData] = useState('')
-    const [loadingSubmit,setLoadingSubmit] = useState(false)
+    const [selectData, setSelectData] = useState('')
+    const [loadingSubmit, setLoadingSubmit] = useState(false)
 
     const onSelectData = (value) => {
         setSelectData(value)
@@ -70,7 +71,10 @@ const QuestionDetail = () => {
     }
 
     const getSubmitHis = async (page) => {
-        const url = getUrlPage(`${ApiEnpoint.getSubmitHisByUserId}${user?.id}?questionId=${questionId}`, page, PAGE_SIZE)
+        let url = getUrlPage(`${ApiEnpoint.getSubmitHisByUserId}${user?.id}?questionId=${questionId}`, page, PAGE_SIZE)
+        if (questionContestId) {
+            url = getUrlPage(`${ApiEnpoint.getSubmitContestHisByUserId}?questionContestId=${questionContestId}`, page, PAGE_SIZE)
+        }
         const data = await fetchApiGet(url)
         if (responseOk(data)) {
             setSubmitHistory(data.data?.content)
@@ -89,7 +93,7 @@ const QuestionDetail = () => {
     const resetFileInput = () => {
         setFile(null);
         setFileName('');
-        if (fileInputRef.current) { 
+        if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
     };
@@ -109,7 +113,9 @@ const QuestionDetail = () => {
 
         // Add additional data to the form
         formData.append('questionId', question?.id);
-        formData.append('typeDatabaseId',selectData)
+        formData.append('questionContestId', questionContestId);
+        formData.append('typeDatabaseId', selectData)
+        formData.append('isSubmitContest', questionContestId ? true : false)
 
         const response = await fetchApiUploadFile(formData)
         if (responseOk(response)) {
@@ -147,7 +153,9 @@ const QuestionDetail = () => {
         const data = {
             'sql': sqlCommand,
             'questionId': question?.id,
-            'typeDatabaseId': selectData
+            'questionContestId': questionContestId ? questionContestId : null,
+            'typeDatabaseId': selectData,
+            'isSubmitContest': questionContestId ? true : false
         }
         setLoadingSubmit(true)
         const response = await fetchApiPost(ApiEnpoint.submitQuestion, data, MEDIA_TYPE.JSON)
@@ -173,8 +181,8 @@ const QuestionDetail = () => {
         setLoadingSubmit(false)
     }
     const handleSubmit = () => {
-        if(!user) {
-            toast(NotifyType.WARNING,"Vui lòng đăng nhập!")
+        if (!user) {
+            toast(NotifyType.WARNING, "Vui lòng đăng nhập!")
             return
         }
         setActiveTab('2')
@@ -192,7 +200,7 @@ const QuestionDetail = () => {
             setSubmitHistory((prevHistory) => {
                 // Ensure prevHistory is an array
                 const historyArray = prevHistory ?? [];
-            
+
                 const updatedHistory = historyArray.map((item) => {
                     if (item?.id === response.submitId) {
                         return {
@@ -205,7 +213,7 @@ const QuestionDetail = () => {
                     }
                     return item;
                 });
-            
+
                 // Return the updated history, sliced to the required page size
                 return updatedHistory.slice(0, PAGE_SIZE);
             });
@@ -229,8 +237,7 @@ const QuestionDetail = () => {
     }, [])
 
     return (
-        <div className="question-detail-layout">
-            {/* Left Section for Tabs */}
+        <div className="question-detail-layout !min-h-screen">
             <div ref={leftPanelRef} className="left-panel">
                 <Tabs activeKey={activeTab} onChange={setActiveTab} className='ml-2 p-2 rounded-md'>
                     <Tabs.TabPane tab={<><FileTextOutlined /> Đề bài</>} key="1">
@@ -248,19 +255,23 @@ const QuestionDetail = () => {
                         {/* Container to allow scrolling for "Lịch sử submit" */}
                         <div className="scrollable-tab-content">
                             <div className="main-submit-container">
-                                <SubmitHistory data={submitHistory} totalElements={totaSubmit} onPage={onPageSubmit} loading={loadingSubmit}/>
+                                <SubmitHistory data={submitHistory} totalElements={totaSubmit} onPage={onPageSubmit} currentPageSize={5} loading={loadingSubmit} />
                             </div>
                         </div>
                     </Tabs.TabPane>
-                    <Tabs.TabPane tab={<><CommentOutlined /> Thảo luận</>} key="3">
-                        {/* Container to allow scrolling for "Thảo luận" */}
-                        <div className="scrollable-tab-content">
-                            <div className="discussion-container">
-                                <p>Thảo luận về câu hỏi này.</p>
-                                {/* Additional content for discussion can go here */}
-                            </div>
-                        </div>
-                    </Tabs.TabPane>
+                    {
+                        !questionContestId && (
+                            <Tabs.TabPane tab={<><CommentOutlined /> Thảo luận</>} key="3">
+                                {/* Container to allow scrolling for "Thảo luận" */}
+                                <div className="">
+                                    <div className="discussion-container">
+                                        <CommentSection questionId={question?.id}></CommentSection>
+                                    </div>
+                                </div>
+                            </Tabs.TabPane>
+                        )
+                    }
+
                 </Tabs>
             </div>
 
@@ -296,7 +307,7 @@ const QuestionDetail = () => {
                             </label>
                             {fileName && <p className="file-name">{fileName}</p>}
                         </div>
-                        <div className="pagination-container">
+                        <div className="pagination-container mb-5">
                             <button className="btn-submit" onClick={handleSubmit}>
                                 Submit
                             </button>
