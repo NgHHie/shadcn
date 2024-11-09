@@ -76,7 +76,8 @@ export const DATABASE = [
 
 export const TYPE_MODAL = {
   LOGIN: 'LOGIN',
-  REGISTER: 'REGISTER'
+  REGISTER: 'REGISTER',
+  INFOMATION: 'INFOMATION'
 }
 
 export const ERROR_CODE = {

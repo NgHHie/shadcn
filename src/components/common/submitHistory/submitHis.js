@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import './style.scss';
 import { formatDate } from '../../../utils/Util';
-import { Pagination, Spin } from 'antd';
+import { Pagination, Spin, Tag } from 'antd';
 import { PAGE_SIZE } from '../../../config/data';
 
 const SubmitHistory = ({ data, totalElements, onPage ,loading}) => {
@@ -34,6 +34,7 @@ const SubmitHistory = ({ data, totalElements, onPage ,loading}) => {
             <th className='text-center'>Trạng thái</th>
             <th className='text-center'>Thời gian thực thi</th>
             <th className='text-center'>Kết quả</th>
+            <th className='text-center'>Database</th>
           </tr>
         </thead>
         <tbody>
@@ -52,11 +53,13 @@ const SubmitHistory = ({ data, totalElements, onPage ,loading}) => {
                 }
 
               </td>
-              <td className='text-center'>{submission?.timeout} ms</td>
+              <td className='text-center'>{submission?.timeout ? submission?.timeout : submission?.timeExec} ms</td>
               <td className='text-center !text-red-500'>
                 {!submission?.totalTest || submission?.totalTest === 0 ? '/' : `${submission?.testPass}/${submission?.totalTest}`}
               </td>
-
+              <td className='text-center'>
+                <Tag color='blue'>{submission?.database?.name}</Tag>
+              </td>
             </tr>
           ))}
         </tbody>

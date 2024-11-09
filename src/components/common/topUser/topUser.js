@@ -1,6 +1,6 @@
 // src/components/SubmitHistory.js
 import React, { useState } from 'react';
-import { Pagination, Spin } from 'antd';
+import { Avatar, Pagination, Spin } from 'antd';
 import { PAGE_SIZE } from '../../../config/data';
 
 const TopUser = ({ data, totalElements, onPage, loading }) => {
@@ -27,7 +27,7 @@ const TopUser = ({ data, totalElements, onPage, loading }) => {
       <table>
         <thead>
           <tr className='thead-custom'>
-            <th className='text-left'>Mã người dùng</th>
+            <th className="text-center">Avatar</th>
             <th className='text-left'>Tên người dùng</th>
             <th className='text-center'>Số câu đã làm</th>
             <th className='text-center'>Tổng điểm</th>
@@ -37,7 +37,14 @@ const TopUser = ({ data, totalElements, onPage, loading }) => {
         <tbody>
           {data?.map((submission, index) => (
             <tr key={index}>
-              <td>{submission?.userCode}</td>
+              <td className="text-center">
+                <Avatar
+                  src={'/assets/avatar.png'}
+                  size={64}
+                  alt={submission?.fullName}
+                  className={submission?.rank <= 3 ? 'border-4 border-yellow-400' : ''}
+                />
+              </td>
               <td>{submission?.fullName}</td>
               <td className='text-center'>{submission?.numQuestionDone}</td>
               <td className="text-center font-bold">

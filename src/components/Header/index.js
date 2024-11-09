@@ -12,6 +12,7 @@ import { LogoutOutlined, ProfileOutlined, UserOutlined } from '@ant-design/icons
 
 const Header = () => {
   const { user, setUser } = useContext(GlobalContext)
+  const [typeModal,setTypeModal] = useState(TYPE_MODAL.LOGIN)
 
   const [stateApp, setStateApp] = useState({
     showLogin: false,
@@ -29,8 +30,8 @@ const Header = () => {
       <Menu.Item key="1" icon={<UserOutlined />}>
         <p>{user?.fullName}</p>
       </Menu.Item>
-      <Menu.Item key="2" icon={<ProfileOutlined />}>
-        <Link to="/profile">Cá nhân</Link>
+      <Menu.Item key="2" icon={<ProfileOutlined />} onClick={() => handleShowLogin(TYPE_MODAL.INFOMATION)}>
+          <p>Cá nhân</p>
       </Menu.Item>
       <Menu.Item key="3" icon={<LogoutOutlined />}>
         <Button type="text" onClick={logout}>Đăng xuất</Button>
@@ -38,7 +39,9 @@ const Header = () => {
     </Menu>
   );
 
-  const handleShowLogin = () => {
+  const handleShowLogin = (type) => {
+    console.log(type)
+    setTypeModal(type ? type : TYPE_MODAL.LOGIN)
     setStateApp({ ...stateApp, showLogin: true, change: new Date() })
   }
   const handleCloseLogin = () => {
@@ -59,7 +62,7 @@ const Header = () => {
           <li><Link to="/thong-tin">Thông Tin</Link></li> */}
         </ul>
       </nav>
-      <CommonModal typeModal={TYPE_MODAL.LOGIN} stateApp={stateApp} onClose={handleCloseLogin}></CommonModal>
+      <CommonModal typeModal={typeModal} stateApp={stateApp} onClose={handleCloseLogin}></CommonModal>
       <div className='header-user-inf'>
         {
           user ? (
@@ -67,7 +70,7 @@ const Header = () => {
               <img src='/assets/user.png' alt="avt"></img>
             </Dropdown>
           ) : (
-            <button className='btn-submit btn-login-custom' onClick={handleShowLogin}>Đăng nhập</button>
+            <button className='btn-submit btn-login-custom' onClick={() => handleShowLogin(TYPE_MODAL.LOGIN)}>Đăng nhập</button>
           )
         }
 

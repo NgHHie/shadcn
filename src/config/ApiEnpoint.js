@@ -25,6 +25,7 @@ export const ApiEnpoint = {
 
     login: `${BASE_URL}/api/user/auth/login`,
     register: `${BASE_URL}/api/user/auth/register`,
+    updateUser: `${BASE_URL}/api/user/update`,
 
     getUserInfo: `${BASE_URL}/api/user/info`,
 

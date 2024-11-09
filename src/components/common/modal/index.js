@@ -3,13 +3,14 @@ import Login from "../login/Login";
 import { TYPE_MODAL } from "../../../config/data";
 import Register from "../register";
 import { useEffect, useState } from "react";
+import Information from "../infomation";
 
 export default function CommonModal({typeModal,stateApp, onClose}) {
     const [modalType,setModalType] = useState("")
 
     useEffect(() => {
         setModalType(typeModal)
-        console.log(typeModal)
+
     },[stateApp?.change])
     return (
         <Modal
@@ -23,6 +24,8 @@ export default function CommonModal({typeModal,stateApp, onClose}) {
                 <Login onTypeModal={setModalType} onClose={onClose}></Login>
             ) : modalType === TYPE_MODAL.REGISTER ? (
                 <Register onClose={onClose}></Register>
+            ) : modalType === TYPE_MODAL.INFOMATION ? (
+                <Information onClose={onClose}></Information>
             ) : null
         }
         </Modal>

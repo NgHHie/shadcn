@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Button, Input, Tabs, Upload } from 'antd';
+import { Button, Input, Tabs, Tag, Upload } from 'antd';
 import './style.scss';
 import { fetchApiGet, fetchApiPost, fetchApiUploadFile, responseOk } from '../../../utils/FetchUtil';
 import { ApiEnpoint } from '../../../config/ApiEnpoint';
@@ -195,7 +195,6 @@ const QuestionDetail = ({ questionContest }) => {
     const subsscribeTopic = (topic) => {
         getSocket().subscribe(topic, message => {
             let response = JSON.parse(message.body);
-            console.log(response)
             if (!isValid(response)) return
             setSubmitHistory((prevHistory) => {
                 // Ensure prevHistory is an array
@@ -246,6 +245,8 @@ const QuestionDetail = ({ questionContest }) => {
                             <div className="question-description">
                                 <h2 className="question-title">
                                     {question?.questionCode} - {question?.title}
+
+                                    <Tag className='ml-3' color='blue'>{question?.type}</Tag>
                                 </h2>
                                 <ReactQuill value={question?.content} readOnly={true} theme="bubble" />
                             </div>

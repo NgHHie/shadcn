@@ -61,8 +61,6 @@ const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, data
       "questionId": questionId ? questionId : "",
       "typeDatabaseId": selectDatabaseId
     }
-    console.log(databases)
-    console.log(sendData)
     let urlSub = ApiEnpoint.executeSqlUser
     const response = await fetchApiPost(urlSub, sendData, MEDIA_TYPE.JSON)
     if (responseOk(response)) {
@@ -75,7 +73,12 @@ const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, data
       setResults(response?.data)
       setTerminalVisible(true)
     } else {
-      toast(NotifyType.ERROR, "Có lỗi xảy ra")
+      if(response?.data) {
+        setResults(response?.data)
+        setTerminalVisible(true)
+      } else {
+        toast(NotifyType.ERROR, "Có lỗi xảy ra")
+      }
     }
     setLoading(false)
   };

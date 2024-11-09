@@ -22,7 +22,7 @@ function CommentSection({ questionId }) {
   const loadMoreComments = async () => {
     if (loading || !hasMore) return;
     setLoading(true);
-
+    console.log('aaaaaaaaaa ',hasMore)
     try {
       const params = {
         page: page,
@@ -30,7 +30,10 @@ function CommentSection({ questionId }) {
       }
       const response = await getCommentByQuestionId(questionId, params)
       const newComments = response?.content;
-      if (!newComments) return
+      if (!newComments) {
+        setHasMore(false)
+        return
+      }
       setComments((prevComments) => [...prevComments, ...newComments]);
       setHasMore(!response?.last);
       setPage((prevPage) => prevPage + 1);
@@ -109,6 +112,7 @@ function CommentSection({ questionId }) {
   useEffect(() => {
     loadMoreComments()
   }, [])
+
   return (
     <div className="p-6 bg-gray-100 rounded-lg overflow-hidden">
       {/* New Comment Input Area at the Top */}
