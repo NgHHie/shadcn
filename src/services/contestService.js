@@ -36,3 +36,8 @@ export const getCurrentContestExamRunning = async() => {
     const {data} = await axiosInstance.get(`/api/contest/user/current-contest/exam`)
     return data;
 }
+
+export const getNumberContestOpening = async() => {
+    const {data} = await axiosInstance.get(`/api/contest/count/opening`)
+    return data;
+}

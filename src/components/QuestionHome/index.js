@@ -19,19 +19,47 @@ const QuestionHome = () => {
     const [questions, setQuestions] = useState([])
     const [completes, setCompletes] = useState([])
     const { user } = useContext(GlobalContext)
-    const [totalPage, setTotalPage] = useState(0)
-    const [currentPage, setCurrentPage] = useState(0)
+    const [pagination, setPagination] = useState({
+        current: 0,
+        pageSize: PAGE_SIZE,
+        total: 0,
+    });
     const [loading, setLoading] = useState(false)
     const navi = useNavigate()
+    const [filter, setFilter] = useState({
+        keyword: null,
+        level: null,
+        typeDatabaseId: null,
+        typeQuestion: null
+
+    })
+    const handleOnchangeFilter = (value, type) => {
+        const filterTemp = {
+            ...filter,
+            [type]: value,
+        }
+        setFilter(filterTemp);
+    };
 
     const getQuestions = async (page) => {
         const params = { page: page ? page - 1 : 0, size: PAGE_SIZE_QUESTION };
+        if (filter) {
+            // Add filter fields dynamically if they have valid values
+            Object.keys(filter).forEach((key) => {
+                if (filter[key] !== null && filter[key] !== '' && filter[key] !== undefined) {
+                    params[key] = filter[key];
+                }
+            });
+        }
         const data = await fetchApiGet(ApiEnpoint.getQuestionList, params)
         setLoading(true)
         if (responseOk(data)) {
             setQuestions(data.data?.content)
-            setTotalPage(data?.data?.totalElements)
-            const questionIds = data.data?.content.map(question => question.id);
+            setPagination({
+                ...pagination,
+                total: data.data?.totalElements
+            })
+            const questionIds = data?.data?.content?.map(question => question.id);
             if (user?.id) {
                 const payload = {
                     "userId": user?.id,
@@ -65,9 +93,12 @@ const QuestionHome = () => {
         return ''; // Trả về chuỗi rỗng nếu không có màu đặc biệt
     };
 
-    const handleChangePage = (page) => {
-        setCurrentPage(page)
-        getQuestions(page)
+    const handleChangePage = (page,size) => {
+        setPagination({
+            ...pagination,
+            current: page,
+            pageSize: size
+        })
     }
 
     const columns = [
@@ -130,54 +161,33 @@ const QuestionHome = () => {
 
     const getColorForLevel = (level) => {
         switch (level?.toLowerCase()) {
-          case 'easy':
-            return 'green';
-          case 'medium':
-            return 'orange';
-          case 'hard':
-            return 'red';
-          default:
-            return 'default';
+            case 'easy':
+                return 'green';
+            case 'medium':
+                return 'orange';
+            case 'hard':
+                return 'red';
+            default:
+                return 'default';
         }
-      };
+    };
 
     useEffect(() => {
         getQuestions()
 
-    }, [user])
+    }, [user,pagination?.current,pagination?.pageSize,filter])
 
     return (
         <div className="database-list-container">
             <div className="header">
-                        <div className="filters">
-                            <Select
-                                placeholder="Chọn loại câu hỏi"
-                                style={{ width: 200, marginRight: 10 }}
-                                className='select-custom'
-                            >
-                                <Option value="easy">Easy</Option>
-                                <Option value="medium">Medium</Option>
-                                <Option value="hard">Hard</Option>
-                            </Select>
-                            <Select
-                                placeholder="Chọn loại database"
-                                style={{ width: 200 }}
-                                className='select-custom'
-                            >
-                                <Option value="mysql">MySQL</Option>
-                                <Option value="postgresql">PostgreSQL</Option>
-                                <Option value="mongodb">MongoDB</Option>
-                                <Option value="sqlite">SQLite</Option>
-                            </Select>
-                        </div>
-                        <Input
-                            placeholder="Search by title or code"
-                            //   value={searchTerm}
-                            //   onChange={handleSearch}
-                            prefix={<SearchOutlined />}
-                            className='w-[20%] rounded-full'
-                        />
-                    </div>
+                <Input
+                    placeholder="Search by title or code"
+                    value={filter?.keyword}
+                    onChange={(e) => handleOnchangeFilter(e.target.value, 'keyword')}
+                    prefix={<SearchOutlined />}
+                    className='w-[20%] rounded-full'
+                />
+            </div>
             {
                 loading ? (
                     <div className="spin-center">
@@ -201,7 +211,12 @@ const QuestionHome = () => {
 
             <div className='empty-div'></div>
             <div className='pagination-container pagination-custom mt-3'>
-                <Pagination align="end" defaultCurrent={currentPage} total={totalPage} pageSize={PAGE_SIZE_QUESTION} onChange={handleChangePage} />
+            <Pagination
+                    defaultCurrent={pagination.current}
+                    pageSize={pagination.pageSize}
+                    total={pagination.total}
+                    onChange={handleChangePage}
+                />
             </div>
         </div>
     );

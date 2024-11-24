@@ -8,6 +8,7 @@ import TableQuestionContest from './components/contestTable';
 import { CONTEST_MODE, CONTEST_STATUS } from '../../../config/data';
 import { formatTimeCountDown } from '../../../utils/Util';
 import { GlobalContext } from '../../../globalContext';
+import UserActionTracker from '../../common/LogAction';
 
 const ExamPage = () => {
     const { contestId } = useParams()
@@ -80,6 +81,11 @@ const ExamPage = () => {
     }
     return (
         <div className="min-h-screen">
+            {
+                contest?.isTracker === true && (
+                    <UserActionTracker contestId={contestId}></UserActionTracker>
+                )
+            }
             <div className="bg-white p-7 rounded-lg shadow-lg w-[98%] relative mt-2 m-auto min-h-screen">
                 {/* Header Section */}
                 <div className="flex justify-between mb-2">

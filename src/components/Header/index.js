@@ -1,18 +1,21 @@
 // src/components/Header.js
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './style.scss';
 import { Link } from 'react-router-dom';
-import { Button, Dropdown, Menu } from 'antd';
+import { Badge, Button, Dropdown, Menu, Tooltip } from 'antd';
 import { GlobalContext } from '../../globalContext';
 import { appState } from '../../config/models';
 import CommonModal from '../common/modal';
 import { TYPE_MODAL } from '../../config/data';
 import { clearAllStorage } from '../../utils/localStorage';
 import { LogoutOutlined, ProfileOutlined, UserOutlined } from '@ant-design/icons';
+import UserActionTracker from '../common/LogAction';
+import { getNumberContestOpening } from '../../services/contestService';
 
 const Header = () => {
   const { user, setUser } = useContext(GlobalContext)
-  const [typeModal,setTypeModal] = useState(TYPE_MODAL.LOGIN)
+  const [typeModal, setTypeModal] = useState(TYPE_MODAL.LOGIN)
+  const [numberContestOpen,setNumberContestOpen] = useState(0)
 
   const [stateApp, setStateApp] = useState({
     showLogin: false,
@@ -31,7 +34,7 @@ const Header = () => {
         <p>{user?.fullName}</p>
       </Menu.Item>
       <Menu.Item key="2" icon={<ProfileOutlined />} onClick={() => handleShowLogin(TYPE_MODAL.INFOMATION)}>
-          <p>Cá nhân</p>
+        <p>Cá nhân</p>
       </Menu.Item>
       <Menu.Item key="3" icon={<LogoutOutlined />}>
         <Button type="text" onClick={logout}>Đăng xuất</Button>
@@ -40,13 +43,23 @@ const Header = () => {
   );
 
   const handleShowLogin = (type) => {
-    console.log(type)
     setTypeModal(type ? type : TYPE_MODAL.LOGIN)
     setStateApp({ ...stateApp, showLogin: true, change: new Date() })
   }
   const handleCloseLogin = () => {
     setStateApp({ ...stateApp, showLogin: false })
   }
+  const getNumberContestOpen = () => {
+    getNumberContestOpening()
+      .then(response => {
+        setNumberContestOpen(response?.number)
+      })
+  }
+
+  useEffect(() => {
+    getNumberContestOpen()
+  },[user])
+
   return (
     <header className="header-container p-2">
       <div className="header-logo">
@@ -57,7 +70,15 @@ const Header = () => {
           <li><Link to="/">Bài Tập</Link></li>
           <li><Link to="/submit-history">Lịch sử</Link></li>
           <li><Link to="/top-user">Bảng xếp hạng</Link></li>
-          <li><Link to="/contest">Các cuộc thi</Link></li>
+          <li>
+            <Tooltip title={`${numberContestOpen} contest đang mở`}>
+              <Badge count={numberContestOpen} offset={[12, -5]} className='cursor-pointer'>
+                <Link to="/contest" style={{ textDecoration: "none" }}>
+                  Các cuộc thi
+                </Link>
+              </Badge>
+            </Tooltip>
+          </li>
           {/* <li><Link to="/cong-dong">Cộng Đồng</Link></li>
           <li><Link to="/thong-tin">Thông Tin</Link></li> */}
         </ul>

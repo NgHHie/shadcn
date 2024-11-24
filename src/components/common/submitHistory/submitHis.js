@@ -7,13 +7,21 @@ import { PAGE_SIZE } from '../../../config/data';
 
 const SubmitHistory = ({ data, totalElements, onPage ,loading}) => {
 
-  const [currentPage, setCurrentPage] = useState(0)
+  const [pagination,setPagination] = useState({
+    currentPage: 0,
+    pageSize: PAGE_SIZE
+  })
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page,size) => {
     if (onPage) {
-      onPage(page)
+      onPage(page,size)
+      setPagination({
+        currentPage: page,
+        size: size
+      })
     }
   };
+
   if(loading) {
     return (
       <div className='text-center'>
@@ -66,9 +74,9 @@ const SubmitHistory = ({ data, totalElements, onPage ,loading}) => {
       </table>
       <div className="flex justify-end mt-3">
         <Pagination
-          defaultCurrent={currentPage}
+          defaultCurrent={pagination?.currentPage}
           total={totalElements}
-          pageSize={PAGE_SIZE}
+          pageSize={pagination?.size}
           onChange={handlePageChange}
         />
       </div>
