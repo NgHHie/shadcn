@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, message, Spin, Tooltip } from 'antd';
-import { HomeFilled, HomeOutlined, InfoCircleOutlined, LeftCircleFilled } from '@ant-design/icons';
+import { Button, message, Modal, Spin, Tooltip } from 'antd';
+import { HomeFilled, HomeOutlined, InfoCircleOutlined, LeftCircleFilled, LogoutOutlined } from '@ant-design/icons';
 import QuestionHome from '../../QuestionHome';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { getContestDetail } from '../../../services/contestService';
@@ -9,6 +9,7 @@ import { CONTEST_MODE, CONTEST_STATUS } from '../../../config/data';
 import { formatTimeCountDown } from '../../../utils/Util';
 import { GlobalContext } from '../../../globalContext';
 import UserActionTracker from '../../common/LogAction';
+import { clearAllStorage } from '../../../utils/localStorage';
 
 const ExamPage = () => {
     const { contestId } = useParams()
@@ -16,6 +17,7 @@ const ExamPage = () => {
     const [contest, setContest] = useState(null)
     const { currentContest, setCurrentContest } = useContext(GlobalContext)
     const [timeLeft, setTimeLeft] = useState(0);  // Contest: 84 minutes and 9 seconds
+    const { clearContext } = useContext(GlobalContext)
     const navi = useNavigate()
 
     const handleClickHome = () => {
@@ -45,6 +47,21 @@ const ExamPage = () => {
                 navi('/')
             })
     }
+    const handleLogoutClick = () => {
+        Modal.confirm({
+            title: "Xác nhận",
+            content: "Bạn có chắc chắn muốn thoát khỏi cuộc thi?",
+            okText: "Đồng ý",
+            cancelText: "Hủy",
+            onOk: logout,
+        });
+    };
+
+    const logout = () => {
+        clearContext()
+        clearAllStorage()
+        navi('/')
+    }
 
     useEffect(() => {
         // Start the interval when the component mounts
@@ -65,7 +82,7 @@ const ExamPage = () => {
 
         // Cleanup the interval when the component unmounts
         return () => clearInterval(contestTimer);
-    }, []); // Empty dependency array to create the interval only once
+    }, []);
 
 
     useEffect(() => {
@@ -96,20 +113,32 @@ const ExamPage = () => {
                         >
                             <HomeOutlined className="" />
                         </div>
-                        <span className="text-[#2980b9] text-lg font-semibold">{contest?.name}</span>
-                    </div>
-                    <div>
-                        <span className="text-red-600 font-semibold text-[13px]">
-                            Thời gian còn lại <br />
-                            <span className='text-[15px]'>{formatTimeCountDown(timeLeft)}</span>
-
+                        <span className="text-[#2980b9] text-lg font-semibold ml-2">
+                            {contest?.name}
                         </span>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                        <div>
+                            <span className="text-red-600 font-semibold text-[13px]">
+                                Thời gian còn lại <br />
+                                <span className="text-[15px]">{formatTimeCountDown(timeLeft)}</span>
+                            </span>
+                        </div>
+                        <Tooltip title="Đăng xuất" placement="bottom">
+                            <div
+                                className="cursor-pointer border text-blue-500 px-2 py-1 rounded-full transition-transform duration-200 hover:scale-110"
+                            onClick={handleLogoutClick} 
+                            >
+                                <LogoutOutlined />
+                            </div>
+                        </Tooltip>
+
                     </div>
                 </div>
                 <div>
                     <Outlet></Outlet>
                 </div>
-            </div>
+            </div>;
         </div>
     );
 };

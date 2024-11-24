@@ -7,11 +7,23 @@ import { getCurrentContestExamRunning } from '../services/contestService';
 
 const GlobalContext = createContext();
 
+const initialState = {
+  user: null,
+  currentContest: {},
+  fullScreen: false,
+};
+
 const GlobalProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentContest,setCurrentContest] = useState({})
   const [fullScreen,setFullScreen] = useState(false)
+
+  const clearContext = () => {
+    setUser(initialState.user);
+    setCurrentContest(initialState.currentContest);
+    setFullScreen(initialState.fullScreen);
+  };
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -35,7 +47,7 @@ const GlobalProvider = ({ children }) => {
   }
 
   return (
-    <GlobalContext.Provider value={{ user, setUser,currentContest,setCurrentContest,fullScreen,setFullScreen}}>
+    <GlobalContext.Provider value={{ user, setUser,currentContest,setCurrentContest,fullScreen,setFullScreen,clearContext}}>
       {children}
     </GlobalContext.Provider>
   );

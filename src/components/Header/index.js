@@ -1,7 +1,7 @@
 // src/components/Header.js
 import React, { useContext, useEffect, useState } from 'react';
 import './style.scss';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Badge, Button, Dropdown, Menu, Tooltip } from 'antd';
 import { GlobalContext } from '../../globalContext';
 import { appState } from '../../config/models';
@@ -13,19 +13,19 @@ import UserActionTracker from '../common/LogAction';
 import { getNumberContestOpening } from '../../services/contestService';
 
 const Header = () => {
-  const { user, setUser } = useContext(GlobalContext)
+  const { user, clearContext } = useContext(GlobalContext)
   const [typeModal, setTypeModal] = useState(TYPE_MODAL.LOGIN)
   const [numberContestOpen,setNumberContestOpen] = useState(0)
-
+  const navi = useNavigate()
   const [stateApp, setStateApp] = useState({
     showLogin: false,
     change: ''
   });
 
   const logout = () => {
-    setUser(null)
+    clearContext()
     clearAllStorage()
-
+    navi('/')
   }
 
   const menu = (
