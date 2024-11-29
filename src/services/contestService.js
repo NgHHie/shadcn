@@ -3,7 +3,9 @@ import axiosInstance from "../axios/axiosIntance";
 
 
 export const getContests = async(params) => {
-    const  { data } =  await axiosInstance.get(`/api/contest`,params);
+    const  { data } =  await axiosInstance.get(`/api/contest`,{
+        params: params
+    });
     return data;
 }
 

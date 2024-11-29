@@ -10,19 +10,22 @@ import { getCurrentContestExamRunning } from "../services/contestService";
 
 function Layout() {
     const { fullScreen } = useContext(GlobalContext)
+    const { user } = useContext(GlobalContext)
     const navi = useNavigate()
 
     const checkContestRunning = () => {
         getCurrentContestExamRunning()
-         .then(response => {
-          if(response?.id) {
-            navi(`/contest-wating/${response?.id}`)
-          }
-         })
+            .then(response => {
+                if (response?.id) {
+                    navi(`/contest-wating/${response?.id}`)
+                }
+            })
     }
+    
     useEffect(() => {
         checkContestRunning()
-    },[])
+    }, [user])
+
     return (
         <div className="layout-container">
             {

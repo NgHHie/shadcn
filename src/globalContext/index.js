@@ -1,9 +1,7 @@
 // src/GlobalContext.js
 import React, { createContext, useEffect, useState } from 'react';
 import { getUserInfo } from '../utils/masterData';
-import { responseOk } from '../utils/FetchUtil';
 import { Spin } from 'antd';
-import { getCurrentContestExamRunning } from '../services/contestService';
 
 const GlobalContext = createContext();
 

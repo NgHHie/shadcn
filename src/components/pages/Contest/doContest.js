@@ -71,6 +71,7 @@ const ExamPage = () => {
                     return prevTime - 1; // Decrement time if still above 0
                 } else {
                     message.info("Bài thi đã kết thúc!")
+                    setFullScreen(false)
                     setTimeout(() => {
                         navi('/');
                     }, 500);

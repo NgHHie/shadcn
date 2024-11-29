@@ -12,7 +12,8 @@ const ContestWaitingPage = () => {
     const [timeToStart, setTimeToStart] = useState(0); // Pre-contest: 5 minutes countdown
     const [timeLeft, setTimeLeft] = useState(0);  // Contest: 84 minutes and 9 seconds
     const [isContestStarted, setIsContestStarted] = useState(false); // Indicates if the contest has started
-    const {fullScreen, setFullScreen} = useContext(GlobalContext)
+    const { fullScreen, setFullScreen } = useContext(GlobalContext)
+    const [initDataDone,SetInitDataDone] = useState(false)
     const navi = useNavigate()
 
     const getData = () => {
@@ -25,9 +26,10 @@ const ContestWaitingPage = () => {
                 if (response?.startDatetime && response?.endDatetime) {
                     if (response?.status === CONTEST_STATUS.CLOSE) {
                         message.info("Cuộc thi đã kết thúc!")
+                        setFullScreen(false)
                         navi('/')
                     }
-                    if(response?.mode === CONTEST_MODE.EXAM) {
+                    if (response?.mode === CONTEST_MODE.EXAM && response?.status === CONTEST_STATUS.OPEN) {
                         setFullScreen(true)
                     } else {
                         setFullScreen(false)
@@ -44,49 +46,60 @@ const ContestWaitingPage = () => {
                         setTimeLeft(Math.floor((endTime - now) / 1000));
                     }
                 }
+                SetInitDataDone(true)
             })
             .catch(err => {
                 message.info('Bài thi không tồn tại!')
                 navi('/')
             })
     }
+
     useEffect(() => {
         getData()
     }, [])
 
     useEffect(() => {
-        // Start the interval when the component mounts
+        if(!initDataDone) return
         const preContestTimer = setInterval(() => {
             setTimeToStart((prevTime) => {
-            if (prevTime > 0) {
-              return prevTime - 1; // Decrement time if still above 0
-            } else {
-              clearInterval(preContestTimer); // Clear the interval when timeLeft reaches 0
-              return 0; // Ensure timeLeft does not go negative
-            }
-          });
+                if (prevTime > 0) {
+                    return prevTime - 1; // Decrement time if still above 0
+                } else {
+                    setIsContestStarted(true)
+                    const endTime = new Date(contest?.endDatetime).getTime();
+                    const now = new Date().getTime();
+                    setTimeLeft(Math.floor((endTime - now) / 1000));
+                    clearInterval(preContestTimer); // Clear the interval when timeLeft reaches 0
+                    return 0; // Ensure timeLeft does not go negative
+                }
+            });
         }, 1000);
-    
+
         // Cleanup the interval when the component unmounts
-        return () => clearInterval(preContestTimer);
-      }, []); // Empty dependency array to create the interval only once
+        return () => clearInterval(preContestTimer)
+    }, [initDataDone]);
 
     useEffect(() => {
-        // Start the interval when the component mounts
+        if(!initDataDone) return
         const contestTimer = setInterval(() => {
-          setTimeLeft((prevTime) => {
-            if (prevTime > 0) {
-              return prevTime - 1; // Decrement time if still above 0
-            } else {
-              clearInterval(contestTimer); // Clear the interval when timeLeft reaches 0
-              return 0; // Ensure timeLeft does not go negative
-            }
-          });
+            setTimeLeft((prevTime) => {
+                if (prevTime > 0) {
+                    return prevTime - 1; // Decrement time if still above 0
+                } else {
+                    message.info("Bài thi đã kết thúc!")
+                    setFullScreen(false)
+                    setTimeout(() => {
+                        navi('/');
+                    }, 500);
+                    clearInterval(contestTimer); // Clear the interval when timeLeft reaches 0
+                    return 0; // Ensure timeLeft does not go negative
+                }
+            });
         }, 1000);
-    
+
         // Cleanup the interval when the component unmounts
         return () => clearInterval(contestTimer);
-      }, []);
+    }, [initDataDone]);
 
 
     // Handle Start Button Click

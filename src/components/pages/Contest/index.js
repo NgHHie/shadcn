@@ -92,7 +92,7 @@ const ContestPage = () => {
                     // Render the list of contests if `contestJoined` is not empty
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {contestJoined.map((contest) => (
-                            <ContestCard key={contest.id} contest={contest} joinStatus={contestJoinStatus} />
+                            <ContestCard key={contest.id} contest={contest} joinStatus={contestJoinStatus} isJoined={true}/>
                         ))}
                     </div>
                 )}

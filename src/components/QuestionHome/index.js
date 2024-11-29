@@ -41,8 +41,8 @@ const QuestionHome = () => {
         setFilter(filterTemp);
     };
 
-    const getQuestions = async (page) => {
-        const params = { page: page ? page - 1 : 0, size: PAGE_SIZE_QUESTION };
+    const getQuestions = async () => {
+        const params = { page: pagination?.current - 1 > 0 ? pagination?.current - 1  : 0, size: pagination?.pageSize };
         if (filter) {
             // Add filter fields dynamically if they have valid values
             Object.keys(filter).forEach((key) => {
@@ -216,6 +216,7 @@ const QuestionHome = () => {
                     pageSize={pagination.pageSize}
                     total={pagination.total}
                     onChange={handleChangePage}
+                    showSizeChanger
                 />
             </div>
         </div>

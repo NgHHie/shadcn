@@ -6,7 +6,7 @@ import { joinContest } from '../../../../services/contestService';
 import { CONTEST_MODE, CONTEST_STATUS, CONTEST_TYPE } from '../../../../config/data';
 import { useNavigate } from 'react-router-dom';
 
-const ContestCard = ({ contest, joinStatus }) => {
+const ContestCard = ({ contest, joinStatus, isJoined}) => {
     const { user } = useContext(GlobalContext)
     const [contestJoined, setContestJoined] = useState([])
     const navi = useNavigate()
@@ -64,7 +64,7 @@ const ContestCard = ({ contest, joinStatus }) => {
 
     return (
         <div key={contest.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">{contest.name}</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2 line-clamp-2">{contest.name}</h2>
 
             {/* Contest Description */}
             <div className="mb-4 line-clamp-3">
@@ -122,10 +122,10 @@ const ContestCard = ({ contest, joinStatus }) => {
             </p>
 
             {/* Join Button */}
-            {hasUserJoinedContest(contest?.id) ? (
-                contest?.status === CONTEST_STATUS.OPEN ? (
+            {hasUserJoinedContest(contest?.id) || isJoined ? (
+                contest?.status === CONTEST_STATUS.OPEN || (contest?.mode === CONTEST_MODE.EXAM && contest?.status !== CONTEST_STATUS.CLOSE) ? (
                     <Button type="primary" className="w-full bg-primary hover:!bg-[#e74c3c]" onClick={() => handleDoContest(contest?.id)}>
-                        Vào làm bài
+                        {contest?.status === CONTEST_STATUS.OPEN ? "Vào làm bài" : "Vào trang chờ"}
                     </Button>
                 ) : (
                     <Button type="primary" className="w-full bg-gray-500" disabled>
