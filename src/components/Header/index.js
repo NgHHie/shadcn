@@ -11,11 +11,13 @@ import { clearAllStorage } from '../../utils/localStorage';
 import { LogoutOutlined, ProfileOutlined, UserOutlined } from '@ant-design/icons';
 import UserActionTracker from '../common/LogAction';
 import { getNumberContestOpening } from '../../services/contestService';
+import { getNumberTopicNew } from '../../services/topicService';
 
 const Header = () => {
   const { user, clearContext } = useContext(GlobalContext)
   const [typeModal, setTypeModal] = useState(TYPE_MODAL.LOGIN)
-  const [numberContestOpen,setNumberContestOpen] = useState(0)
+  const [numberContestOpen, setNumberContestOpen] = useState(0)
+  const [numberTopicNew,setNumberTopicNew] = useState(0)
   const navi = useNavigate()
   const [stateApp, setStateApp] = useState({
     showLogin: false,
@@ -49,16 +51,26 @@ const Header = () => {
   const handleCloseLogin = () => {
     setStateApp({ ...stateApp, showLogin: false })
   }
-  const getNumberContestOpen = () => {
+  const initCountNumber = () => {
     getNumberContestOpening()
       .then(response => {
         setNumberContestOpen(response?.number)
       })
+      .catch(err => {
+
+      })
+    getNumberTopicNew()
+      .then(response => {
+        setNumberTopicNew(response?.topicCount)
+      })
+      .catch(err => {
+        
+      })
   }
 
   useEffect(() => {
-    getNumberContestOpen()
-  },[user])
+    initCountNumber()
+  }, [user])
 
   return (
     <header className="header-container p-2">
@@ -79,8 +91,12 @@ const Header = () => {
               </Badge>
             </Tooltip>
           </li>
-          {/* <li><Link to="/cong-dong">Cộng Đồng</Link></li>
-          <li><Link to="/thong-tin">Thông Tin</Link></li> */}
+          <li>
+            <Badge count={numberTopicNew} offset={[12, -5]} className='cursor-pointer'>
+            <Link to="/discuss">Thảo luận</Link>
+          </Badge>
+          </li>
+          {/* <li><Link to="/thong-tin">Thông Tin</Link></li> */}
         </ul>
       </nav>
       <CommonModal typeModal={typeModal} stateApp={stateApp} onClose={handleCloseLogin}></CommonModal>

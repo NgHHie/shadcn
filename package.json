@@ -57,6 +57,7 @@
     "@types/sockjs-client": "^1.5.4",
     "autoprefixer": "^10.4.19",
     "env-cmd": "^10.1.0",
+    "javascript-obfuscator": "^4.1.1",
     "postcss": "^8.4.40",
     "resolve-url-loader": "^5.0.0",
     "sass-loader": "^14.2.1",

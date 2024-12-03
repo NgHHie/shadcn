@@ -39,7 +39,7 @@ const TopUser = ({ data, totalElements, onPage, loading }) => {
             <tr key={index}>
               <td className="text-center">
                 <Avatar
-                  src={'/assets/avatar.png'}
+                  src={submission?.avatar ? submission?.avatar : `/assets/avatar.png`}
                   size={64}
                   alt={submission?.fullName}
                   className={submission?.rank <= 3 ? 'border-4 border-yellow-400' : ''}

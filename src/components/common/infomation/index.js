@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Form, Input, Button, DatePicker } from 'antd';
+import { Form, Input, Button, DatePicker, Upload, message, Spin, Avatar } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { fetchApiPost, responseOk } from '../../../utils/FetchUtil';
 import { ApiEnpoint } from '../../../config/ApiEnpoint';
@@ -8,9 +8,11 @@ import toast, { NotifyType } from '../../../utils/Toast';
 import { GlobalContext } from '../../../globalContext';
 import dayjs from 'dayjs';
 import { getUserInfo } from '../../../utils/masterData';
+import { uploadFile } from '../../../services/fileUploadService';
 
 const Information = ({ onClose }) => {
-    const { user,setUser } = useContext(GlobalContext)
+    const { user, setUser } = useContext(GlobalContext)
+    const [loading, setLoading] = useState(false)
 
     const [form] = Form.useForm();
 
@@ -18,6 +20,9 @@ const Information = ({ onClose }) => {
         if (values.birthDay) {
             values.birthDay = values.birthDay.format('YYYY-MM-DD');
         }
+        if(user?.avatar) {
+            values.avatar = user?.avatar
+          }
         values.username = user?.username
         const response = await fetchApiPost(ApiEnpoint.updateUser, values, MEDIA_TYPE.JSON)
         if (responseOk(response)) {
@@ -32,6 +37,42 @@ const Information = ({ onClose }) => {
         handleUpdate(values)
     };
 
+    const handleFileChange = (info) => {
+        const file = info.file;
+        if (file) {
+          const isImage = info.file.type.startsWith('image/');
+          if (!isImage) {
+            message.error('Vui lòng tải ảnh!');
+            return;
+          }
+    
+          const formData = new FormData();
+          formData.append('file', file);
+          setLoading(true)
+          uploadFile(formData)
+            .then((data) => {
+              if (data?.status === 1) {
+                setUser({ ...user, avatar: data?.url })
+              } else if (data?.status === ERROR_CODE.FILE_TOO_LARGE) {
+                message.warning("Vui lòng upload file dưới 10MB")
+              }
+              else {
+                message.error('Upload image thất bại, vui lòng thử lại.');
+              }
+            })
+            .catch((error) => {
+              message.error('Upload image thất bại, vui lòng thử lại.');
+            })
+            .finally(() => {
+              setLoading(false)
+            })
+    
+        } else {
+          message.error('Vui lòng tải lại ảnh!');
+        }
+      };
+
+      
     useEffect(() => {
         if (user) {
             form.setFieldsValue({
@@ -45,20 +86,47 @@ const Information = ({ onClose }) => {
         <div className="register-container">
             <Form
                 form={form}
-                name="Thông tin cá nhân"
                 onFinish={onFinish}
                 initialValues={{ remember: true }}
                 scrollToFirstError
                 className="register-form"
             >
                 <div className='logo-container'>
-                    <h2>
+                    <h2 className='text-[18px]'>
                         Thông tin cá nhân
                     </h2>
 
                 </div>
+                <div className="flex justify-center mt-4 mb-4">
+                    <Upload
+                        accept="image/*"
+                        name="avatar"
+                        showUploadList={false}
+                        beforeUpload={() => false}
+                        maxCount={1}
+                        onChange={(info) => handleFileChange(info)}
+                        loading={true}
+                    >
+                        {
+                            loading ? (
+                                <div className='text-center'>
+                                    <Spin></Spin>
+                                    <p className='mt-2'>Đang tải</p>
+                                </div>
+                            ) : (
+                                <Avatar
+                                    size={120}
+                                    src={user?.avatar ? user?.avatar : '/assets/upload.jpg'} // Set imageUrl as the avatar source
+                                    shape="circle"
+                                >
+                                </Avatar>
+                            )
+                        }
+
+                    </Upload>
+                </div>
                 <Form.Item
-                label="First Name"
+                    label="First Name"
                     name="firstName"
                     wrapperCol={{ span: 24 }}
                     labelCol={{ span: 24 }}

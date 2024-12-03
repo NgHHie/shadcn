@@ -20,8 +20,11 @@ function Layout() {
                     navi(`/contest-wating/${response?.id}`)
                 }
             })
+            .catch(err => {
+                
+            })
     }
-    
+
     useEffect(() => {
         checkContestRunning()
     }, [user])

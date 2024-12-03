@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Button, Input, Tabs, Tag, Upload } from 'antd';
+import { Button, Input, message, Tabs, Tag, Upload } from 'antd';
 import './style.scss';
 import { fetchApiGet, fetchApiPost, fetchApiUploadFile, responseOk } from '../../../utils/FetchUtil';
 import { ApiEnpoint } from '../../../config/ApiEnpoint';
@@ -19,7 +19,7 @@ import CommentSection from '../Comment';
 const { TextArea } = Input;
 
 const QuestionDetail = ({ questionContest }) => {
-    const { questionId, questionContestId } = useParams()
+    const { questionId, questionContestId, contestId } = useParams()
     const [question, setQuestion] = useState({})
     const [sqlCommand, setSqlCommand] = useState('');
     const [submitHistory, setSubmitHistory] = useState([])
@@ -116,6 +116,9 @@ const QuestionDetail = ({ questionContest }) => {
         formData.append('questionContestId', questionContestId);
         formData.append('typeDatabaseId', selectData)
         formData.append('isSubmitContest', questionContestId ? true : false)
+        if (contestId) {
+            formData.append('contestId', contestId)
+        }
 
         const response = await fetchApiUploadFile(formData)
         if (responseOk(response)) {
@@ -150,33 +153,42 @@ const QuestionDetail = ({ questionContest }) => {
             toast(NotifyType.WARNING, "Vui lòng chọn database!")
             return;
         }
-        const data = {
+        let data = {
             'sql': sqlCommand,
             'questionId': question?.id,
             'questionContestId': questionContestId ? questionContestId : null,
             'typeDatabaseId': selectData,
             'isSubmitContest': questionContestId ? true : false
         }
+        if (contestId) {
+            data['contestId'] = contestId
+        }
         setLoadingSubmit(true)
         const response = await fetchApiPost(ApiEnpoint.submitQuestion, data, MEDIA_TYPE.JSON)
         if (response !== null) {
-            setSubmitHistory((prevHistory) => {
-                // Update the specific submission
-                const updatedHistory = [...(prevHistory || []), {
-                    id: response.data?.submitId,
-                    time: new Date().toISOString(), // Update time with response time or specific time if needed
-                    status: response.data.statusSubmit,
-                    timeSubmit: response.data.timeSubmit,
-                    timeout: response.data.timeExec,
-                    testPass: response.data?.testPass,
-                    totalTest: response.data?.totalTest,
-                    question: { title: question?.title },
-                    user: { userCode: user?.userCode, fullName: `${user?.firstName} ${user?.lastName}` }
-                }]
-                // Sort the updated array by created_at or time in descending order (most recent first)
-                updatedHistory.sort((a, b) => new Date(b?.timeSubmit) - new Date(a?.timeSubmit));
-                return updatedHistory.slice(0, PAGE_SIZE);
-            });
+            if (responseOk(response)) {
+                setSubmitHistory((prevHistory) => {
+                    // Update the specific submission
+                    const updatedHistory = [...(prevHistory || []), {
+                        id: response.data?.submitId,
+                        time: new Date().toISOString(), // Update time with response time or specific time if needed
+                        status: response.data.statusSubmit,
+                        timeSubmit: response.data.timeSubmit,
+                        timeout: response.data.timeExec,
+                        testPass: response.data?.testPass,
+                        totalTest: response.data?.totalTest,
+                        question: { title: question?.title },
+                        user: { userCode: user?.userCode, fullName: `${user?.firstName} ${user?.lastName}` }
+                    }]
+                    // Sort the updated array by created_at or time in descending order (most recent first)
+                    updatedHistory.sort((a, b) => new Date(b?.timeSubmit) - new Date(a?.timeSubmit));
+                    return updatedHistory.slice(0, PAGE_SIZE);
+                });
+            } else {
+                console.log(response)
+                message.warning(response?.data?.description)
+            }
+
         }
         setLoadingSubmit(false)
     }

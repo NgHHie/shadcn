@@ -13,6 +13,8 @@ import ExamPage from './components/pages/Contest/doContest';
 import ContestWaitingPage from './components/pages/Contest/watingPage';
 import ContestInfo from './components/pages/Contest/components/contestInfo';
 import TableQuestionContest from './components/pages/Contest/components/contestTable';
+import Discuss from './components/pages/Discuss';
+import DiscussDetail from './components/pages/Discuss/Components/DiscussDetail';
 function App() {
   return (
     <div>
@@ -24,6 +26,8 @@ function App() {
             <Route path='/question-detail/:questionId' element={<QuestionDetail></QuestionDetail>}></Route>
             <Route path='/question-detail/:questionId/:questionContestId' element={<QuestionDetail></QuestionDetail>}></Route>
             <Route path='/submit-history' element={<SubmitPage></SubmitPage>}></Route>
+            <Route path='/discuss' element={<Discuss></Discuss>}></Route>
+            <Route path='/discuss/:topicId' element={<DiscussDetail></DiscussDetail>}></Route>
             <Route path='/top-user' element={<TopUserPage></TopUserPage>}></Route>
             <Route path='/contest' element={<ContestPage></ContestPage>}></Route>
             <Route path='/contest-wating/:contestId' element={<ContestWaitingPage></ContestWaitingPage>}></Route>

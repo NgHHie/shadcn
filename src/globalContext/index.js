@@ -16,6 +16,9 @@ const GlobalProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [currentContest,setCurrentContest] = useState({})
   const [fullScreen,setFullScreen] = useState(false)
+  const [appState, setAppState] = useState({
+    showCreateDiscusstionModal: false,
+  });
 
   const clearContext = () => {
     setUser(initialState.user);
@@ -45,7 +48,7 @@ const GlobalProvider = ({ children }) => {
   }
 
   return (
-    <GlobalContext.Provider value={{ user, setUser,currentContest,setCurrentContest,fullScreen,setFullScreen,clearContext}}>
+    <GlobalContext.Provider value={{ user, setUser,currentContest,setCurrentContest,fullScreen,setFullScreen,clearContext,appState, setAppState}}>
       {children}
     </GlobalContext.Provider>
   );

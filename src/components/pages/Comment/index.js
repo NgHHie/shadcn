@@ -6,34 +6,35 @@ import { GlobalContext } from '../../../globalContext';
 import { getCommentByQuestionId, sendComment } from '../../../services/commentService';
 import { DownOutlined, LoadingOutlined } from '@ant-design/icons';
 import { PAGE_SIZE } from '../../../config/data';
+import { formatCountNumber } from '../../../utils/Util';
 
 
 
-function CommentSection({ questionId }) {
+function CommentSection({ parentId }) {
   const { user } = useContext(GlobalContext)
   const [comments, setComments] = useState([]);
   const [newMessage, setNewMessage] = useState({});
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const commentsEndRef = useRef(null); 
+  const [totalMessage,setTotalMessage] = useState(0)
 
   // Function to load comments
   const loadMoreComments = async () => {
     if (loading || !hasMore) return;
     setLoading(true);
-    console.log('aaaaaaaaaa ',hasMore)
     try {
       const params = {
         page: page,
         size: PAGE_SIZE
       }
-      const response = await getCommentByQuestionId(questionId, params)
+      const response = await getCommentByQuestionId(parentId, params)
       const newComments = response?.content;
       if (!newComments) {
         setHasMore(false)
         return
       }
+      setTotalMessage(response?.totalElements)
       setComments((prevComments) => [...prevComments, ...newComments]);
       setHasMore(!response?.last);
       setPage((prevPage) => prevPage + 1);
@@ -56,33 +57,22 @@ function CommentSection({ questionId }) {
       user: {
         id: user?.id
       },
-      question: {
-        id: questionId
-      }
+      parentId: parentId
     };
 
     sendComment(newComment)
       .then(response => {
         const res = {
           ...response,
-          user: {
-            id: user?.id,
-            firstName: user?.firstName,
-            lastName: user?.lastName
-          }
+          user: user
         }
-        setComments([...comments, res]);
+        setComments([res, ...comments]);
         setNewMessage({})
-        scrollToBottom();
+      })
+      .catch(err => {
+
       })
 
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault(); // Prevents form submission if wrapped in a form element
-      handleSendComment();
-    }
   };
 
   const updateComment = (updatedComment) => {
@@ -103,22 +93,16 @@ function CommentSection({ questionId }) {
     </div>
   ) : null;
   
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100); // Small delay to ensure rendering
-  };
-
   useEffect(() => {
     loadMoreComments()
   }, [])
 
   return (
     <div className="p-6 bg-gray-100 rounded-lg overflow-hidden">
-      {/* New Comment Input Area at the Top */}
+      <div className='text-gray-500'>{formatCountNumber(totalMessage)} bình luận</div>
       <div className="flex items-start py-5 border-b border-gray-300 mb-5">
         {/* User Avatar */}
-        <Avatar src="/assets/avatar.png" />
+        <Avatar src={user?.avatar ? user?.avatar : '/assets/avatar.png'}  />
 
         {/* Comment Input Area */}
         <div className="flex-1">
@@ -150,19 +134,18 @@ function CommentSection({ questionId }) {
       </div>
 
       {/* Scrollable List of Comments */}
-      <div className="h-[80vh] overflow-y-auto mt-4">
+      <div className="max-h-[70vh] overflow-y-auto mt-4">
         <List
           itemLayout="horizontal"
           dataSource={comments}
           loadMore={loadMore}
           renderItem={(comment) => (
             <List.Item key={comment?.id}>
-              {/* Use your existing Comment component to render each item */}
               <Comment comment={comment} onData={updateComment}/>
             </List.Item>
           )}
         />
-        <div ref={commentsEndRef} />
+        <div />
       </div>
     </div>
   );

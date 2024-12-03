@@ -3,12 +3,20 @@ import { format } from 'date-fns';
 export function formatDate(dateString) {
     try {
         const date = new Date(dateString);
+        
         return format(date, 'HH:mm dd/MM/yyyy');
       } catch (error) {
         console.error('Invalid date format:', dateString);
         return 'Invalid date';
       }
 }
+
+export function getFullName(lastNameStr,firstNameStr) {
+  const lastName = lastNameStr ?? '';
+  const firstName = firstNameStr ?? '';
+  return `${lastName} ${firstName}`.trim();
+}
+
 
 export const getUrlPage = (api, page, size) => {
   const hasQueryParams = api.includes('?');
