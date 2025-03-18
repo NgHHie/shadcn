@@ -42,7 +42,7 @@ const QuestionHome = () => {
     };
 
     const getQuestions = async () => {
-        const params = { page: pagination?.current - 1 > 0 ? pagination?.current - 1  : 0, size: pagination?.pageSize };
+        const params = { page: pagination?.current - 1 > 0 ? pagination?.current - 1 : 0, size: pagination?.pageSize };
         if (filter) {
             // Add filter fields dynamically if they have valid values
             Object.keys(filter).forEach((key) => {
@@ -51,8 +51,8 @@ const QuestionHome = () => {
                 }
             });
         }
-        const data = await fetchApiGet(ApiEnpoint.getQuestionList, params)
         setLoading(true)
+        const data = await fetchApiGet(ApiEnpoint.getQuestionList, params)
         if (responseOk(data)) {
             setQuestions(data.data?.content)
             setPagination({
@@ -93,7 +93,7 @@ const QuestionHome = () => {
         return ''; // Trả về chuỗi rỗng nếu không có màu đặc biệt
     };
 
-    const handleChangePage = (page,size) => {
+    const handleChangePage = (page, size) => {
         setPagination({
             ...pagination,
             current: page,
@@ -175,7 +175,7 @@ const QuestionHome = () => {
     useEffect(() => {
         getQuestions()
 
-    }, [user,pagination?.current,pagination?.pageSize,filter])
+    }, [user, pagination?.current, pagination?.pageSize, filter])
 
     return (
         <div className="database-list-container">
@@ -188,30 +188,20 @@ const QuestionHome = () => {
                     className='w-[20%] rounded-full'
                 />
             </div>
-            {
-                loading ? (
-                    <div className="spin-center">
-                        <div className='flex flex-col'>
-                            <Spin></Spin>
-                            <p>Loading...</p>
-                        </div>
+            <Table
+                className="database-table"
+                loading={loading}
+                columns={columns}
+                dataSource={questions}
+                rowKey={(record) => record.id}
+                rowClassName={(record) => `${getColorQuestionComplete(record.id)}`}
+                pagination={false} // Adjust page size as needed
+            />
 
-                    </div>
-                ) : (
-                    <Table
-                        className="database-table"
-                        columns={columns}
-                        dataSource={questions}
-                        rowKey={(record) => record.id}
-                        rowClassName={(record) => `${getColorQuestionComplete(record.id)}`}
-                        pagination={false} // Adjust page size as needed
-                    />
-                )
-            }
 
             <div className='empty-div'></div>
             <div className='pagination-container pagination-custom mt-3'>
-            <Pagination
+                <Pagination
                     defaultCurrent={pagination.current}
                     pageSize={pagination.pageSize}
                     total={pagination.total}

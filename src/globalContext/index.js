@@ -18,6 +18,7 @@ const GlobalProvider = ({ children }) => {
   const [fullScreen,setFullScreen] = useState(false)
   const [appState, setAppState] = useState({
     showCreateDiscusstionModal: false,
+    showUserQueryDetailModal: false
   });
 
   const clearContext = () => {

@@ -7,12 +7,14 @@ import Footer from "../components/Footer";
 import { useContext, useEffect } from "react";
 import { GlobalContext } from "../globalContext";
 import { getCurrentContestExamRunning } from "../services/contestService";
+import usePageTracking from "../components/common/PageTracking";
 
 function Layout() {
     const { fullScreen } = useContext(GlobalContext)
     const { user } = useContext(GlobalContext)
     const navi = useNavigate()
 
+    usePageTracking()
     const checkContestRunning = () => {
         getCurrentContestExamRunning()
             .then(response => {

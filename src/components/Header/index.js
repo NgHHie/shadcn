@@ -2,22 +2,21 @@
 import React, { useContext, useEffect, useState } from 'react';
 import './style.scss';
 import { Link, useNavigate } from 'react-router-dom';
-import { Badge, Button, Dropdown, Menu, Tooltip } from 'antd';
+import { Avatar, Badge, Button, Dropdown, Menu, Tooltip } from 'antd';
 import { GlobalContext } from '../../globalContext';
-import { appState } from '../../config/models';
 import CommonModal from '../common/modal';
 import { TYPE_MODAL } from '../../config/data';
 import { clearAllStorage } from '../../utils/localStorage';
 import { LogoutOutlined, ProfileOutlined, UserOutlined } from '@ant-design/icons';
-import UserActionTracker from '../common/LogAction';
 import { getNumberContestOpening } from '../../services/contestService';
 import { getNumberTopicNew } from '../../services/topicService';
+import { getFullName } from '../../utils/Util';
 
 const Header = () => {
   const { user, clearContext } = useContext(GlobalContext)
   const [typeModal, setTypeModal] = useState(TYPE_MODAL.LOGIN)
   const [numberContestOpen, setNumberContestOpen] = useState(0)
-  const [numberTopicNew,setNumberTopicNew] = useState(0)
+  const [numberTopicNew, setNumberTopicNew] = useState(0)
   const navi = useNavigate()
   const [stateApp, setStateApp] = useState({
     showLogin: false,
@@ -64,7 +63,7 @@ const Header = () => {
         setNumberTopicNew(response?.topicCount)
       })
       .catch(err => {
-        
+
       })
   }
 
@@ -80,22 +79,38 @@ const Header = () => {
       <nav className="header-nav">
         <ul>
           <li><Link to="/">Bài Tập</Link></li>
-          <li><Link to="/submit-history">Lịch sử</Link></li>
-          <li><Link to="/top-user">Bảng xếp hạng</Link></li>
-          <li>
-            <Tooltip title={`${numberContestOpen} contest đang mở`}>
-              <Badge count={numberContestOpen} offset={[12, -5]} className='cursor-pointer'>
-                <Link to="/contest" style={{ textDecoration: "none" }}>
-                  Các cuộc thi
-                </Link>
-              </Badge>
-            </Tooltip>
-          </li>
-          <li>
-            <Badge count={numberTopicNew} offset={[12, -5]} className='cursor-pointer'>
-            <Link to="/discuss">Thảo luận</Link>
-          </Badge>
-          </li>
+          {
+            user && (
+              <li><Link to="/submit-history">Lịch sử</Link></li>
+            )
+          }
+          {
+            user && (
+              <li><Link to="/top-user">Bảng xếp hạng</Link></li>
+            )
+          }
+          {
+            user && (
+              <li>
+                <Tooltip title={`${numberContestOpen} contest đang mở`}>
+                  <Badge count={numberContestOpen} offset={[12, -5]} className='cursor-pointer'>
+                    <Link to="/contest" style={{ textDecoration: "none" }}>
+                      Các cuộc thi
+                    </Link>
+                  </Badge>
+                </Tooltip>
+              </li>
+            )
+          }
+          {
+            user && (
+              <li>
+                <Badge count={numberTopicNew} offset={[12, -5]} className='cursor-pointer'>
+                  <Link to="/discuss">Thảo luận</Link>
+                </Badge>
+              </li>
+            )
+          }
           {/* <li><Link to="/thong-tin">Thông Tin</Link></li> */}
         </ul>
       </nav>
@@ -104,14 +119,19 @@ const Header = () => {
         {
           user ? (
             <Dropdown overlay={menu} trigger={['click']} placement="topRight" arrow>
-              <img src='/assets/user.png' alt="avt"></img>
+              <Avatar
+                className="w-10 h-10 flex justify-center items-center"
+                src={user?.avatar ? user?.avatar : '/assets/avatar.png'}
+              >
+                {user?.firstName ? user.firstName[0].toUpperCase() : null}
+              </Avatar>
             </Dropdown>
           ) : (
             <button className='btn-submit btn-login-custom' onClick={() => handleShowLogin(TYPE_MODAL.LOGIN)}>Đăng nhập</button>
           )
         }
-
       </div>
+
     </header>
   );
 }

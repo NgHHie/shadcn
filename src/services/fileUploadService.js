@@ -1,7 +1,7 @@
 import axiosInstance from "../axios/axiosIntance";
 
 export const uploadFile = async(formData) => {
-    const { data } = await axiosInstance.post("/api/media/upload", formData, {
+    const { data } = await axiosInstance.post("/api/manager/media/upload", formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },

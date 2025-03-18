@@ -90,5 +90,6 @@ export const ERROR_CODE = {
 
 export const ROLE_NAME = {
   STUDENT: 'STUDENT',
-  ADMIN: 'ADMIN'
+  ADMIN: 'ADMIN',
+  SUPERADMIN: 'SUPERADMIN'
 }

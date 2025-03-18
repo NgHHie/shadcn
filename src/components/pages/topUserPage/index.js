@@ -5,6 +5,7 @@ import { CONTEST_TYPE, PAGE_SIZE } from "../../../config/data";
 
 export const TopUserPage = () => {
     const [data,setData] = useState([])
+    const [loading,setLoading] = useState(false)
     const [pagination, setPagination] = useState({
         current: 0,
         pageSize: PAGE_SIZE,
@@ -16,6 +17,7 @@ export const TopUserPage = () => {
             page: page - 1 >= 0 ? page - 1 : 0,
             size: pagination.pageSize
         }
+        setLoading(true)
         getTopUser({contestType: CONTEST_TYPE.PRACTICE},params)
          .then(response => {
             console.log(response)
@@ -26,6 +28,12 @@ export const TopUserPage = () => {
                 total: response?.totalElements
             })
          })
+         .catch(err => {
+
+         })
+         .finally(() => {
+            setLoading(false)
+         })
     }
 
     useEffect(() => {
@@ -33,6 +41,6 @@ export const TopUserPage = () => {
     },[])
 
     return(
-        <TopUser data={data} totalElements={pagination?.total} onPage={getPage}></TopUser>
+        <TopUser data={data} totalElements={pagination?.total} onPage={getPage} loading={loading}></TopUser>
     );
 }

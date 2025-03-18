@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { Button, Input, message, Tabs, Tag, Upload } from 'antd';
@@ -9,14 +9,17 @@ import { useParams } from 'react-router-dom';
 import SqlEditor from '../../Ide';
 import SubmitHistory from '../../common/submitHistory/submitHis';
 import { MEDIA_TYPE, PAGE_SIZE } from '../../../config/data';
-import { v4 as uuidv4 } from 'uuid';
 import { getUrlPage, isValid } from '../../../utils/Util';
 import { GlobalContext } from '../../../globalContext';
 import { disconnectSocket, getSocket } from '../../../config/SocketConfig';
 import toast, { NotifyType } from '../../../utils/Toast';
-import { CommentOutlined, FileTextOutlined, HistoryOutlined, LeftOutlined, UploadOutlined } from '@ant-design/icons';
+import { CommentOutlined, FileTextOutlined, HistoryOutlined } from '@ant-design/icons';
 import CommentSection from '../Comment';
 const { TextArea } = Input;
+
+const QuestionContent = memo(({ content }) => {
+    return <ReactQuill value={content} readOnly={true} theme="bubble" />;
+});
 
 const QuestionDetail = ({ questionContest }) => {
     const { questionId, questionContestId, contestId } = useParams()
@@ -132,7 +135,7 @@ const QuestionDetail = ({ questionContest }) => {
                     timeout: response.data.timeExec,
                     testPass: response.data?.testPass,
                     totalTest: response.data?.totalTest,
-                    question: { title: question?.title },
+                    question: { title: question?.title,questionCode: question?.questionCode },
                     user: { userCode: user?.userCode, fullName: `${user?.firstName} ${user?.lastName}` }
                 }]
                 // Sort the updated array by created_at or time in descending order (most recent first)
@@ -177,7 +180,7 @@ const QuestionDetail = ({ questionContest }) => {
                         timeout: response.data.timeExec,
                         testPass: response.data?.testPass,
                         totalTest: response.data?.totalTest,
-                        question: { title: question?.title },
+                        question: { title: question?.title,questionCode: question?.questionCode },
                         user: { userCode: user?.userCode, fullName: `${user?.firstName} ${user?.lastName}` }
                     }]
                     // Sort the updated array by created_at or time in descending order (most recent first)
@@ -260,7 +263,7 @@ const QuestionDetail = ({ questionContest }) => {
 
                                     <Tag className='ml-3' color='blue'>{question?.type}</Tag>
                                 </h2>
-                                <ReactQuill value={question?.content} readOnly={true} theme="bubble" />
+                                <QuestionContent content={question?.content} />
                             </div>
                         </div>
                     </Tabs.TabPane>
@@ -278,7 +281,7 @@ const QuestionDetail = ({ questionContest }) => {
                                 {/* Container to allow scrolling for "Thảo luận" */}
                                 <div className="">
                                     <div className="discussion-container">
-                                        <CommentSection questionId={question?.id}></CommentSection>
+                                        <CommentSection parentId={question?.id}></CommentSection>
                                     </div>
                                 </div>
                             </Tabs.TabPane>
