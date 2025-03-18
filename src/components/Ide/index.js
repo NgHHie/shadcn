@@ -12,7 +12,7 @@ import { GlobalContext } from '../../globalContext';
 
 const { Option } = Select;
 const MemoizedEditor = React.memo(Editor);
-const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, databases,onSelectData, hasSubmit }) => {
+const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, databases, onSelectData, hasSubmit }) => {
   const [results, setResults] = useState([])
   const [theme, setTheme] = useState('vs-light');
   const [loading, setLoading] = useState(false)
@@ -20,11 +20,18 @@ const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, data
   const [update, setUpdate] = useState(0)
   const { user } = useContext(GlobalContext)
   const [isTerminalVisible, setTerminalVisible] = useState(false);
-  const [selectDatabaseId,setSelectDatabaseId] = useState('')
+  const [selectDatabaseId, setSelectDatabaseId] = useState('')
 
   const toggleTerminalVisibility = () => {
     setTerminalVisible(!isTerminalVisible);
   };
+
+  useEffect(() => {
+    if (databases?.length > 0) {
+      handleSelectData(databases[0]?.typeDatabase?.id)
+    }
+
+  }, [databases])
 
   useEffect(() => {
     if (query) {
@@ -41,7 +48,7 @@ const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, data
 
   const handleSelectData = (value) => {
     setSelectDatabaseId(value)
-    if(onSelectData) {
+    if (onSelectData) {
       onSelectData(value)
     }
   }
@@ -50,7 +57,7 @@ const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, data
       toast(NotifyType.WARNING, "Vui lòng đăng nhập!")
       return
     }
-    if(!selectDatabaseId) {
+    if (!selectDatabaseId) {
       toast(NotifyType.WARNING, "Vui lòng chọn database!")
       return
     }
@@ -73,7 +80,7 @@ const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, data
       setResults(response?.data)
       setTerminalVisible(true)
     } else {
-      if(response?.data) {
+      if (response?.data) {
         setResults(response?.data)
         setTerminalVisible(true)
       } else {
@@ -97,6 +104,7 @@ const SqlEditor = ({ query, setQuery, prefixCode, notifyUpdate, questionId, data
             style={{ width: 150 }}
             placeholder="Chọn database"
             onChange={(value) => handleSelectData(value)}
+            value={selectDatabaseId}
           >
             {databases &&
               databases.map((db) => (

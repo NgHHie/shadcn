@@ -43,12 +43,12 @@ export const getSocket = () => {
 
 export const attemptReconnect = () => {
     reconnectAttempts++;
-    console.log(`Reconnection attempt ${reconnectAttempts}...`);
+    // console.log(`Reconnection attempt ${reconnectAttempts}...`);
 
     // Set a retry timer (adjustable)
     setTimeout(() => {
         if (stompClient && !stompClient.connected) {
-            console.log('Reactivating the socket...');
+            // console.log('Reactivating the socket...');
             stompClient.activate(); // Try to activate again
         }
 

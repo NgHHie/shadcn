@@ -6,9 +6,7 @@ iframe
 {
     display: none;
 }
-.error {
-  display: none;
-}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

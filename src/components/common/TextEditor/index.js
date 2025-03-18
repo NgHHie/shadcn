@@ -1,10 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import the styles
 import './style.scss'
 import { formats } from '../../../config/quillConfig';
 import { message } from 'antd';
 import { uploadFile } from '../../../services/fileUploadService';
+
+const Size = Quill.import('attributors/style/size');
+Size.whitelist = ['12px', '14px', '16px', '18px', '20px', '22px', '24px', '28px', '32px', '36px'];
+Quill.register(Size, true);
 
 const TextEditor = ({ value, onChange }) => {
   const reactQuillRef = useRef(null);
@@ -96,8 +100,9 @@ const TextEditor = ({ value, onChange }) => {
         modules={{
           toolbar: {
             container: [
-              [{ header: "1" }, { header: "2" }, { font: [] }],
-              [{ size: [] }],
+              [{ header: [1, 2, 3, 4, 5, 6, false] }],
+              [{font: []}],
+              [{ size: ['12px', '14px', '16px', '18px', '20px','22px', '24px', '28px', '32px', '36px'] }],
               ["bold", "italic", "underline", "strike", "blockquote"],
               [
                 { list: "ordered" },

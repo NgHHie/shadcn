@@ -15,6 +15,16 @@ import ContestInfo from './components/pages/Contest/components/contestInfo';
 import TableQuestionContest from './components/pages/Contest/components/contestTable';
 import Discuss from './components/pages/Discuss';
 import DiscussDetail from './components/pages/Discuss/Components/DiscussDetail';
+
+import ReactGA from "react-ga4";
+
+// Initialize Google Analytics with your Measurement ID
+ReactGA.initialize("G-P64MHK0MR8"); // Replace with your Measurement ID
+
+// Log the initial pageview
+ReactGA.send("pageview");
+
+
 function App() {
   return (
     <div>

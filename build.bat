@@ -1,7 +1,7 @@
 @echo off
 
 REM Set environment variables for Docker registry
-set IMAGE_NAME=cuuvivan29/learnsql-web
+set IMAGE_NAME=registry.gitlab.com/learn-sql-system/learnsql-web
 set IMAGE_TAG=1.0.6
 
 echo Building web ...
