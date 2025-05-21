@@ -19,62 +19,9 @@ import { QueryHistoryItem } from "@/types/sales";
 
 // Import dữ liệu lịch sử truy vấn với kiểu đúng
 import queryHistoryDataJson from "./data/query-history-mock-data.json";
+import { SqlEditor } from "./sql-editor";
 const queryHistoryData: QueryHistoryItem[] =
   queryHistoryDataJson as QueryHistoryItem[];
-
-// SQL keywords để highlight syntax
-const SQL_KEYWORDS = [
-  "SELECT",
-  "FROM",
-  "WHERE",
-  "GROUP BY",
-  "ORDER BY",
-  "HAVING",
-  "JOIN",
-  "LEFT JOIN",
-  "RIGHT JOIN",
-  "INNER JOIN",
-  "FULL JOIN",
-  "UNION",
-  "INSERT",
-  "UPDATE",
-  "DELETE",
-  "CREATE",
-  "ALTER",
-  "DROP",
-  "TABLE",
-  "VIEW",
-  "INDEX",
-  "PROCEDURE",
-  "FUNCTION",
-  "TRIGGER",
-  "AS",
-  "ON",
-  "AND",
-  "OR",
-  "NOT",
-  "NULL",
-  "IS",
-  "IN",
-  "BETWEEN",
-  "LIKE",
-  "DISTINCT",
-  "COUNT",
-  "SUM",
-  "AVG",
-  "MAX",
-  "MIN",
-  "CASE",
-  "WHEN",
-  "THEN",
-  "ELSE",
-  "END",
-  "EXISTS",
-  "ALL",
-  "ANY",
-  "SOME",
-  "INTERVAL",
-];
 
 export function SalesAnalyticsDashboard() {
   const [sqlQuery, setSqlQuery] = useState(`SELECT
@@ -93,10 +40,11 @@ WHERE 0=0
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [editorHeight, setEditorHeight] = useState(200); // Chiều cao mặc định của editor
   const [isDragging, setIsDragging] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
-  const minEditorHeight = 100;
-  const maxEditorHeight = 500;
+  const minEditorHeight = 50;
+  const maxEditorHeight = 800;
 
   // Xử lý kéo đổi kích thước
   const startDragging = (e: React.MouseEvent) => {
@@ -154,47 +102,6 @@ WHERE 0=0
     }
   }, []);
 
-  // Format SQL với line numbers và syntax highlighting
-  const formatSqlWithLineNumbers = () => {
-    const lines = sqlQuery.split("\n");
-
-    return lines.map((line, i) => {
-      let formattedLine = line;
-
-      // Highlight SQL keywords
-      SQL_KEYWORDS.forEach((keyword) => {
-        const regex = new RegExp(`\\b${keyword}\\b`, "gi");
-        formattedLine = formattedLine.replace(regex, (match) => {
-          return `<span class="text-primary font-medium">${match}</span>`;
-        });
-      });
-
-      // Highlight strings in quotes
-      formattedLine = formattedLine.replace(
-        /'([^']*)'/g,
-        "'<span class=\"text-green-600\">$1</span>'"
-      );
-
-      // Highlight numbers
-      formattedLine = formattedLine.replace(
-        /\b(\d+)\b/g,
-        '<span class="text-amber-600">$1</span>'
-      );
-
-      return (
-        <div key={i} className="flex whitespace-pre">
-          <span className="w-8 text-muted-foreground select-none flex-shrink-0 text-right pr-2">
-            {i + 1}
-          </span>
-          <span
-            className="text-foreground min-w-0 overflow-x-auto"
-            dangerouslySetInnerHTML={{ __html: formattedLine }}
-          />
-        </div>
-      );
-    });
-  };
-
   return (
     <div className="flex flex-col h-full w-full overflow-hidden bg-background">
       <div className="flex items-center gap-2 border-b p-2 bg-muted/30 overflow-x-auto flex-shrink-0">
@@ -246,25 +153,7 @@ WHERE 0=0
         <Card className="flex flex-col flex-1 overflow-hidden min-w-0 shadow-sm">
           <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
             {/* SQL Editor with resizable height */}
-            <div
-              className="bg-card border-b overflow-auto flex-shrink-0 relative"
-              style={{ height: `${editorHeight}px` }}
-            >
-              {/* Hidden textarea for actual input */}
-              <textarea
-                ref={editorRef}
-                value={sqlQuery}
-                onChange={handleEditorChange}
-                className="absolute inset-0 opacity-0 resize-none p-2 font-mono text-sm"
-                spellCheck={false}
-                tabIndex={0}
-              />
-
-              {/* Visual display of the code with syntax highlighting */}
-              <pre className="text-sm font-mono overflow-x-auto rounded p-2 h-full w-full pointer-events-none">
-                <code className="grid">{formatSqlWithLineNumbers()}</code>
-              </pre>
-            </div>
+            <SqlEditor height={`${editorHeight}px`} />
 
             {/* Resizable divider */}
             <div
@@ -283,11 +172,16 @@ WHERE 0=0
               <Button className="bg-primary text-white font-medium text-xs h-8 whitespace-nowrap flex-shrink-0 hover:bg-primary/90 shadow-sm transition-all duration-200 hover:shadow transform hover:-translate-y-0.5">
                 Submit
               </Button>
+
               <Button
                 variant="outline"
                 className="border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 text-xs h-8 whitespace-nowrap flex-shrink-0 transition-all duration-200 hover:border-primary/50 font-medium"
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
               >
-                Run query | Ctrl+Enter
+                <span className="transition-opacity duration-200 ease-in-out">
+                  {isHovering ? "Ctrl + Enter" : "Run query"}
+                </span>
               </Button>
               <Button
                 variant="outline"

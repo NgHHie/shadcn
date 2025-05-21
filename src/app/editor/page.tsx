@@ -3,11 +3,11 @@ import { SalesAnalyticsDashboard } from "@/components/editor/sales-analytics-das
 import { SidebarPanel } from "@/components/editor/sidebar-panel";
 
 export function Editor() {
-  const [sidebarWidth, setSidebarWidth] = useState(320); // Initial width in pixels
+  const [sidebarWidth, setSidebarWidth] = useState(500); // Initial width in pixels
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const minSidebarWidth = 240;
-  const maxSidebarWidth = 600;
+  const maxSidebarWidth = 1000;
 
   const startDragging = (e: React.MouseEvent) => {
     e.preventDefault();

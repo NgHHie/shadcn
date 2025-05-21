@@ -5,7 +5,8 @@
     "status": "AC",
     "duration": "8s",
     "result": "5/5",
-    "dbType": "PostgreSQL"
+    "dbType": "PostgreSQL",
+    "sqlCode": "SELECT DATE_TRUNC('month', opp.created_date) AS month, COUNT(*) AS opportunity_countFROM opportunity oppWHERE opp.stage_name = 'Closed Won'GRUOP BY month -- Error: Misspelled GROUP BYORDER BY month DESC"
   },
   {
     "id": 2,
@@ -13,7 +14,8 @@
     "status": "AC",
     "duration": "6s",
     "result": "4/4",
-    "dbType": "PostgreSQL"
+    "dbType": "PostgreSQL",
+    "sqlCode": "SELECT DATE_TRUNC('month', opp.created_date) AS month, COUNT(*) AS opportunity_countFROM opportunity oppWHERE opp.stage_name = 'Closed Won'GRUOP BY month -- Error: Misspelled GROUP BYORDER BY month DESC"
   },
   {
     "id": 3,
@@ -21,7 +23,8 @@
     "status": "Error",
     "duration": "2s",
     "result": "0/0",
-    "dbType": "PostgreSQL"
+    "dbType": "PostgreSQL",
+    "sqlCode": "SELECT DATE_TRUNC('month', opp.created_date) AS month, COUNT(*) AS opportunity_countFROM opportunity oppWHERE opp.stage_name = 'Closed Won'GRUOP BY month -- Error: Misspelled GROUP BYORDER BY month DESC"
   },
   {
     "id": 4,
@@ -29,7 +32,8 @@
     "status": "AC",
     "duration": "12s",
     "result": "8/8",
-    "dbType": "MySQL"
+    "dbType": "MySQL",
+    "sqlCode": "SELECT DATE_TRUNC('month', opp.created_date) AS month, COUNT(*) AS opportunity_countFROM opportunity oppWHERE opp.stage_name = 'Closed Won'GRUOP BY month -- Error: Misspelled GROUP BYORDER BY month DESC"
   },
   {
     "id": 5,
@@ -37,6 +41,7 @@
     "status": "AC",
     "duration": "5s",
     "result": "3/3",
-    "dbType": "PostgreSQL"
+    "dbType": "PostgreSQL",
+    "sqlCode": "SELECT DATE_TRUNC('month', opp.created_date) AS month, COUNT(*) AS opportunity_countFROM opportunity oppWHERE opp.stage_name = 'Closed Won'GRUOP BY month -- Error: Misspelled GROUP BYORDER BY month DESC"
   }
 ]

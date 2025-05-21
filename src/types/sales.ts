@@ -15,4 +15,5 @@ export interface QueryHistoryItem {
   duration: string;
   result: string;
   dbType: string;
+  sqlCode: string;
 }

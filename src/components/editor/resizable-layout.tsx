@@ -10,8 +10,6 @@ export function ResizableLayout() {
   const [sidebarWidth, setSidebarWidth] = useState(320); // Initial width in pixels
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const minSidebarWidth = 240;
-  const maxSidebarWidth = 600;
 
   const startDragging = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -27,8 +25,10 @@ export function ResizableLayout() {
       const containerRect = containerRef.current.getBoundingClientRect();
       const newWidth = e.clientX - containerRect.left;
 
-      // Apply constraints
-      if (newWidth >= minSidebarWidth && newWidth <= maxSidebarWidth) {
+      const maxWidth = containerRect.width * 0.8; // 80% width của container
+      const minWidth = 200; // width tối thiểu
+
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
         setSidebarWidth(newWidth);
       }
     }

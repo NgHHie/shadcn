@@ -1,6 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { QueryHistoryItem } from "@/types/sales";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface QueryHistoryPanelProps {
   isOpen: boolean;
@@ -15,6 +23,16 @@ export function QueryHistoryPanel({
   queryHistory,
   onSelectQuery,
 }: QueryHistoryPanelProps) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedQuery, setSelectedQuery] = useState<QueryHistoryItem | null>(
+    null
+  );
+
+  const handleQueryClick = (query: QueryHistoryItem) => {
+    setSelectedQuery(query);
+    setDialogOpen(true);
+  };
+
   return (
     <div
       className={`fixed top-0 right-0 h-full w-100 bg-background border-l shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
@@ -47,7 +65,7 @@ export function QueryHistoryPanel({
             <div
               key={query.id}
               className="grid grid-cols-12 gap-2 p-2 text-sm border rounded-lg hover:bg-muted/50 cursor-pointer"
-              onClick={() => onSelectQuery && onSelectQuery(query)}
+              onClick={() => handleQueryClick(query)}
             >
               <div className="col-span-3 text-xs">{query.time}</div>
               <div className="col-span-2">
@@ -68,6 +86,38 @@ export function QueryHistoryPanel({
           ))}
         </div>
       </div>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>SQL Query - {selectedQuery?.time}</DialogTitle>
+          </DialogHeader>
+          <div className="bg-gray-50 p-4 rounded-md overflow-auto max-h-96">
+            <pre className="text-sm font-mono whitespace-pre-wrap">
+              <code>{selectedQuery?.sqlCode}</code>
+            </pre>
+          </div>
+          <DialogFooter>
+            <div className="flex justify-between w-full">
+              <div className="text-sm text-gray-500">
+                Status:{" "}
+                <span
+                  className={
+                    selectedQuery?.status === "AC"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }
+                >
+                  {selectedQuery?.status}
+                </span>{" "}
+                | Duration: {selectedQuery?.duration}
+              </div>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                Close
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
