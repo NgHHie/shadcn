@@ -16,6 +16,7 @@ import { SalesTable } from "@/components/editor/sales-table";
 import { QueryHistoryPanel } from "@/components/editor/query-history-panel";
 import { Card } from "@/components/ui/card";
 import { QueryHistoryItem } from "@/types/sales";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Import dữ liệu lịch sử truy vấn với kiểu đúng
 import queryHistoryDataJson from "./data/query-history-mock-data.json";
@@ -24,6 +25,7 @@ const queryHistoryData: QueryHistoryItem[] =
   queryHistoryDataJson as QueryHistoryItem[];
 
 export function SalesAnalyticsDashboard() {
+  const isMobile = useIsMobile();
   const [sqlQuery, setSqlQuery] = useState(`SELECT
   DATE_TRUNC('day', opp.created_date)::DATE AS opp_created_date
 ,DATE_TRUNC('week',opp.created_date)::DATE AS opp_created_week
@@ -38,13 +40,14 @@ WHERE 0=0
   AND opp.created_date >= CURRENT_DATE - INTERVAL '2 months'`);
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [editorHeight, setEditorHeight] = useState(200); // Chiều cao mặc định của editor
+  const [editorHeight, setEditorHeight] = useState(isMobile ? 150 : 200); // Smaller on mobile
   const [isDragging, setIsDragging] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
-  const minEditorHeight = 50;
-  const maxEditorHeight = 800;
+
+  const minEditorHeight = isMobile ? 100 : 50;
+  const maxEditorHeight = isMobile ? 300 : 800;
 
   // Xử lý kéo đổi kích thước
   const startDragging = (e: React.MouseEvent) => {
@@ -80,13 +83,21 @@ WHERE 0=0
     };
   }, [isDragging]);
 
+  // Update editor height when switching between mobile/desktop
+  useEffect(() => {
+    if (isMobile && editorHeight > 300) {
+      setEditorHeight(150);
+    } else if (!isMobile && editorHeight < 150) {
+      setEditorHeight(200);
+    }
+  }, [isMobile]);
+
   const toggleHistory = () => {
     setIsHistoryOpen(!isHistoryOpen);
   };
 
   const handleSelectQuery = (query: QueryHistoryItem) => {
     console.log("Selected query:", query);
-    // Here you would typically load the selected query
     setIsHistoryOpen(false);
   };
 
@@ -103,8 +114,17 @@ WHERE 0=0
   }, []);
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-background">
-      <div className="flex items-center gap-2 border-b p-2 bg-muted/30 overflow-x-auto flex-shrink-0">
+    <div
+      className={`flex flex-col w-full bg-background ${
+        isMobile ? "min-h-screen" : "h-full overflow-hidden"
+      }`}
+    >
+      {/* Header - responsive */}
+      <div
+        className={`flex items-center gap-2 border-b p-2 bg-muted/30 flex-shrink-0 ${
+          isMobile ? "flex-wrap" : "overflow-x-auto"
+        }`}
+      >
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -113,49 +133,87 @@ WHERE 0=0
           >
             <Terminal className="h-4 w-4" />
           </Button>
-          <span className="text-sm font-medium whitespace-nowrap">
+          <span
+            className={`font-medium whitespace-nowrap ${
+              isMobile ? "text-xs" : "text-sm"
+            }`}
+          >
             SQL Editor
           </span>
         </div>
 
-        <div className="flex items-center gap-2 ml-4">
+        {/* Mobile: Stack buttons vertically when needed */}
+        <div
+          className={`flex items-center gap-2 ${
+            isMobile ? "flex-wrap w-full mt-2" : "ml-4"
+          }`}
+        >
           <Button
             variant="outline"
             size="sm"
-            className="gap-1 whitespace-nowrap flex-shrink-0"
+            className={`gap-1 whitespace-nowrap flex-shrink-0 ${
+              isMobile ? "text-xs h-7" : ""
+            }`}
           >
-            <span className="text-sm">Select database type</span>
+            <span className={isMobile ? "text-xs" : "text-sm"}>
+              {isMobile ? "Database" : "Select database type"}
+            </span>
             <ChevronDown className="h-3 w-3" />
           </Button>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="gap-1">
-            <Upload className="h-4 w-4" />
-            <span className="hidden sm:inline text-sm">Upload file</span>
-          </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="gap-1"
+            className={`gap-1 ${isMobile ? "text-xs h-7" : ""}`}
+          >
+            <Upload className="h-4 w-4" />
+            <span
+              className={`${isMobile ? "text-xs" : "text-sm"} ${
+                isMobile ? "" : "hidden sm:inline"
+              }`}
+            >
+              {isMobile ? "Upload" : "Upload file"}
+            </span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`gap-1 ${isMobile ? "text-xs h-7" : ""}`}
             onClick={toggleHistory}
           >
             <History className="h-4 w-4" />
-            <span className="hidden sm:inline text-sm">History</span>
+            <span
+              className={`${isMobile ? "text-xs" : "text-sm"} ${
+                isMobile ? "" : "hidden sm:inline"
+              }`}
+            >
+              History
+            </span>
           </Button>
         </div>
       </div>
 
       <div
         ref={containerRef}
-        className="flex flex-col flex-1 overflow-hidden min-w-0 p-2"
+        className={`flex flex-col flex-1 min-w-0 p-2 ${
+          isMobile ? "" : "overflow-hidden"
+        }`}
       >
-        <Card className="flex flex-col flex-1 overflow-hidden min-w-0 shadow-sm">
-          <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+        <Card
+          className={`flex flex-col flex-1 min-w-0 shadow-sm ${
+            isMobile ? "" : "overflow-hidden"
+          }`}
+        >
+          <div
+            className={`flex flex-col flex-1 min-w-0 ${
+              isMobile ? "" : "overflow-hidden"
+            }`}
+          >
             {/* SQL Editor with resizable height */}
             <SqlEditor height={`${editorHeight}px`} />
 
-            {/* Resizable divider */}
+            {/* Resizable divider - only show if not mobile or allow mobile resize */}
             <div
               className={`relative h-3 bg-muted hover:bg-primary/20 cursor-row-resize z-10 ${
                 isDragging ? "bg-primary/30" : ""
@@ -168,44 +226,82 @@ WHERE 0=0
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-2 overflow-x-auto flex-shrink-0">
-              <Button className="bg-primary text-white font-medium text-xs h-8 whitespace-nowrap flex-shrink-0 hover:bg-primary/90 shadow-sm transition-all duration-200 hover:shadow transform hover:-translate-y-0.5">
+            {/* Action buttons - responsive */}
+            <div
+              className={`flex items-center gap-3 p-2 flex-shrink-0 ${
+                isMobile ? "flex-wrap gap-2" : "overflow-x-auto"
+              }`}
+            >
+              <Button
+                className={`bg-primary text-white font-medium whitespace-nowrap flex-shrink-0 hover:bg-primary/90 shadow-sm transition-all duration-200 hover:shadow transform hover:-translate-y-0.5 ${
+                  isMobile ? "text-xs h-7" : "text-xs h-8"
+                }`}
+              >
                 Submit
               </Button>
 
               <Button
                 variant="outline"
-                className="border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 text-xs h-8 whitespace-nowrap flex-shrink-0 transition-all duration-200 hover:border-primary/50 font-medium"
+                className={`border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 whitespace-nowrap flex-shrink-0 transition-all duration-200 hover:border-primary/50 font-medium ${
+                  isMobile ? "text-xs h-7" : "text-xs h-8"
+                }`}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
               >
                 <span className="transition-opacity duration-200 ease-in-out">
-                  {isHovering ? "Ctrl + Enter" : "Run query"}
+                  {isHovering && !isMobile ? "Ctrl + Enter" : "Run query"}
                 </span>
               </Button>
+
               <Button
                 variant="outline"
-                className="border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 text-xs h-8 whitespace-nowrap flex-shrink-0 transition-all duration-200 hover:border-primary/50 font-medium"
+                className={`border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 whitespace-nowrap flex-shrink-0 transition-all duration-200 hover:border-primary/50 font-medium ${
+                  isMobile ? "text-xs h-7" : "text-xs h-8"
+                }`}
               >
                 Save query
               </Button>
             </div>
 
-            <div className="p-2 bg-card border-b flex-shrink-0">
+            {/* Status bar */}
+            <div
+              className={`p-2 bg-card border-b flex-shrink-0 ${
+                isMobile ? "px-2 py-1" : ""
+              }`}
+            >
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
                   <div className="h-2 w-2 rounded-full bg-green-500 flex-shrink-0"></div>
-                  <span className="text-sm text-muted-foreground font-medium">
+                  <span
+                    className={`text-muted-foreground font-medium ${
+                      isMobile ? "text-xs" : "text-sm"
+                    }`}
+                  >
                     5,240 rows
                   </span>
                 </div>
                 <div className="h-4 w-px bg-muted-foreground/20"></div>
-                <span className="text-sm text-muted-foreground">0.05s</span>
+                <span
+                  className={`text-muted-foreground ${
+                    isMobile ? "text-xs" : "text-sm"
+                  }`}
+                >
+                  0.05s
+                </span>
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto min-w-0 bg-card">
-              <div className="min-w-0 w-full overflow-x-auto">
+            {/* Results table */}
+            <div
+              className={`flex-1 bg-card ${
+                isMobile ? "min-h-96" : "overflow-auto min-w-0"
+              }`}
+            >
+              <div
+                className={`w-full ${
+                  isMobile ? "" : "min-w-0 overflow-x-auto"
+                }`}
+              >
                 <SalesTable />
               </div>
             </div>
@@ -213,7 +309,7 @@ WHERE 0=0
         </Card>
       </div>
 
-      {/* Use the extracted QueryHistoryPanel component */}
+      {/* Query History Panel */}
       <QueryHistoryPanel
         isOpen={isHistoryOpen}
         onClose={toggleHistory}

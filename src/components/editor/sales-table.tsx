@@ -16,6 +16,7 @@ import salesDataJson from "./data/sales-mock-data.json";
 const salesData: SalesDataItem[] = salesDataJson as SalesDataItem[];
 
 export function SalesTable() {
+  // Always show table layout, allow horizontal scroll on mobile
   return (
     <div className="w-full overflow-auto">
       <div className="min-w-[800px]">
