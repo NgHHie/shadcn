@@ -39,16 +39,12 @@ export function SidebarPanel() {
   };
 
   return (
-    <div className="flex flex-col h-full border-r bg-white w-full">
-      <div className="flex items-center p-4 border-b">
-        <div className="h-8 w-8 rounded-full bg-green-400 flex items-center justify-center text-white mr-3">
-          <BookOpen className="h-4 w-4" />
-        </div>
-        <span className="font-medium">SQL Analytics Dashboard</span>
-      </div>
-
-      <Tabs defaultValue="assignment" className="flex-1 flex flex-col">
-        <div className="border-b">
+    <div className="flex flex-col h-full bg-white w-full overflow-hidden">
+      <Tabs
+        defaultValue="assignment"
+        className="flex-1 flex flex-col h-full overflow-hidden"
+      >
+        <div className="border-b flex-shrink-0">
           <TabsList className="w-full justify-start p-0 h-auto bg-transparent">
             <TabsTrigger
               value="assignment"
@@ -77,60 +73,145 @@ export function SidebarPanel() {
           </TabsList>
         </div>
 
-        <TabsContent
-          value="assignment"
-          className="flex-1 overflow-auto p-4 m-0"
-        >
-          <h3 className="font-bold text-lg mb-2">Phân tích dữ liệu bán hàng</h3>
-          <p className="text-sm mb-4">
-            Sử dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua.
-            Truy vấn cần trả về các thông tin sau:
-          </p>
-          <ul className="list-disc pl-5 text-sm space-y-2 mb-4">
-            <li>Ngày tạo cơ hội (theo ngày)</li>
-            <li>Ngày tạo cơ hội (theo tuần)</li>
-            <li>Ngày trong tuần</li>
-            <li>Chủ sở hữu cơ hội</li>
-            <li>Trạng thái cơ hội</li>
-            <li>Tổng giá trị cơ hội</li>
-            <li>Số lượng cơ hội</li>
-          </ul>
-          <p className="text-sm">
-            Kết quả cần được nhóm theo ngày, tuần và chủ sở hữu để phân tích
-            hiệu suất bán hàng.
-          </p>
-        </TabsContent>
-
-        <TabsContent
-          value="discussion"
-          className="flex-1 overflow-auto p-4 m-0"
-        >
-          <div className="space-y-4">
-            <div className="bg-gray-100 p-3 rounded-lg">
-              <p className="text-sm font-medium mb-1">Nguyễn Văn A</p>
-              <p className="text-sm">
-                Tôi đang gặp vấn đề với hàm DATE_TRUNC, nó không hoạt động trong
-                MySQL. Có ai biết cách thay thế không?
+        {/* Tab Đề bài */}
+        <TabsContent value="assignment" className="flex-1 p-4 m-0 h-full">
+          <div className="flex-1 pb-2 overflow-auto h-full">
+            <div className="pb-8 space-y-4">
+              <h3 className="font-bold text-lg mb-2">
+                Phân tích dữ liệu bán hàng
+              </h3>
+              <p className="text-sm mb-4">
+                Sử dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng
+                qua. Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân
+                tích dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả
+                về các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
+                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:Sử
+                dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua.
+                Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân tích
+                dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về
+                các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
+                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:Sử
+                dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua.
+                Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân tích
+                dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về
+                các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
+                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:Sử
+                dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua.
+                Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân tích
+                dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về
+                các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
+                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:Sử
+                dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua.
+                Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân tích
+                dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về
+                các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
+                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:Sử
+                dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua.
+                Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân tích
+                dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về
+                các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
+                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:
               </p>
-            </div>
-            <div className="bg-gray-100 p-3 rounded-lg">
-              <p className="text-sm font-medium mb-1">Trần Thị B</p>
+              <ul className="list-disc pl-5 text-sm space-y-2 mb-4">
+                <li>Ngày tạo cơ hội (theo ngày)</li>
+                <li>Ngày tạo cơ hội (theo tuần)</li>
+                <li>Ngày trong tuần</li>
+                <li>Chủ sở hữu cơ hội</li>
+                <li>Trạng thái cơ hội</li>
+                <li>Tổng giá trị cơ hội</li>
+                <li>Số lượng cơ hội</li>
+              </ul>
               <p className="text-sm">
-                Trong MySQL bạn có thể dùng DATE_FORMAT hoặc YEARWEEK để nhóm
-                theo tuần. Ví dụ: DATE_FORMAT(created_date, '%Y-%m-%d')
-              </p>
-            </div>
-            <div className="bg-gray-100 p-3 rounded-lg">
-              <p className="text-sm font-medium mb-1">Lê Văn C</p>
-              <p className="text-sm">
-                Tôi thấy truy vấn này có thể tối ưu hơn bằng cách thêm index cho
-                cột created_date và owner_id.
+                Kết quả cần được nhóm theo ngày, tuần và chủ sở hữu để phân tích
+                hiệu suất bán hàng.
               </p>
             </div>
           </div>
         </TabsContent>
 
-        <TabsContent value="assistant" className="flex-1 flex flex-col m-0 p-0">
+        {/* Tab Bàn luận */}
+        <TabsContent value="discussion" className="flex-1 p-4 m-0 h-full">
+          <div className="flex-1 pb-2 overflow-auto h-full">
+            <div className="pb-8 space-y-4">
+              <div className="bg-gray-100 p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">Nguyễn Văn A</p>
+                <p className="text-sm">
+                  Tôi đang gặp vấn đề với hàm DATE_TRUNC, nó không hoạt động
+                  trong MySQL. Có ai biết cách thay thế không?
+                </p>
+              </div>
+              <div className="bg-gray-100 p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">Nguyễn Văn A</p>
+                <p className="text-sm">
+                  Tôi đang gặp vấn đề với hàm DATE_TRUNC, nó không hoạt động
+                  trong MySQL. Có ai biết cách thay thế không?
+                </p>
+              </div>
+              <div className="bg-gray-100 p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">Nguyễn Văn A</p>
+                <p className="text-sm">
+                  Tôi đang gặp vấn đề với hàm DATE_TRUNC, nó không hoạt động
+                  trong MySQL. Có ai biết cách thay thế không?
+                </p>
+              </div>
+              <div className="bg-gray-100 p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">Nguyễn Văn A</p>
+                <p className="text-sm">
+                  Tôi đang gặp vấn đề với hàm DATE_TRUNC, nó không hoạt động
+                  trong MySQL. Có ai biết cách thay thế không?
+                </p>
+              </div>
+              <div className="bg-gray-100 p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">Trần Thị B</p>
+                <p className="text-sm">
+                  Trong MySQL bạn có thể dùng DATE_FORMAT hoặc YEARWEEK để nhóm
+                  theo tuần. Ví dụ: DATE_FORMAT(created_date, '%Y-%m-%d')
+                </p>
+              </div>
+              <div className="bg-gray-100 p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">Lê Văn C</p>
+                <p className="text-sm">
+                  Tôi thấy truy vấn này có thể tối ưu hơn bằng cách thêm index
+                  cho cột created_date và owner_id.
+                </p>
+              </div>
+              <div className="bg-gray-100 p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">Lê Văn C</p>
+                <p className="text-sm">
+                  Tôi thấy truy vấn này có thể tối ưu hơn bằng cách thêm index
+                  cho cột created_date và owner_id.
+                </p>
+              </div>
+              <div className="bg-gray-100 p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">Lê Văn C</p>
+                <p className="text-sm">
+                  Tôi thấy truy vấn này có thể tối ưu hơn bằng cách thêm index
+                  cho cột created_date và owner_id.
+                </p>
+              </div>
+              <div className="bg-gray-100 p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">Lê Văn C</p>
+                <p className="text-sm">
+                  Tôi thấy truy vấn này có thể tối ưu hơn bằng cách thêm index
+                  cho cột created_date và owner_id.
+                </p>
+              </div>
+              <div className="bg-gray-100 p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">Lê Văn C</p>
+                <p className="text-sm">
+                  Tôi thấy truy vấn này có thể tối ưu hơn bằng cách thêm index
+                  cho cột created_date và owner_id.
+                </p>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Tab AI Assistant */}
+        <TabsContent
+          value="assistant"
+          className="flex-1 flex flex-col m-0 p-0 h-full"
+        >
           <div className="flex-1 overflow-auto p-4">
             <div className="space-y-4">
               {messages.map((message, index) => (
@@ -156,7 +237,7 @@ export function SidebarPanel() {
             </div>
           </div>
 
-          <div className="border-t p-3">
+          <div className="border-t p-3 mt-auto">
             <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
               <input
                 type="text"

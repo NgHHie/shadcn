@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "time": "2024-05-22 14:32",
+    "status": "AC",
+    "duration": "8s",
+    "result": "5/5",
+    "dbType": "PostgreSQL"
+  },
+  {
+    "id": 2,
+    "time": "2024-05-22 13:15",
+    "status": "AC",
+    "duration": "6s",
+    "result": "4/4",
+    "dbType": "PostgreSQL"
+  },
+  {
+    "id": 3,
+    "time": "2024-05-21 16:45",
+    "status": "Error",
+    "duration": "2s",
+    "result": "0/0",
+    "dbType": "PostgreSQL"
+  },
+  {
+    "id": 4,
+    "time": "2024-05-21 11:20",
+    "status": "AC",
+    "duration": "12s",
+    "result": "8/8",
+    "dbType": "MySQL"
+  },
+  {
+    "id": 5,
+    "time": "2024-05-20 09:35",
+    "status": "AC",
+    "duration": "5s",
+    "result": "3/3",
+    "dbType": "PostgreSQL"
+  }
+]
