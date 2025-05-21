@@ -1,3 +1,4 @@
+// src/components/dashboard/nav-main.tsx
 import { MailIcon, PlusCircleIcon, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -31,15 +32,27 @@ export function NavMain({
                 asChild
                 className={
                   item.isActive
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground text-white bg-primary"
-                    : ""
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 }
               >
                 <Link to={item.url}>
                   {item.icon && (
-                    <item.icon className={item.isActive ? "font-medium" : ""} />
+                    <item.icon
+                      className={`h-4 w-4 ${
+                        item.isActive
+                          ? "text-primary-foreground"
+                          : "text-sidebar-foreground"
+                      }`}
+                    />
                   )}
-                  <span className={item.isActive ? "font-medium" : ""}>
+                  <span
+                    className={`${
+                      item.isActive
+                        ? "font-medium text-primary-foreground"
+                        : "text-sidebar-foreground"
+                    }`}
+                  >
                     {item.title}
                   </span>
                 </Link>

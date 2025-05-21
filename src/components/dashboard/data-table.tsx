@@ -406,7 +406,7 @@ export function DataTable({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className="hover:bg-gray-50 transition-colors"
+                    className="hover:bg-sidebar-accent transition-colors"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>

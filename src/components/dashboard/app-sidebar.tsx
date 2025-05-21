@@ -1,3 +1,4 @@
+// src/components/dashboard/app-sidebar.tsx
 import * as React from "react";
 import {
   ArrowUpCircleIcon,
@@ -52,24 +53,34 @@ export function AppSidebar({
         isActive: location.pathname === "/dashboard",
       },
       {
+        title: "Editor",
+        url: "/editor",
+        icon: FileCodeIcon,
+        isActive: location.pathname === "/editor",
+      },
+      {
         title: "History",
         url: "#",
         icon: ListIcon,
+        isActive: false,
       },
       {
         title: "Rank",
         url: "#",
         icon: BarChartIcon,
+        isActive: false,
       },
       {
         title: "Contest",
         url: "#",
         icon: FolderIcon,
+        isActive: false,
       },
       {
         title: "Discuss",
         url: "#",
         icon: UsersIcon,
+        isActive: false,
       },
     ],
     navClouds: [
@@ -135,27 +146,34 @@ export function AppSidebar({
   };
 
   return (
-    <Sidebar collapsible="offcanvas" variant={variant} {...props}>
-      <SidebarHeader>
+    <Sidebar
+      collapsible="offcanvas"
+      variant={variant}
+      {...props}
+      className="border-sidebar-border bg-sidebar"
+    >
+      <SidebarHeader className="bg-sidebar border-b border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:!p-1.5 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             >
               <Link to="/">
-                <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <ArrowUpCircleIcon className="h-5 w-5 text-sidebar-primary" />
+                <span className="text-base font-semibold text-sidebar-foreground">
+                  Acme Inc.
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="bg-sidebar">
         <NavMain items={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="bg-sidebar border-t border-sidebar-border">
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>

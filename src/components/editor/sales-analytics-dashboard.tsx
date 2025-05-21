@@ -1,3 +1,4 @@
+// src/components/editor/sales-analytics-dashboard.tsx
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -129,12 +130,12 @@ WHERE 0=0
           <Button
             variant="outline"
             size="sm"
-            className="h-8 w-8 rounded-full bg-primary/10 text-primary flex-shrink-0"
+            className="h-8 w-8 rounded-full bg-primary/10 text-primary flex-shrink-0 border-primary/20"
           >
             <Terminal className="h-4 w-4" />
           </Button>
           <span
-            className={`font-medium whitespace-nowrap ${
+            className={`font-medium whitespace-nowrap text-foreground ${
               isMobile ? "text-xs" : "text-sm"
             }`}
           >
@@ -201,7 +202,7 @@ WHERE 0=0
         }`}
       >
         <Card
-          className={`flex flex-col flex-1 min-w-0 shadow-sm ${
+          className={`flex flex-col flex-1 min-w-0 shadow-sm border ${
             isMobile ? "" : "overflow-hidden"
           }`}
         >
@@ -228,12 +229,12 @@ WHERE 0=0
 
             {/* Action buttons - responsive */}
             <div
-              className={`flex items-center gap-3 p-2 flex-shrink-0 ${
+              className={`flex items-center gap-3 p-2 flex-shrink-0 bg-background border-b ${
                 isMobile ? "flex-wrap gap-2" : "overflow-x-auto"
               }`}
             >
               <Button
-                className={`bg-primary text-white font-medium whitespace-nowrap flex-shrink-0 hover:bg-primary/90 shadow-sm transition-all duration-200 hover:shadow transform hover:-translate-y-0.5 ${
+                className={`bg-primary text-primary-foreground font-medium whitespace-nowrap flex-shrink-0 hover:bg-primary/90 shadow-sm transition-all duration-200 hover:shadow transform hover:-translate-y-0.5 ${
                   isMobile ? "text-xs h-7" : "text-xs h-8"
                 }`}
               >

@@ -1,7 +1,8 @@
-"use client"
+// src/components/dashboard/nav-secondary.tsx
+"use client";
 
-import * as React from "react"
-import { LucideIcon } from "lucide-react"
+import * as React from "react";
+import { LucideIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -9,17 +10,17 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export function NavSecondary({
   items,
   ...props
 }: {
   items: {
-    title: string
-    url: string
-    icon: LucideIcon
-  }[]
+    title: string;
+    url: string;
+    icon: LucideIcon;
+  }[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
     <SidebarGroup {...props}>
@@ -27,10 +28,13 @@ export function NavSecondary({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton
+                asChild
+                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              >
                 <a href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
+                  <item.icon className="h-4 w-4 text-sidebar-foreground" />
+                  <span className="text-sidebar-foreground">{item.title}</span>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -38,5 +42,5 @@ export function NavSecondary({
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }
