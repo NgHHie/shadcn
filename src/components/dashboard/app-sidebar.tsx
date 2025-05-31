@@ -67,7 +67,7 @@ export function AppSidebar({
       },
       {
         title: "Rank",
-        url: "#",
+        url: "/rank",
         icon: BarChartIcon,
         isActive: false,
       },

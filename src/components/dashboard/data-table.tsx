@@ -138,7 +138,6 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           variant="outline"
           className={`flex gap-1 px-1.5 ${bgColor} ${textColor} border-0 [&_svg]:size-3`}
         >
-          {icon}
           {difficulty}
         </Badge>
       );

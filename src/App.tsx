@@ -5,6 +5,7 @@ import { Editor } from "./app/editor/page";
 import { HistoryPage } from "./app/history/page";
 import { Login } from "./login";
 import { MainLayout } from "./layouts/MainLayout";
+import { RankPage } from "./app/rank/page";
 
 function App() {
   return (
@@ -32,6 +33,14 @@ function App() {
           element={
             <MainLayout>
               <HistoryPage />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/rank"
+          element={
+            <MainLayout>
+              <RankPage />
             </MainLayout>
           }
         />
