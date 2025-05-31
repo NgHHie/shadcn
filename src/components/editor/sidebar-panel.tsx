@@ -4,7 +4,17 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, BookOpen, Bot, Paperclip, ArrowUp } from "lucide-react";
+import {
+  MessageSquare,
+  BookOpen,
+  Bot,
+  Paperclip,
+  ArrowUp,
+  ChevronDown,
+} from "lucide-react";
+
+import { DataTable } from "@/components/dashboard/data-table";
+import data from "@/app/dashboard/data.json";
 
 interface Message {
   role: "user" | "assistant";
@@ -78,9 +88,19 @@ export function SidebarPanel() {
         <TabsContent value="assignment" className="flex-1 p-4 m-0 h-full">
           <div className="flex-1 pb-2 overflow-auto h-full">
             <div className="pb-8 space-y-4">
-              <h3 className="font-bold text-lg mb-2 text-foreground">
-                Phân tích dữ liệu bán hàng
-              </h3>
+              <div className="flex items-center justify-between gap-2 w-full">
+                <h3 className="font-bold text-lg mb-2 text-foreground truncate flex-shrink min-w-0">
+                  Phân tích dữ liệu bán hàng
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 whitespace-nowrap flex-shrink-0"
+                >
+                  <span className="text-sm">Chọn câu hỏi</span>
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </div>
               <p className="text-sm mb-4 text-muted-foreground">
                 Sử dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng
                 qua. Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân
@@ -132,8 +152,8 @@ export function SidebarPanel() {
 
         {/* Tab Bàn luận */}
         <TabsContent value="discussion" className="flex-1 p-4 m-0 h-full">
-          <div className="flex-1 pb-2 overflow-auto h-full">
-            <div className="pb-8 space-y-4">
+          <div className="flex-1 pb-2 overflow-auto h-[calc(100%-60px)]">
+            <div className="pb-8 space-y-2">
               <div className="bg-muted p-3 rounded-lg">
                 <p className="text-sm font-medium mb-1 text-foreground">
                   Nguyễn Văn A
@@ -224,6 +244,31 @@ export function SidebarPanel() {
                   cho cột created_date và owner_id.
                 </p>
               </div>
+            </div>
+          </div>
+          <div className="border-t py-3 mt-auto bg-background sticky bottom-0">
+            <div className="flex items-center bg-muted rounded-lg px-3 py-2">
+              <input
+                type="text"
+                placeholder="Nhập bình luận..."
+                className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+              />
+
+              <Button
+                size="icon"
+                className="h-8 w-8 rounded-full bg-primary hover:bg-primary/90"
+                onClick={handleSendMessage}
+              >
+                <ArrowUp className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </TabsContent>

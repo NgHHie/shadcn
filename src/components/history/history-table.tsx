@@ -244,9 +244,7 @@ export function HistoryTable({ data }: { data: SchemaType[] }) {
       accessorKey: "type",
       header: () => <div className="w-full text-right">Database</div>,
       cell: ({ row }) => (
-        <div className="text-right pr-2 font-medium tabular-nums">
-          {row.original.type}
-        </div>
+        <div className="text-right pr-2 tabular-nums">{row.original.type}</div>
       ),
     },
   ];
@@ -307,8 +305,7 @@ export function HistoryTable({ data }: { data: SchemaType[] }) {
             <SelectContent>
               <SelectItem value="all">Tất cả</SelectItem>
               <SelectItem value="accepted">Accepted</SelectItem>
-              <SelectItem value="wrong-answer">Wrong Answer</SelectItem>
-              <SelectItem value="time-limit">Time Limit</SelectItem>
+              <SelectItem value="wrong-answer">Rejected</SelectItem>
             </SelectContent>
           </Select>
           <TabsList className="@4xl/main:flex hidden">
@@ -317,27 +314,18 @@ export function HistoryTable({ data }: { data: SchemaType[] }) {
               Accepted{" "}
               <Badge
                 variant="secondary"
-                className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500/20 text-green-700"
+                className="flex h-5 w-5 items-center justify-center rounded-full bg-muted-foreground/30"
               >
                 {stats.accepted}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="wrong-answer" className="gap-1">
-              Wrong Answer{" "}
+              Rejected{" "}
               <Badge
                 variant="secondary"
-                className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500/20 text-red-700"
+                className="flex h-5 w-5 items-center justify-center rounded-full bg-muted-foreground/30"
               >
                 {stats.wrongAnswer}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="time-limit" className="gap-1">
-              Time Limit{" "}
-              <Badge
-                variant="secondary"
-                className="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-500/20 text-yellow-700"
-              >
-                {stats.timeLimit}
               </Badge>
             </TabsTrigger>
           </TabsList>

@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "rank": 1,
+    "name": "ThanhVien_VIP",
+    "points": 2500,
+    "weeklyPoints": 2500,
+    "monthlyPoints": 8500,
+    "avatar": "TV",
+    "period": "weekly"
+  },
+  {
+    "id": 2,
+    "rank": 2,
+    "name": "HocSinh123",
+    "points": 2100,
+    "weeklyPoints": 2100,
+    "monthlyPoints": 7800,
+    "avatar": "HS",
+    "period": "weekly"
+  },
+  {
+    "id": 3,
+    "rank": 3,
+    "name": "HocTap247",
+    "points": 1850,
+    "weeklyPoints": 1850,
+    "monthlyPoints": 7200,
+    "avatar": "HT",
+    "period": "weekly"
+  },
+  {
+    "id": 4,
+    "rank": 4,
+    "name": "CodeMaster_99",
+    "points": 1650,
+    "weeklyPoints": 1650,
+    "monthlyPoints": 6850,
+    "avatar": "CM",
+    "period": "weekly"
+  },
+  {
+    "id": 5,
+    "rank": 5,
+    "name": "SQLExpert_2024",
+    "points": 1520,
+    "weeklyPoints": 1520,
+    "monthlyPoints": 6500,
+    "avatar": "SE",
+    "period": "weekly"
+  },
+  {
+    "id": 6,
+    "rank": 6,
+    "name": "DataAnalyst_Pro",
+    "points": 1380,
+    "weeklyPoints": 1380,
+    "monthlyPoints": 6200,
+    "avatar": "DA",
+    "period": "weekly"
+  },
+  {
+    "id": 7,
+    "rank": 7,
+    "name": "QueryNinja_X",
+    "points": 1250,
+    "weeklyPoints": 1250,
+    "monthlyPoints": 5980,
+    "avatar": "QN",
+    "period": "weekly"
+  },
+  {
+    "id": 8,
+    "rank": 8,
+    "name": "DatabaseGuru",
+    "points": 1180,
+    "weeklyPoints": 1180,
+    "monthlyPoints": 5750,
+    "avatar": "DG",
+    "period": "weekly"
+  },
+  {
+    "id": 9,
+    "rank": 9,
+    "name": "SQLLearner_01",
+    "points": 1050,
+    "weeklyPoints": 1050,
+    "monthlyPoints": 5500,
+    "avatar": "SL",
+    "period": "weekly"
+  },
+  {
+    "id": 10,
+    "rank": 10,
+    "name": "TechStudent_VN",
+    "points": 980,
+    "weeklyPoints": 980,
+    "monthlyPoints": 5250,
+    "avatar": "TS",
+    "period": "weekly"
+  },
+  {
+    "id": 11,
+    "rank": 1,
+    "name": "SQLMaster_2024",
+    "points": 8500,
+    "weeklyPoints": 2500,
+    "monthlyPoints": 8500,
+    "avatar": "SM",
+    "period": "monthly"
+  },
+  {
+    "id": 12,
+    "rank": 2,
+    "name": "DatabaseKing",
+    "points": 7800,
+    "weeklyPoints": 2100,
+    "monthlyPoints": 7800,
+    "avatar": "DK",
+    "period": "monthly"
+  },
+  {
+    "id": 13,
+    "rank": 3,
+    "name": "QueryQueen_VN",
+    "points": 7200,
+    "weeklyPoints": 1850,
+    "monthlyPoints": 7200,
+    "avatar": "QQ",
+    "period": "monthly"
+  },
+  {
+    "id": 14,
+    "rank": 4,
+    "name": "ThanhVien_VIP",
+    "points": 6850,
+    "weeklyPoints": 1650,
+    "monthlyPoints": 6850,
+    "avatar": "TV",
+    "period": "monthly"
+  },
+  {
+    "id": 15,
+    "rank": 5,
+    "name": "CodeExpert_HN",
+    "points": 6500,
+    "weeklyPoints": 1520,
+    "monthlyPoints": 6500,
+    "avatar": "CE",
+    "period": "monthly"
+  },
+  {
+    "id": 16,
+    "rank": 6,
+    "name": "DataScientist_Pro",
+    "points": 6200,
+    "weeklyPoints": 1380,
+    "monthlyPoints": 6200,
+    "avatar": "DS",
+    "period": "monthly"
+  },
+  {
+    "id": 17,
+    "rank": 7,
+    "name": "SQLNinja_2024",
+    "points": 5980,
+    "weeklyPoints": 1250,
+    "monthlyPoints": 5980,
+    "avatar": "SN",
+    "period": "monthly"
+  },
+  {
+    "id": 18,
+    "rank": 8,
+    "name": "DatabaseWizard",
+    "points": 5750,
+    "weeklyPoints": 1180,
+    "monthlyPoints": 5750,
+    "avatar": "DW",
+    "period": "monthly"
+  },
+  {
+    "id": 19,
+    "rank": 9,
+    "name": "QueryMaster_VN",
+    "points": 5500,
+    "weeklyPoints": 1050,
+    "monthlyPoints": 5500,
+    "avatar": "QM",
+    "period": "monthly"
+  },
+  {
+    "id": 20,
+    "rank": 10,
+    "name": "TechLearner_HCM",
+    "points": 5250,
+    "weeklyPoints": 980,
+    "monthlyPoints": 5250,
+    "avatar": "TL",
+    "period": "monthly"
+  }
+]

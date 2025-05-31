@@ -145,20 +145,16 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   },
   {
     accessorKey: "target",
-    header: () => <div className="w-full text-right">Số lần submit</div>,
+    header: () => <div className="w-full text-right">Tổng số submit</div>,
     cell: ({ row }) => (
-      <div className="text-right pr-2 font-medium tabular-nums">
-        {row.original.target}
-      </div>
+      <div className="text-right pr-2 tabular-nums">{row.original.target}</div>
     ),
   },
   {
     accessorKey: "limit",
     header: () => <div className="w-full text-right">Tỉ lệ đúng</div>,
     cell: ({ row }) => (
-      <div className="text-right pr-2 font-medium tabular-nums">
-        {row.original.limit}%
-      </div>
+      <div className="text-right pr-2 tabular-nums">{row.original.limit}%</div>
     ),
   },
   {
@@ -657,7 +653,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
-                <Label htmlFor="target">Số lần submit</Label>
+                <Label htmlFor="target">Tổng số submit</Label>
                 <Input id="target" defaultValue={item.target} />
               </div>
               <div className="flex flex-col gap-3">

@@ -63,13 +63,13 @@ export function AppSidebar({
         title: "History",
         url: "/history",
         icon: ListIcon,
-        isActive: false,
+        isActive: location.pathname === "/history",
       },
       {
         title: "Rank",
         url: "/rank",
         icon: BarChartIcon,
-        isActive: false,
+        isActive: location.pathname === "/rank",
       },
       {
         title: "Contest",
@@ -77,12 +77,12 @@ export function AppSidebar({
         icon: FolderIcon,
         isActive: false,
       },
-      {
-        title: "Discuss",
-        url: "#",
-        icon: UsersIcon,
-        isActive: false,
-      },
+      // {
+      //   title: "Discuss",
+      //   url: "#",
+      //   icon: UsersIcon,
+      //   isActive: false,
+      // },
     ],
     navClouds: [
       {
@@ -134,12 +134,7 @@ export function AppSidebar({
     ],
     navSecondary: [
       {
-        title: "Settings",
-        url: "#",
-        icon: SettingsIcon,
-      },
-      {
-        title: "Get Help",
+        title: "Feedback",
         url: "#",
         icon: HelpCircleIcon,
       },
