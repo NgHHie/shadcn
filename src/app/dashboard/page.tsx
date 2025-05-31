@@ -10,6 +10,16 @@ export function Page() {
       <div className="px-4 lg:px-6">
         <ChartAreaInteractive />
       </div>
+      <div className="px-4 lg:px-6">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Danh sách bài tập
+          </h1>
+          <p className="text-muted-foreground">
+            Luyện tập hằng ngày với nhiều dạng truy vấn SQL
+          </p>
+        </div>
+      </div>
       <DataTable data={data} />
     </div>
   );

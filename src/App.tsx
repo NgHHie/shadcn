@@ -2,6 +2,7 @@ import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Page } from "./app/dashboard/page";
 import { Editor } from "./app/editor/page";
+import { HistoryPage } from "./app/history/page";
 import { Login } from "./login";
 import { MainLayout } from "./layouts/MainLayout";
 
@@ -23,6 +24,14 @@ function App() {
           element={
             <MainLayout>
               <Editor />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <MainLayout>
+              <HistoryPage />
             </MainLayout>
           }
         />

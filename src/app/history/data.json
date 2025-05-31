@@ -1,0 +1,302 @@
+[
+  {
+    "id": 1,
+    "question": "Two Sum",
+    "code": "ALGO001",
+    "time": "11:28 29/05/2025",
+    "status": "AC",
+    "duration": "245ms",
+    "result": "3/3",
+    "type": "PostgreSQL"
+  },
+  {
+    "id": 2,
+    "question": "Add Two Numbers",
+    "code": "ALGO002",
+    "time": "09:15 28/05/2025",
+    "status": "WA",
+    "duration": "312ms",
+    "result": "2/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 3,
+    "question": "Longest Substring Without Repeating Characters",
+    "code": "ALGO003",
+    "time": "14:42 27/05/2025",
+    "status": "TLE",
+    "duration": "2000ms",
+    "result": "1/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 4,
+    "question": "Median of Two Sorted Arrays",
+    "code": "ALGO004",
+    "time": "16:30 26/05/2025",
+    "status": "AC",
+    "duration": "189ms",
+    "result": "3/3",
+    "type": "MSSQL"
+  },
+  {
+    "id": 5,
+    "question": "Longest Palindromic Substring",
+    "code": "ALGO005",
+    "time": "10:22 25/05/2025",
+    "status": "RE",
+    "duration": "156ms",
+    "result": "0/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 6,
+    "question": "ZigZag Conversion",
+    "code": "ALGO006",
+    "time": "13:45 24/05/2025",
+    "status": "AC",
+    "duration": "203ms",
+    "result": "3/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 7,
+    "question": "Reverse Integer",
+    "code": "ALGO007",
+    "time": "08:12 23/05/2025",
+    "status": "WA",
+    "duration": "278ms",
+    "result": "2/3",
+    "type": "PostgreSQL"
+  },
+  {
+    "id": 8,
+    "question": "String to Integer (atoi)",
+    "code": "ALGO008",
+    "time": "15:33 22/05/2025",
+    "status": "AC",
+    "duration": "167ms",
+    "result": "3/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 9,
+    "question": "Palindrome Number",
+    "code": "ALGO009",
+    "time": "11:18 21/05/2025",
+    "status": "AC",
+    "duration": "134ms",
+    "result": "3/3",
+    "type": "PostgreSQL"
+  },
+  {
+    "id": 10,
+    "question": "Regular Expression Matching",
+    "code": "ALGO010",
+    "time": "17:55 20/05/2025",
+    "status": "TLE",
+    "duration": "2000ms",
+    "result": "1/3",
+    "type": "MSSQL"
+  },
+  {
+    "id": 11,
+    "question": "Container With Most Water",
+    "code": "ALGO011",
+    "time": "12:07 19/05/2025",
+    "status": "AC",
+    "duration": "221ms",
+    "result": "3/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 12,
+    "question": "Integer to Roman",
+    "code": "ALGO012",
+    "time": "09:41 18/05/2025",
+    "status": "WA",
+    "duration": "189ms",
+    "result": "2/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 13,
+    "question": "Roman to Integer",
+    "code": "ALGO013",
+    "time": "14:26 17/05/2025",
+    "status": "AC",
+    "duration": "156ms",
+    "result": "3/3",
+    "type": "PostgreSQL"
+  },
+  {
+    "id": 14,
+    "question": "Longest Common Prefix",
+    "code": "ALGO014",
+    "time": "16:14 16/05/2025",
+    "status": "AC",
+    "duration": "143ms",
+    "result": "3/3",
+    "type": "PostgreSQL"
+  },
+  {
+    "id": 15,
+    "question": "3Sum",
+    "code": "ALGO015",
+    "time": "10:58 15/05/2025",
+    "status": "TLE",
+    "duration": "2000ms",
+    "result": "1/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 16,
+    "question": "3Sum Closest",
+    "code": "ALGO016",
+    "time": "13:32 14/05/2025",
+    "status": "AC",
+    "duration": "267ms",
+    "result": "3/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 17,
+    "question": "Letter Combinations of a Phone Number",
+    "code": "ALGO017",
+    "time": "08:49 13/05/2025",
+    "status": "WA",
+    "duration": "198ms",
+    "result": "2/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 18,
+    "question": "4Sum",
+    "code": "ALGO018",
+    "time": "15:21 12/05/2025",
+    "status": "AC",
+    "duration": "334ms",
+    "result": "3/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 19,
+    "question": "Remove Nth Node From End of List",
+    "code": "ALGO019",
+    "time": "11:03 11/05/2025",
+    "status": "RE",
+    "duration": "89ms",
+    "result": "0/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 20,
+    "question": "Valid Parentheses",
+    "code": "ALGO020",
+    "time": "17:17 10/05/2025",
+    "status": "AC",
+    "duration": "76ms",
+    "result": "3/3",
+    "type": "PostgreSQL"
+  },
+  {
+    "id": 21,
+    "question": "Merge Two Sorted Lists",
+    "code": "ALGO021",
+    "time": "12:44 09/05/2025",
+    "status": "AC",
+    "duration": "112ms",
+    "result": "3/3",
+    "type": "PostgreSQL"
+  },
+  {
+    "id": 22,
+    "question": "Generate Parentheses",
+    "code": "ALGO022",
+    "time": "09:29 08/05/2025",
+    "status": "WA",
+    "duration": "156ms",
+    "result": "2/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 23,
+    "question": "Merge k Sorted Lists",
+    "code": "ALGO023",
+    "time": "14:55 07/05/2025",
+    "status": "TLE",
+    "duration": "2000ms",
+    "result": "1/3",
+    "type": "MSSQL"
+  },
+  {
+    "id": 24,
+    "question": "Swap Nodes in Pairs",
+    "code": "ALGO024",
+    "time": "16:38 06/05/2025",
+    "status": "AC",
+    "duration": "98ms",
+    "result": "3/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 25,
+    "question": "Reverse Nodes in k-Group",
+    "code": "ALGO025",
+    "time": "10:12 05/05/2025",
+    "status": "AC",
+    "duration": "187ms",
+    "result": "3/3",
+    "type": "MSSQL"
+  },
+  {
+    "id": 26,
+    "question": "Remove Duplicates from Sorted Array",
+    "code": "ALGO026",
+    "time": "13:56 04/05/2025",
+    "status": "AC",
+    "duration": "67ms",
+    "result": "3/3",
+    "type": "PostgreSQL"
+  },
+  {
+    "id": 27,
+    "question": "Remove Element",
+    "code": "ALGO027",
+    "time": "08:23 03/05/2025",
+    "status": "AC",
+    "duration": "54ms",
+    "result": "3/3",
+    "type": "PostgreSQL"
+  },
+  {
+    "id": 28,
+    "question": "Implement strStr()",
+    "code": "ALGO028",
+    "time": "15:41 02/05/2025",
+    "status": "WA",
+    "duration": "123ms",
+    "result": "2/3",
+    "type": "PostgreSQL"
+  },
+  {
+    "id": 29,
+    "question": "Divide Two Integers",
+    "code": "ALGO029",
+    "time": "11:17 01/05/2025",
+    "status": "RE",
+    "duration": "145ms",
+    "result": "0/3",
+    "type": "MySQL"
+  },
+  {
+    "id": 30,
+    "question": "Substring with Concatenation of All Words",
+    "code": "ALGO030",
+    "time": "17:04 30/04/2025",
+    "status": "TLE",
+    "duration": "2000ms",
+    "result": "1/3",
+    "type": "MSSQL"
+  }
+]

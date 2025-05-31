@@ -61,7 +61,7 @@ export function AppSidebar({
       },
       {
         title: "History",
-        url: "#",
+        url: "/history",
         icon: ListIcon,
         isActive: false,
       },

@@ -30,6 +30,7 @@ import {
   XCircleIcon,
   CircleIcon,
   TimerIcon,
+  ClockIcon,
 } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { toast } from "sonner";
@@ -97,16 +98,18 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: "question",
     header: "Câu hỏi",
-    cell: ({ row }) => {
-      return <TableCellViewer item={row.original} />;
-    },
+    cell: ({ row }) => (
+      <div className="text-left pr-2 font-medium tabular-nums">
+        {row.original.question}
+      </div>
+    ),
     enableHiding: false,
   },
   {
     accessorKey: "code",
     header: "Mã câu hỏi",
     cell: ({ row }) => (
-      <div className="w-32">
+      <div className="w-24">
         <Badge variant="outline" className="px-1.5 text-muted-foreground">
           {row.original.code}
         </Badge>
@@ -117,52 +120,47 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     accessorKey: "time",
     header: "Thời gian",
     cell: ({ row }) => {
-      // Xác định icon và màu sắc dựa trên mức độ khó
-      const difficulty = row.original.time;
-      let icon = null;
-      let bgColor = "";
-      let textColor = "";
-
       return (
-        <Badge
-          variant="outline"
-          className={`flex gap-1 px-1.5 ${bgColor} ${textColor} border-0 [&_svg]:size-3`}
-        >
-          {icon}
-          {difficulty}
-        </Badge>
+        <div className="text-left text-sm text-muted-foreground">
+          {row.original.time}
+        </div>
       );
     },
   },
   {
     accessorKey: "status",
-    header: () => <div className="w-full text-right">Trạng thái</div>,
-    cell: ({ row }) => (
-      <div className="text-right pr-2 font-medium tabular-nums">
-        {row.original.status}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "duration",
-    header: () => <div className="w-full text-right">Thực thi</div>,
-    cell: ({ row }) => (
-      <div className="text-right pr-2 font-medium tabular-nums">
-        {row.original.duration}%
-      </div>
-    ),
-  },
-  {
-    accessorKey: "result",
-    header: "Kết quả",
+    header: "Trạng thái",
     cell: ({ row }) => {
-      const result = row.original.result;
-
-      // Xác định icon, màu sắc và hiệu ứng dựa trên trạng thái
+      const status = row.original.status;
       let icon = null;
-      let bgColor = "";
-      let textColor = "";
-      let displayText = result;
+      let bgColor = "bg-red-100 dark:bg-red-900/20";
+      let textColor = "text-red-700 dark:text-red-400";
+      let displayText = status;
+
+      switch (status) {
+        case "AC":
+          icon = <CircleCheckIcon className="size-3" />;
+          bgColor = "bg-green-100 dark:bg-green-900/20";
+          textColor = "text-green-700 dark:text-green-400";
+          displayText = "Accepted";
+          break;
+        case "WA":
+          icon = <XCircleIcon className="size-3" />;
+          displayText = "Wrong Answer";
+          break;
+        case "TLE":
+          icon = <TimerIcon className="size-3" />;
+          displayText = "Time Limit Exceeded";
+          break;
+        case "RE":
+          icon = <AlertTriangleIcon className="size-3" />;
+          displayText = "Runtime Error";
+          break;
+        default:
+          icon = <CircleIcon className="size-3" />;
+          bgColor = "bg-gray-100 dark:bg-gray-900/20";
+          textColor = "text-gray-700 dark:text-gray-400";
+      }
 
       return (
         <Badge
@@ -176,11 +174,46 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     },
   },
   {
+    accessorKey: "duration",
+    header: () => <div className="w-full text-right">Thực thi</div>,
+    cell: ({ row }) => (
+      <div className="text-right tabular-nums">{row.original.duration}</div>
+    ),
+  },
+  {
+    accessorKey: "result",
+    header: "Kết quả",
+    cell: ({ row }) => {
+      const result = row.original.result;
+      const [passed, total] = result.split("/").map(Number);
+
+      let bgColor = "";
+      let textColor = "";
+
+      if (passed === total) {
+        bgColor = "bg-green-100 dark:bg-green-900/20";
+        textColor = "text-green-700 dark:text-green-400";
+      } else {
+        bgColor = "bg-red-100 dark:bg-red-900/20";
+        textColor = "text-red-700 dark:text-red-400";
+      }
+
+      return (
+        <Badge
+          variant="outline"
+          className={`px-2 py-1 ${bgColor} ${textColor} border-0 font-medium rounded-full transition-all duration-200 hover:bg-opacity-80`}
+        >
+          {result}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "type",
     header: () => <div className="w-full text-right">Database</div>,
     cell: ({ row }) => (
       <div className="text-right pr-2 font-medium tabular-nums">
-        {row.original.type}%
+        {row.original.type}
       </div>
     ),
   },
@@ -224,16 +257,27 @@ export function HistoryTable({ data }: { data: z.infer<typeof schema>[] }) {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  // Calculate statistics
+  const stats = React.useMemo(() => {
+    const accepted = data.filter((item) => item.status === "AC").length;
+    const total = data.length;
+    const wrongAnswer = data.filter((item) => item.status === "WA").length;
+    const timeLimit = data.filter((item) => item.status === "TLE").length;
+    const runtimeError = data.filter((item) => item.status === "RE").length;
+
+    return { accepted, wrongAnswer, timeLimit, runtimeError, total };
+  }, [data]);
+
   return (
     <Tabs
-      defaultValue="outline"
+      defaultValue="all"
       className="flex w-full flex-col justify-start gap-6"
     >
       <div className="flex items-center justify-between px-4 lg:px-6">
         <Label htmlFor="view-selector" className="sr-only">
           View
         </Label>
-        <Select defaultValue="outline">
+        <Select defaultValue="all">
           <SelectTrigger
             className="@4xl/main:hidden flex w-fit"
             id="view-selector"
@@ -241,33 +285,41 @@ export function HistoryTable({ data }: { data: z.infer<typeof schema>[] }) {
             <SelectValue placeholder="Select a view" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="outline">Outline</SelectItem>
-            <SelectItem value="past-performance">Rejected</SelectItem>
-            <SelectItem value="key-personnel">Accepted</SelectItem>
-            <SelectItem value="focus-documents">Not started</SelectItem>
+            <SelectItem value="all">Tất cả</SelectItem>
+            <SelectItem value="accepted">Accepted</SelectItem>
+            <SelectItem value="wrong-answer">Wrong Answer</SelectItem>
+            <SelectItem value="time-limit">Time Limit</SelectItem>
           </SelectContent>
         </Select>
         <TabsList className="@4xl/main:flex hidden">
-          <TabsTrigger value="outline">Outline</TabsTrigger>
-          <TabsTrigger value="past-performance" className="gap-1">
-            Rejected{" "}
-            <Badge
-              variant="secondary"
-              className="flex h-5 w-5 items-center justify-center rounded-full bg-muted-foreground/30"
-            >
-              3
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="key-personnel" className="gap-1">
+          <TabsTrigger value="all">Tất cả</TabsTrigger>
+          <TabsTrigger value="accepted" className="gap-1">
             Accepted{" "}
             <Badge
               variant="secondary"
-              className="flex h-5 w-5 items-center justify-center rounded-full bg-muted-foreground/30"
+              className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500/20 text-green-700"
             >
-              2
+              {stats.accepted}
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="focus-documents">Not Started</TabsTrigger>
+          <TabsTrigger value="wrong-answer" className="gap-1">
+            Wrong Answer{" "}
+            <Badge
+              variant="secondary"
+              className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500/20 text-red-700"
+            >
+              {stats.wrongAnswer}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="time-limit" className="gap-1">
+            Time Limit{" "}
+            <Badge
+              variant="secondary"
+              className="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-500/20 text-yellow-700"
+            >
+              {stats.timeLimit}
+            </Badge>
+          </TabsTrigger>
         </TabsList>
         <div className="flex items-center gap-2">
           <DropdownMenu>
@@ -307,7 +359,7 @@ export function HistoryTable({ data }: { data: z.infer<typeof schema>[] }) {
               placeholder="Search..."
               className="h-9 w-[150px] lg:w-[250px]"
               onChange={(event) =>
-                table.getColumn("header")?.setFilterValue(event.target.value)
+                table.getColumn("question")?.setFilterValue(event.target.value)
               }
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -317,7 +369,7 @@ export function HistoryTable({ data }: { data: z.infer<typeof schema>[] }) {
         </div>
       </div>
       <TabsContent
-        value="outline"
+        value="all"
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
         <div className="overflow-hidden rounded-lg border">
@@ -450,17 +502,20 @@ export function HistoryTable({ data }: { data: z.infer<typeof schema>[] }) {
         </div>
       </TabsContent>
       <TabsContent
-        value="past-performance"
-        className="flex flex-col px-4 lg:px-6"
+        value="accepted"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
         <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
       </TabsContent>
-      <TabsContent value="key-personnel" className="flex flex-col px-4 lg:px-6">
+      <TabsContent
+        value="wrong-answer"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+      >
         <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
       </TabsContent>
       <TabsContent
-        value="focus-documents"
-        className="flex flex-col px-4 lg:px-6"
+        value="time-limit"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
         <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
       </TabsContent>
