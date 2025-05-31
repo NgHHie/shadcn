@@ -7,7 +7,7 @@ import { SalesAnalyticsDashboard } from "@/components/editor/sales-analytics-das
 import { SidebarPanel } from "@/components/editor/sidebar-panel";
 
 export function ResizableLayout() {
-  const [sidebarWidth, setSidebarWidth] = useState(320); // Initial width in pixels
+  const [sidebarWidth, setSidebarWidth] = useState(500); // Initial width in pixels
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 

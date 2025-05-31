@@ -6,6 +6,7 @@
     "points": 2500,
     "weeklyPoints": 2500,
     "monthlyPoints": 8500,
+    "questionsAnswered": 125,
     "avatar": "TV",
     "period": "weekly"
   },
@@ -16,6 +17,7 @@
     "points": 2100,
     "weeklyPoints": 2100,
     "monthlyPoints": 7800,
+    "questionsAnswered": 105,
     "avatar": "HS",
     "period": "weekly"
   },
@@ -26,6 +28,7 @@
     "points": 1850,
     "weeklyPoints": 1850,
     "monthlyPoints": 7200,
+    "questionsAnswered": 93,
     "avatar": "HT",
     "period": "weekly"
   },
@@ -36,6 +39,7 @@
     "points": 1650,
     "weeklyPoints": 1650,
     "monthlyPoints": 6850,
+    "questionsAnswered": 82,
     "avatar": "CM",
     "period": "weekly"
   },
@@ -46,6 +50,7 @@
     "points": 1520,
     "weeklyPoints": 1520,
     "monthlyPoints": 6500,
+    "questionsAnswered": 76,
     "avatar": "SE",
     "period": "weekly"
   },
@@ -56,6 +61,7 @@
     "points": 1380,
     "weeklyPoints": 1380,
     "monthlyPoints": 6200,
+    "questionsAnswered": 69,
     "avatar": "DA",
     "period": "weekly"
   },
@@ -66,6 +72,7 @@
     "points": 1250,
     "weeklyPoints": 1250,
     "monthlyPoints": 5980,
+    "questionsAnswered": 62,
     "avatar": "QN",
     "period": "weekly"
   },
@@ -76,6 +83,7 @@
     "points": 1180,
     "weeklyPoints": 1180,
     "monthlyPoints": 5750,
+    "questionsAnswered": 59,
     "avatar": "DG",
     "period": "weekly"
   },
@@ -86,6 +94,7 @@
     "points": 1050,
     "weeklyPoints": 1050,
     "monthlyPoints": 5500,
+    "questionsAnswered": 52,
     "avatar": "SL",
     "period": "weekly"
   },
@@ -96,6 +105,7 @@
     "points": 980,
     "weeklyPoints": 980,
     "monthlyPoints": 5250,
+    "questionsAnswered": 49,
     "avatar": "TS",
     "period": "weekly"
   },
@@ -106,6 +116,7 @@
     "points": 8500,
     "weeklyPoints": 2500,
     "monthlyPoints": 8500,
+    "questionsAnswered": 340,
     "avatar": "SM",
     "period": "monthly"
   },
@@ -116,6 +127,7 @@
     "points": 7800,
     "weeklyPoints": 2100,
     "monthlyPoints": 7800,
+    "questionsAnswered": 312,
     "avatar": "DK",
     "period": "monthly"
   },
@@ -126,6 +138,7 @@
     "points": 7200,
     "weeklyPoints": 1850,
     "monthlyPoints": 7200,
+    "questionsAnswered": 288,
     "avatar": "QQ",
     "period": "monthly"
   },
@@ -136,6 +149,7 @@
     "points": 6850,
     "weeklyPoints": 1650,
     "monthlyPoints": 6850,
+    "questionsAnswered": 274,
     "avatar": "TV",
     "period": "monthly"
   },
@@ -146,6 +160,7 @@
     "points": 6500,
     "weeklyPoints": 1520,
     "monthlyPoints": 6500,
+    "questionsAnswered": 260,
     "avatar": "CE",
     "period": "monthly"
   },
@@ -156,6 +171,7 @@
     "points": 6200,
     "weeklyPoints": 1380,
     "monthlyPoints": 6200,
+    "questionsAnswered": 248,
     "avatar": "DS",
     "period": "monthly"
   },
@@ -166,6 +182,7 @@
     "points": 5980,
     "weeklyPoints": 1250,
     "monthlyPoints": 5980,
+    "questionsAnswered": 239,
     "avatar": "SN",
     "period": "monthly"
   },
@@ -176,6 +193,7 @@
     "points": 5750,
     "weeklyPoints": 1180,
     "monthlyPoints": 5750,
+    "questionsAnswered": 230,
     "avatar": "DW",
     "period": "monthly"
   },
@@ -186,6 +204,7 @@
     "points": 5500,
     "weeklyPoints": 1050,
     "monthlyPoints": 5500,
+    "questionsAnswered": 220,
     "avatar": "QM",
     "period": "monthly"
   },
@@ -196,6 +215,7 @@
     "points": 5250,
     "weeklyPoints": 980,
     "monthlyPoints": 5250,
+    "questionsAnswered": 210,
     "avatar": "TL",
     "period": "monthly"
   }

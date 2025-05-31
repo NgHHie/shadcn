@@ -1,35 +1,67 @@
 // src/components/editor/sidebar-panel.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  MessageSquare,
-  BookOpen,
-  Bot,
-  Paperclip,
-  ArrowUp,
-  ChevronDown,
-} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { MessageSquare, BookOpen, Bot, Paperclip, ArrowUp } from "lucide-react";
+import { QuestionSelector } from "@/components/editor/question-selector";
 
-import { DataTable } from "@/components/dashboard/data-table";
-import data from "@/app/dashboard/data.json";
+// Import data từ file JSON
+import questionsData from "./data/questions-data.json";
+
+interface Question {
+  id: number;
+  title: string;
+  status: "AC" | "WA" | "TLE" | "Not Started";
+  difficulty: "Easy" | "Medium" | "Hard";
+  type: string;
+  category: string;
+  tags: string[];
+  code: string;
+  description: string;
+}
 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
-export function SidebarPanel() {
+interface SidebarPanelProps {
+  onQuestionChange?: (question: Question) => void;
+}
+
+export function SidebarPanel({ onQuestionChange }: SidebarPanelProps) {
   const [activeTab, setActiveTab] = useState("assignment");
   const [inputValue, setInputValue] = useState("");
+  const [currentQuestionId, setCurrentQuestionId] = useState(1); // Default to first question
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       content: "Xin chào! Tôi có thể giúp gì cho bạn với bài tập SQL này?",
     },
   ]);
+
+  // Cast imported data to proper type
+  const questions: Question[] = questionsData as Question[];
+
+  // Set initial question
+  useEffect(() => {
+    const initialQuestion = questions.find((q) => q.id === currentQuestionId);
+    if (initialQuestion) {
+      setCurrentQuestion(initialQuestion);
+    }
+  }, []);
+
+  const handleQuestionChange = (question: Question) => {
+    setCurrentQuestionId(question.id);
+    setCurrentQuestion(question);
+    if (onQuestionChange) {
+      onQuestionChange(question);
+    }
+  };
 
   const handleSendMessage = () => {
     if (inputValue.trim()) {
@@ -46,6 +78,40 @@ export function SidebarPanel() {
         ]);
       }, 1000);
       setInputValue("");
+    }
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case "SELECT":
+        return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200";
+      case "INSERT":
+        return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200";
+      case "UPDATE":
+        return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200";
+      case "DELETE":
+        return "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200";
+      case "CREATE":
+        return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200";
+      case "PROCEDURE":
+        return "bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200";
+      case "INDEX":
+        return "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-200";
+      default:
+        return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200";
+    }
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "Easy":
+        return "text-green-600 dark:text-green-400";
+      case "Medium":
+        return "text-yellow-600 dark:text-yellow-400";
+      case "Hard":
+        return "text-red-600 dark:text-red-400";
+      default:
+        return "text-gray-600 dark:text-gray-400";
     }
   };
 
@@ -89,63 +155,56 @@ export function SidebarPanel() {
           <div className="flex-1 pb-2 overflow-auto h-full">
             <div className="pb-8 space-y-4">
               <div className="flex items-center justify-between gap-2 w-full">
-                <h3 className="font-bold text-lg mb-2 text-foreground truncate flex-shrink min-w-0">
-                  Phân tích dữ liệu bán hàng
-                </h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1 whitespace-nowrap flex-shrink-0"
-                >
-                  <span className="text-sm">Chọn câu hỏi</span>
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-lg mb-1 text-foreground truncate">
+                    {currentQuestion?.title || "Chọn câu hỏi"}
+                  </h3>
+
+                  {/* Question metadata - Type and Difficulty only */}
+                  {currentQuestion && (
+                    <div className="flex items-center gap-2 mb-3">
+                      <Badge
+                        variant="outline"
+                        className={`text-xs px-2 py-1 font-mono font-semibold ${getTypeColor(
+                          currentQuestion.type
+                        )} border-0`}
+                      >
+                        {currentQuestion.type}
+                      </Badge>
+                      <span
+                        className={`text-sm font-medium ${getDifficultyColor(
+                          currentQuestion.difficulty
+                        )}`}
+                      >
+                        {currentQuestion.difficulty}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <QuestionSelector
+                  currentQuestionId={currentQuestionId}
+                  onQuestionChange={handleQuestionChange}
+                />
               </div>
-              <p className="text-sm mb-4 text-muted-foreground">
-                Sử dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng
-                qua. Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân
-                tích dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả
-                về các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
-                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:Sử
-                dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua.
-                Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân tích
-                dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về
-                các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
-                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:Sử
-                dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua.
-                Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân tích
-                dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về
-                các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
-                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:Sử
-                dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua.
-                Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân tích
-                dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về
-                các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
-                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:Sử
-                dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua.
-                Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân tích
-                dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về
-                các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
-                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:Sử
-                dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua.
-                Truy vấn cần trả về các thông tin sau:Sử dụng SQL để phân tích
-                dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về
-                các thông tin sau:Sử dụng SQL để phân tích dữ liệu cơ hội bán
-                hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:
-              </p>
-              <ul className="list-disc pl-5 text-sm space-y-2 mb-4 text-muted-foreground">
-                <li>Ngày tạo cơ hội (theo ngày)</li>
-                <li>Ngày tạo cơ hội (theo tuần)</li>
-                <li>Ngày trong tuần</li>
-                <li>Chủ sở hữu cơ hội</li>
-                <li>Trạng thái cơ hội</li>
-                <li>Tổng giá trị cơ hội</li>
-                <li>Số lượng cơ hội</li>
-              </ul>
-              <p className="text-sm text-muted-foreground">
-                Kết quả cần được nhóm theo ngày, tuần và chủ sở hữu để phân tích
-                hiệu suất bán hàng.
-              </p>
+
+              {/* Question description */}
+              <div className="prose prose-sm max-w-none">
+                <p className="text-sm mb-4 text-foreground whitespace-pre-line leading-relaxed">
+                  {currentQuestion?.description ||
+                    `Sử dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:
+
+• Ngày tạo cơ hội (theo ngày)
+• Ngày tạo cơ hội (theo tuần)
+• Ngày trong tuần
+• Chủ sở hữu cơ hội
+• Trạng thái cơ hội
+• Tổng giá trị cơ hội
+• Số lượng cơ hội
+
+Kết quả cần được nhóm theo ngày, tuần và chủ sở hữu để phân tích hiệu suất bán hàng.`}
+                </p>
+              </div>
             </div>
           </div>
         </TabsContent>
@@ -165,83 +224,11 @@ export function SidebarPanel() {
               </div>
               <div className="bg-muted p-3 rounded-lg">
                 <p className="text-sm font-medium mb-1 text-foreground">
-                  Nguyễn Văn A
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Tôi đang gặp vấn đề với hàm DATE_TRUNC, nó không hoạt động
-                  trong MySQL. Có ai biết cách thay thế không?
-                </p>
-              </div>
-              <div className="bg-muted p-3 rounded-lg">
-                <p className="text-sm font-medium mb-1 text-foreground">
-                  Nguyễn Văn A
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Tôi đang gặp vấn đề với hàm DATE_TRUNC, nó không hoạt động
-                  trong MySQL. Có ai biết cách thay thế không?
-                </p>
-              </div>
-              <div className="bg-muted p-3 rounded-lg">
-                <p className="text-sm font-medium mb-1 text-foreground">
-                  Nguyễn Văn A
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Tôi đang gặp vấn đề với hàm DATE_TRUNC, nó không hoạt động
-                  trong MySQL. Có ai biết cách thay thế không?
-                </p>
-              </div>
-              <div className="bg-muted p-3 rounded-lg">
-                <p className="text-sm font-medium mb-1 text-foreground">
                   Trần Thị B
                 </p>
                 <p className="text-sm text-muted-foreground">
                   Trong MySQL bạn có thể dùng DATE_FORMAT hoặc YEARWEEK để nhóm
                   theo tuần. Ví dụ: DATE_FORMAT(created_date, '%Y-%m-%d')
-                </p>
-              </div>
-              <div className="bg-muted p-3 rounded-lg">
-                <p className="text-sm font-medium mb-1 text-foreground">
-                  Lê Văn C
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Tôi thấy truy vấn này có thể tối ưu hơn bằng cách thêm index
-                  cho cột created_date và owner_id.
-                </p>
-              </div>
-              <div className="bg-muted p-3 rounded-lg">
-                <p className="text-sm font-medium mb-1 text-foreground">
-                  Lê Văn C
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Tôi thấy truy vấn này có thể tối ưu hơn bằng cách thêm index
-                  cho cột created_date và owner_id.
-                </p>
-              </div>
-              <div className="bg-muted p-3 rounded-lg">
-                <p className="text-sm font-medium mb-1 text-foreground">
-                  Lê Văn C
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Tôi thấy truy vấn này có thể tối ưu hơn bằng cách thêm index
-                  cho cột created_date và owner_id.
-                </p>
-              </div>
-              <div className="bg-muted p-3 rounded-lg">
-                <p className="text-sm font-medium mb-1 text-foreground">
-                  Lê Văn C
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Tôi thấy truy vấn này có thể tối ưu hơn bằng cách thêm index
-                  cho cột created_date và owner_id.
-                </p>
-              </div>
-              <div className="bg-muted p-3 rounded-lg">
-                <p className="text-sm font-medium mb-1 text-foreground">
-                  Lê Văn C
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Tôi thấy truy vấn này có thể tối ưu hơn bằng cách thêm index
-                  cho cột created_date và owner_id.
                 </p>
               </div>
             </div>

@@ -5,13 +5,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Editor() {
   const isMobile = useIsMobile();
-  const [sidebarWidth, setSidebarWidth] = useState(500); // For desktop
+  const [sidebarWidth, setSidebarWidth] = useState(600); // For desktop
   const [sidebarHeight, setSidebarHeight] = useState(300); // For mobile
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Desktop constraints
-  const minSidebarWidth = 240;
+  const minSidebarWidth = 400;
   const maxSidebarWidth = 1000;
 
   // Mobile constraints

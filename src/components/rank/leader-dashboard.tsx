@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Trophy, Star, Crown, Award, Users, TrendingUp } from "lucide-react";
+import {
+  Trophy,
+  Star,
+  Crown,
+  Award,
+  Users,
+  TrendingUp,
+  Target,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -20,7 +28,7 @@ import {
 } from "@/components/ui/table";
 import { z } from "zod";
 
-// Schema định nghĩa
+// Schema định nghĩa với trường questionsAnswered mới
 export const schema = z.object({
   id: z.number(),
   rank: z.number(),
@@ -28,6 +36,7 @@ export const schema = z.object({
   points: z.number(),
   weeklyPoints: z.number(),
   monthlyPoints: z.number(),
+  questionsAnswered: z.number(),
   avatar: z.string(),
   period: z.string(),
 });
@@ -54,16 +63,17 @@ export function Leaderboard({ data }: { data: SchemaType[] }) {
     monthlyPoints: 1580,
     weeklyRank: 156,
     monthlyRank: 89,
+    questionsAnswered: 24,
   };
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Crown className="w-5 h-5 text-yellow-500" />;
+        return <Crown className="w-5 h-5 text-yellow-500 drop-shadow-lg" />;
       case 2:
-        return <Award className="w-5 h-5 text-gray-400" />;
+        return <Award className="w-5 h-5 text-gray-400 drop-shadow-lg" />;
       case 3:
-        return <Star className="w-5 h-5 text-amber-600" />;
+        return <Star className="w-5 h-5 text-amber-600 drop-shadow-lg" />;
       default:
         return (
           <span className="text-lg font-bold text-muted-foreground">
@@ -76,11 +86,11 @@ export function Leaderboard({ data }: { data: SchemaType[] }) {
   const getPodiumStyle = (rank: number) => {
     switch (rank) {
       case 1:
-        return "bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-500/30 transform scale-105";
+        return "bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-500/30 shadow-2xl shadow-yellow-500/30";
       case 2:
-        return "bg-gradient-to-br from-gray-400/20 to-gray-600/20 border-gray-400/30";
+        return "bg-gradient-to-br from-gray-400/20 to-gray-600/20 border-gray-400/30 shadow-xl shadow-gray-400/25";
       case 3:
-        return "bg-gradient-to-br from-amber-600/20 to-orange-600/20 border-amber-600/30";
+        return "bg-gradient-to-br from-amber-600/20 to-orange-600/20 border-amber-600/30 shadow-xl shadow-amber-600/25";
       default:
         return "bg-card border-border";
     }
@@ -97,6 +107,7 @@ export function Leaderboard({ data }: { data: SchemaType[] }) {
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      {/* Header với animation */}
       <div className="px-4 lg:px-6">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -109,7 +120,7 @@ export function Leaderboard({ data }: { data: SchemaType[] }) {
       </div>
 
       <div className="px-4 lg:px-6">
-        {/* Period Toggle */}
+        {/* Period Toggle với animation */}
         <div className="flex justify-center mb-8">
           <ToggleGroup
             type="single"
@@ -128,70 +139,78 @@ export function Leaderboard({ data }: { data: SchemaType[] }) {
           </ToggleGroup>
         </div>
 
-        {/* Podium */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 md:items-end">
-          {topThree.map((user, index) => {
-            const actualRank = user.rank;
-            const order =
-              actualRank === 1
-                ? "order-1 md:order-2"
-                : actualRank === 2
-                ? "order-2 md:order-1"
-                : "order-3";
+        {/* Podium với staggered animation */}
+        <div className="flex justify-center mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full max-w-4xl md:items-end">
+            {topThree.map((user, index) => {
+              const actualRank = user.rank;
+              const order =
+                actualRank === 1
+                  ? "order-1 md:order-2"
+                  : actualRank === 2
+                  ? "order-2 md:order-1"
+                  : "order-3";
 
-            return (
-              <Card
-                key={user.id}
-                className={`p-6 text-center ${getPodiumStyle(
-                  actualRank
-                )} ${order}`}
-              >
-                <CardContent className="p-0">
-                  <div className="flex justify-center mb-2">
-                    {getRankIcon(actualRank)}
-                  </div>
-                  <div
-                    className={`mx-auto mb-4 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-xl ${
-                      actualRank === 1
-                        ? "w-20 h-20 from-yellow-500 to-orange-500"
-                        : "w-16 h-16 from-gray-400 to-gray-600"
-                    } ${
-                      actualRank === 3 ? "from-amber-600 to-orange-600" : ""
-                    }`}
-                  >
-                    {user.avatar}
-                  </div>
-                  <h3
-                    className={`font-semibold mb-2 ${
-                      actualRank === 1 ? "text-xl font-bold" : "text-lg"
-                    }`}
-                  >
-                    {user.name}
-                  </h3>
-                  <div
-                    className={`flex items-center justify-center gap-1 font-bold ${
-                      actualRank === 1
-                        ? "text-yellow-500 text-lg"
-                        : "text-primary"
-                    }`}
-                  >
-                    <Trophy
-                      className={`${actualRank === 1 ? "w-5 h-5" : "w-4 h-4"}`}
-                    />
-                    <span>
-                      {(selectedPeriod === "weekly"
-                        ? user.weeklyPoints
-                        : user.monthlyPoints
-                      ).toLocaleString()}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+              return (
+                <Card
+                  key={user.id}
+                  className={`p-4 md:p-6 text-center hover:scale-105 transition-transform duration-200 ${getPodiumStyle(
+                    actualRank
+                  )} ${order}`}
+                >
+                  <CardContent className="p-0">
+                    <div className="flex justify-center mb-2">
+                      {getRankIcon(actualRank)}
+                    </div>
+                    <div
+                      className={`mx-auto mb-4 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-xl ${
+                        actualRank === 1
+                          ? "w-20 h-20 from-yellow-500 to-orange-500"
+                          : "w-16 h-16 from-gray-400 to-gray-600"
+                      } ${
+                        actualRank === 3 ? "from-amber-600 to-orange-600" : ""
+                      }`}
+                    >
+                      {user.avatar}
+                    </div>
+                    <h3
+                      className={`font-semibold mb-2 ${
+                        actualRank === 1 ? "text-xl font-bold" : "text-lg"
+                      }`}
+                    >
+                      {user.name}
+                    </h3>
+                    <div
+                      className={`flex items-center justify-center gap-1 font-bold mb-2 ${
+                        actualRank === 1
+                          ? "text-yellow-500 text-lg"
+                          : "text-primary"
+                      }`}
+                    >
+                      <Trophy
+                        className={`${
+                          actualRank === 1 ? "w-5 h-5" : "w-4 h-4"
+                        }`}
+                      />
+                      <span>
+                        {(selectedPeriod === "weekly"
+                          ? user.weeklyPoints
+                          : user.monthlyPoints
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
+                      <Target className="w-3 h-3" />
+                      <span>{user.questionsAnswered} câu</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </div>
 
-        {/* User Status */}
+        {/* User Status với animation */}
         <Card className="mb-8">
           <CardContent className="p-4">
             <div className="text-center">
@@ -204,8 +223,12 @@ export function Leaderboard({ data }: { data: SchemaType[] }) {
                 <span className="text-primary font-bold">
                   {currentUserPoints.toLocaleString()}
                 </span>{" "}
-                điểm {selectedPeriod === "weekly" ? "tuần này" : "tháng này"} và
-                đang xếp hạng{" "}
+                điểm {selectedPeriod === "weekly" ? "tuần này" : "tháng này"},
+                hoàn thành{" "}
+                <span className="text-primary font-bold">
+                  {currentUser.questionsAnswered}
+                </span>{" "}
+                câu hỏi và đang xếp hạng{" "}
                 <Badge variant="secondary" className="font-bold">
                   #{currentUserRank}
                 </Badge>
@@ -214,7 +237,7 @@ export function Leaderboard({ data }: { data: SchemaType[] }) {
           </CardContent>
         </Card>
 
-        {/* Leaderboard Table */}
+        {/* Leaderboard Table với animation */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -230,11 +253,12 @@ export function Leaderboard({ data }: { data: SchemaType[] }) {
                   <TableRow>
                     <TableHead className="w-20">Hạng</TableHead>
                     <TableHead>Tên học viên</TableHead>
+                    <TableHead className="text-center">Số câu</TableHead>
                     <TableHead className="text-right">Điểm số</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {otherUsers.map((user) => (
+                  {otherUsers.map((user, index) => (
                     <TableRow
                       key={user.id}
                       className="hover:bg-sidebar-accent transition-colors"
@@ -245,6 +269,12 @@ export function Leaderboard({ data }: { data: SchemaType[] }) {
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
+                          <Target className="w-3 h-3" />
+                          <span>{user.questionsAnswered}</span>
+                        </div>
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
                           <Trophy className="w-4 h-4 text-primary" />
