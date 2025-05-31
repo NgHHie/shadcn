@@ -2,33 +2,33 @@
   "contests": [
     {
       "id": 1,
-      "name": "NHóm11_new",
-      "startDate": "2024-12-07T07:45:00",
-      "endDate": "2024-12-07T08:15:00",
-      "displayStartDate": "07:45 07/12/2024",
-      "displayEndDate": "08:15 07/12/2024",
+      "name": "NHóm11 new",
+      "startDate": "2024-06-02T07:45:00",
+      "endDate": "2024-06-02T08:15:00",
+      "displayStartDate": "07:45 02/06/2024",
+      "displayEndDate": "08:15 02/06/2024",
       "participants": 86,
       "status": "finished",
       "progress": 100,
       "description": "Cuộc thi lập trình nhóm 11 - Kiểm tra kỹ năng code cơ bản",
-      "difficulty": "medium"
+      "tags": ["Kiểm tra", "Nhóm"]
     },
     {
       "id": 2,
-      "name": "NHóm12_new",
-      "startDate": "2024-11-30T10:25:00",
-      "endDate": "2024-11-30T11:05:00",
-      "displayStartDate": "10:25 30/11/2024",
-      "displayEndDate": "11:05 30/11/2024",
+      "name": "NHóm12 new",
+      "startDate": "2025-06-01T10:25:00",
+      "endDate": "2025-06-01T11:05:00",
+      "displayStartDate": "10:25 01/06/2025",
+      "displayEndDate": "11:05 01/06/2025",
       "participants": 89,
       "status": "finished",
       "progress": 100,
       "description": "Cuộc thi lập trình nhóm 12 - Thử thách thuật toán nâng cao",
-      "difficulty": "hard"
+      "tags": ["Thử thách", "Nhóm"]
     },
     {
       "id": 3,
-      "name": "NHóm15_1_45_(13h40den14h10)_25/11",
+      "name": "NHóm15 1 45 (13h40den14h10) 25/11",
       "startDate": "2024-11-25T14:30:00",
       "endDate": "2024-11-25T14:40:00",
       "displayStartDate": "14:30 25/11/2024",
@@ -37,7 +37,7 @@
       "status": "finished",
       "progress": 100,
       "description": "Cuộc thi ngắn hạn nhóm 15 - Speedcoding challenge",
-      "difficulty": "easy"
+      "tags": ["Speedcoding", "Ngắn hạn"]
     },
     {
       "id": 4,
@@ -50,11 +50,11 @@
       "status": "ongoing",
       "progress": 75,
       "description": "Cuộc thi kiểm tra kiến thức tổng hợp - Multi-day challenge",
-      "difficulty": "medium"
+      "tags": ["Kiểm tra", "Đa ngày"]
     },
     {
       "id": 5,
-      "name": "NhómN08_CLC_Cóha",
+      "name": "NhómN08 CLC Cóha",
       "startDate": "2024-11-11T11:20:00",
       "endDate": "2024-11-11T11:50:00",
       "displayStartDate": "11:20 11/11/2024",
@@ -63,11 +63,11 @@
       "status": "finished",
       "progress": 100,
       "description": "Cuộc thi CLC nhóm N08 - Chương trình học chất lượng cao",
-      "difficulty": "medium"
+      "tags": ["CLC", "Chất lượng cao"]
     },
     {
       "id": 6,
-      "name": "NhómN07_CLC_Cóha",
+      "name": "NhómN07 CLC Cóha",
       "startDate": "2024-11-11T08:15:00",
       "endDate": "2024-11-11T08:45:00",
       "displayStartDate": "08:15 11/11/2024",
@@ -76,7 +76,7 @@
       "status": "finished",
       "progress": 100,
       "description": "Cuộc thi CLC nhóm N07 - Fundamental programming skills",
-      "difficulty": "easy"
+      "tags": ["CLC", "Cơ bản"]
     },
     {
       "id": 7,
@@ -89,7 +89,7 @@
       "status": "upcoming",
       "progress": 0,
       "description": "Cuộc thi phát triển AI trong 8 giờ - Build AI solutions",
-      "difficulty": "hard"
+      "tags": ["Hackathon", "AI", "Nâng cao"]
     },
     {
       "id": 8,
@@ -102,7 +102,7 @@
       "status": "upcoming",
       "progress": 0,
       "description": "Cuộc thi thiết kế web nhanh - Create stunning websites",
-      "difficulty": "medium"
+      "tags": ["Web", "Thiết kế"]
     },
     {
       "id": 9,
@@ -115,7 +115,7 @@
       "status": "upcoming",
       "progress": 0,
       "description": "Thiết kế cơ sở dữ liệu hiệu quả - Database optimization challenge",
-      "difficulty": "medium"
+      "tags": ["Database", "Tối ưu"]
     }
   ]
 }

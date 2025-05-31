@@ -149,14 +149,18 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     accessorKey: "target",
     header: () => <div className="w-full text-right">Tổng số submit</div>,
     cell: ({ row }) => (
-      <div className="text-right pr-2 tabular-nums">{row.original.target}</div>
+      <div className="text-right pr-2 tabular-nums text-muted-foreground">
+        {row.original.target}
+      </div>
     ),
   },
   {
     accessorKey: "limit",
     header: () => <div className="w-full text-right">Tỉ lệ đúng</div>,
     cell: ({ row }) => (
-      <div className="text-right pr-2 tabular-nums">{row.original.limit}%</div>
+      <div className="text-right pr-2 tabular-nums text-muted-foreground">
+        {row.original.limit}%
+      </div>
     ),
   },
   {
@@ -167,8 +171,8 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
 
       // Xác định icon, màu sắc và hiệu ứng dựa trên trạng thái
       let icon = null;
-      let bgColor = "";
-      let textColor = "";
+      let bgColor = "bg-red-100 dark:bg-red-900/20";
+      let textColor = "text-red-700 dark:text-red-400";
       let displayText = status;
 
       switch (status) {
@@ -179,18 +183,14 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           break;
         case "Accepted":
           icon = <CircleCheckIcon className="size-3" />;
-          bgColor = "bg-green-100";
-          textColor = "text-green-700";
+          bgColor = "bg-green-100 dark:bg-green-900/20";
+          textColor = "text-green-700 dark:text-green-400";
           break;
         case "Wrong Answer":
           icon = <XCircleIcon className="size-3" />;
-          bgColor = "bg-red-100";
-          textColor = "text-red-700";
           break;
         case "Time Limit Exceeded":
           icon = <TimerIcon className="size-3" />;
-          bgColor = "bg-yellow-100";
-          textColor = "text-yellow-700";
           displayText = "TLE";
           break;
         default:

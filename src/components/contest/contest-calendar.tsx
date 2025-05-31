@@ -3,7 +3,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar as CalendarIcon,
-  Users,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,7 @@ interface Contest {
   status: string;
   progress: number;
   description: string;
-  difficulty: string;
+  tags?: string[]; // Thêm trường tags cho các loại status phụ
 }
 
 interface ContestCalendarProps {
@@ -126,19 +125,6 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
     ? getContestsForDate(selectedDate)
     : [];
 
-  const getDifficultyVariant = (difficulty: string) => {
-    switch (difficulty) {
-      case "easy":
-        return "secondary";
-      case "medium":
-        return "outline";
-      case "hard":
-        return "destructive";
-      default:
-        return "outline";
-    }
-  };
-
   const getStatusText = (status: string) => {
     switch (status) {
       case "ongoing":
@@ -149,6 +135,19 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
         return "Đã kết thúc";
       default:
         return "Không xác định";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "ongoing":
+        return "text-green-600 bg-green-50 border-green-200";
+      case "upcoming":
+        return "text-blue-600 bg-blue-50 border-blue-200";
+      case "finished":
+        return "text-gray-600 bg-gray-50 border-gray-200";
+      default:
+        return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
 
@@ -165,7 +164,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
               variant="ghost"
               size="sm"
               onClick={() => navigateMonth("prev")}
-              className="h-6 w-6 p-0"
+              className="h-6 w-6 p-0 hover:bg-blue-100"
             >
               <ChevronLeft className="w-3 h-3" />
             </Button>
@@ -173,7 +172,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
               variant="ghost"
               size="sm"
               onClick={() => navigateMonth("next")}
-              className="h-6 w-6 p-0"
+              className="h-6 w-6 p-0 hover:bg-blue-100"
             >
               <ChevronRight className="w-3 h-3" />
             </Button>
@@ -218,26 +217,22 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
                 }
                 className={`
                   h-6 w-6 text-xs rounded-md transition-all duration-200 relative flex items-center justify-center font-medium
-                  ${
-                    isToday
-                      ? "bg-primary text-primary-foreground font-bold"
-                      : ""
-                  }
+                  ${isToday ? "bg-blue-500 text-white font-bold shadow-md" : ""}
                   ${
                     hasContestDay && !isToday
-                      ? "bg-accent text-accent-foreground border border-border"
+                      ? "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200"
                       : ""
                   }
                   ${
                     !hasContestDay && !isToday
-                      ? "hover:bg-accent text-foreground"
+                      ? "hover:bg-blue-50 text-foreground"
                       : ""
                   }
                 `}
               >
                 {day}
                 {hasContestDay && (
-                  <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-primary rounded-full"></div>
+                  <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-orange-500 rounded-full shadow-sm"></div>
                 )}
               </button>
             );
@@ -247,12 +242,12 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
         {/* Legend */}
         <div className="space-y-1 text-xs">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-primary rounded-full"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full shadow-sm"></div>
             <span className="text-muted-foreground">Hôm nay</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-accent border border-border rounded-full relative">
-              <div className="absolute -top-0.5 -right-0.5 w-1 h-1 bg-primary rounded-full"></div>
+            <div className="w-3 h-3 bg-green-100 border border-green-300 rounded-full relative">
+              <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
             </div>
             <span className="text-muted-foreground">Có cuộc thi</span>
           </div>
@@ -261,17 +256,18 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
         {/* Selected Date Info */}
         {selectedDate && (
           <div className="space-y-2">
-            <div className="p-2 bg-accent rounded-md border">
+            <div className=" rounded-lg ">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-foreground">
-                  Ngày: {selectedDate.getDate()}/{selectedDate.getMonth() + 1}/
+                <CalendarIcon className="w-4 h-4 text-blue-500" />
+                <p className="text-sm font-medium text-foreground">
+                  {selectedDate.getDate()}/{selectedDate.getMonth() + 1}/
                   {selectedDate.getFullYear()}
                 </p>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedDate(null)}
-                  className="h-4 w-4 p-0"
+                  className="h-5 w-5 p-0 hover:bg-red-100"
                 >
                   <X className="w-3 h-3" />
                 </Button>
@@ -279,32 +275,22 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
 
               {selectedDateContests.length > 0 ? (
                 <div className="mt-2 space-y-2">
-                  <p className="text-xs text-foreground font-medium flex items-center gap-1">
-                    <CalendarIcon className="w-3 h-3" />
+                  <p className="text-sm text-foreground font-medium flex items-center gap-1">
                     {selectedDateContests.length} cuộc thi:
                   </p>
-                  <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                  <div className="space-y-2">
                     {selectedDateContests.map((contest) => (
                       <div
                         key={contest.id}
-                        className="p-2 bg-card rounded border"
+                        className={`p-2 rounded-lg border ${getStatusColor(
+                          contest.status
+                        )}`}
                       >
-                        <div className="flex items-start justify-between gap-1">
-                          <h4 className="text-xs font-medium text-foreground line-clamp-1">
-                            {contest.name}
-                          </h4>
-                          <Badge
-                            variant={getDifficultyVariant(contest.difficulty)}
-                            className="text-xs px-1 py-0"
-                          >
-                            {contest.difficulty}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
-                          {contest.description}
-                        </p>
-                        <div className="flex items-center justify-between mt-1.5 text-xs">
-                          <span className="text-muted-foreground">
+                        <h4 className="text-xs font-medium leading-tight">
+                          {contest.name}
+                        </h4>
+                        <div className="flex items-center justify-between mt-1 text-xs">
+                          <span>
                             {new Date(contest.startDate).toLocaleTimeString(
                               "vi-VN",
                               {
@@ -321,14 +307,8 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
                               }
                             )}
                           </span>
-                          <span className="text-foreground font-medium">
+                          <span className="font-medium">
                             {getStatusText(contest.status)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1 mt-1">
-                          <Users className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">
-                            {contest.participants} người tham gia
                           </span>
                         </div>
                       </div>
@@ -336,7 +316,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   Không có cuộc thi
                 </p>
               )}

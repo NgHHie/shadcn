@@ -213,7 +213,7 @@ export function SidebarPanel({ onQuestionChange }: SidebarPanelProps) {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between gap-2 w-full">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-lg mb-1 text-foreground truncate">
+                      <h3 className="font-medium text-lg mb-1 text-foreground truncate">
                         {currentQuestion?.title || "Chọn câu hỏi"}
                       </h3>
 
@@ -222,7 +222,7 @@ export function SidebarPanel({ onQuestionChange }: SidebarPanelProps) {
                         <div className="flex items-center gap-2 mb-3">
                           <Badge
                             variant="outline"
-                            className={`text-xs px-2 py-1 font-mono font-semibold ${getTypeColor(
+                            className={`text-xs px-2 py-1 font-medium ${getTypeColor(
                               currentQuestion.type
                             )} border-0`}
                           >

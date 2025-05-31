@@ -1,4 +1,4 @@
-import { LucideCalendar, Clock, Users, Star } from "lucide-react";
+import { LucideCalendar, Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ interface Contest {
   status: string;
   progress: number;
   description: string;
-  difficulty: string;
+  tags?: string[]; // Thêm trường tags cho các loại status phụ
 }
 
 interface ContestCardProps {
@@ -22,33 +22,6 @@ interface ContestCardProps {
 }
 
 export function ContestCard({ contest }: ContestCardProps) {
-  const getDifficultyIcon = (difficulty: string) => {
-    const count = difficulty === "easy" ? 1 : difficulty === "medium" ? 2 : 3;
-    return (
-      <div className="flex">
-        {Array.from({ length: count }).map((_, i) => (
-          <Star
-            key={i}
-            className="w-3 h-3 text-muted-foreground fill-muted-foreground"
-          />
-        ))}
-      </div>
-    );
-  };
-
-  const getDifficultyText = (difficulty: string) => {
-    switch (difficulty) {
-      case "easy":
-        return "Dễ";
-      case "medium":
-        return "Trung bình";
-      case "hard":
-        return "Khó";
-      default:
-        return "Không xác định";
-    }
-  };
-
   const getStatusVariant = (status: string) => {
     switch (status) {
       case "ongoing":
@@ -75,73 +48,133 @@ export function ContestCard({ contest }: ContestCardProps) {
     }
   };
 
+  const getTagVariant = (tag: string) => {
+    switch (tag.toLowerCase()) {
+      case "kiểm tra":
+        return "destructive";
+      case "thực hành":
+        return "success";
+      case "thi thử":
+        return "warning";
+      default:
+        return "outline";
+    }
+  };
+
+  const getCardBorderColor = (status: string) => {
+    switch (status) {
+      case "ongoing":
+        return "border-green-500";
+      case "upcoming":
+        return "border-blue-500";
+      case "finished":
+        return "border-gray-400";
+      default:
+        return "border-l-1 border-l-gray-400";
+    }
+  };
+
+  const getProgressBarColor = (status: string) => {
+    switch (status) {
+      case "ongoing":
+        return "bg-green-500";
+      case "upcoming":
+        return "bg-blue-500";
+      case "finished":
+        return "bg-gray-400";
+      default:
+        return "bg-gray-400";
+    }
+  };
+
   return (
-    <Card className="p-4 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+    <Card
+      className={`p-4 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 ${getCardBorderColor(
+        contest.status
+      )}`}
+    >
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-foreground text-base leading-tight line-clamp-2">
+          <h3 className="font-semibold text-foreground text-base leading-tight">
             {contest.name}
           </h3>
-          <Badge variant={getStatusVariant(contest.status)}>
+          <Badge className={`shrink-0 ${getProgressBarColor(contest.status)}`}>
             {getStatusText(contest.status)}
           </Badge>
         </div>
 
-        <p className="text-sm text-muted-foreground line-clamp-2">
+        {/* Hiển thị các tags nếu có */}
+        {contest.tags && contest.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {contest.tags.map((tag, index) => {
+              const isKiemTra = tag.toLowerCase() === "kiểm tra";
+              return (
+                <div key={index} className="relative inline-block">
+                  <Badge
+                    variant={isKiemTra ? "destructive" : "outline"}
+                    className={`text-xs relative overflow-hidden ${
+                      isKiemTra ? "z-10" : "border-gray-400"
+                    }`}
+                  >
+                    {tag}
+                  </Badge>
+                  {isKiemTra && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="animate-ripple absolute block h-8 w-8 rounded-full bg-red-500 opacity-20"></span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <p className="text-xs text-muted-foreground leading-relaxed">
           {contest.description}
         </p>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            {getDifficultyIcon(contest.difficulty)}
-            <span className="text-sm text-muted-foreground">
-              {getDifficultyText(contest.difficulty)}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Users className="w-3 h-3 text-blue-500" />
+          <span>{contest.participants} người tham gia</span>
+        </div>
+
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-muted-foreground">
+              Bắt đầu:{" "}
+              <span className="text-foreground">
+                {contest.displayStartDate}
+              </span>
             </span>
           </div>
-          <div className="flex items-center gap-1">
-            <Users className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-semibold text-foreground">
-              {contest.participants}
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-muted-foreground">
+              Kết thúc:{" "}
+              <span className="text-foreground">{contest.displayEndDate}</span>
             </span>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <LucideCalendar className="w-4 h-4" />
-            <span className="truncate">
-              Bắt đầu: {contest.displayStartDate}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="w-4 h-4" />
-            <span className="truncate">Kết thúc: {contest.displayEndDate}</span>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="w-full bg-secondary rounded-full h-2">
+        <div className="space-y-1">
+          <div className="w-full bg-secondary rounded-full h-1.5">
             <div
-              className="bg-primary h-2 rounded-full transition-all duration-500"
+              className={`h-1.5 rounded-full transition-all duration-500 ${getProgressBarColor(
+                contest.status
+              )}`}
               style={{ width: `${contest.progress}%` }}
             />
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button size="sm" variant="outline" className="flex-1 text-xs">
-            Kiểm tra
-          </Button>
-          {contest.status === "ongoing" && (
-            <Button size="sm" className="flex-1 text-xs">
-              Thực hành
-            </Button>
-          )}
-        </div>
-
         <Button
-          variant="outline"
-          className="w-full text-sm"
+          variant={contest.status === "finished" ? "outline" : "default"}
+          className={`w-full text-sm font-medium ${
+            contest.status === "ongoing"
+              ? "bg-green-500 hover:bg-green-600 text-white"
+              : contest.status === "upcoming"
+              ? "bg-blue-500 hover:bg-blue-600 text-white"
+              : ""
+          }`}
           disabled={contest.status === "finished"}
         >
           {contest.status === "finished" ? "Đã tham gia" : "Tham gia"}

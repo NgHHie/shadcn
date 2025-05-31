@@ -247,7 +247,7 @@ export function Profile() {
     <div className="min-h-screen p-6">
       <div className="mx-auto">
         {/* Main Profile Card */}
-        <Card className="p-8 shadow-lg">
+        <Card className="px-4 py-6 shadow-lg">
           <div className="grid lg:grid-cols-3 gap-8 items-start">
             {/* Avatar Section */}
             <div className="lg:col-span-1 flex flex-col items-center">
