@@ -33,7 +33,7 @@ import {
   ClockIcon,
 } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { toast } from "sonner";
+import { toastSuccess, toastInfo, toastError } from "@/lib/toast";
 import { z } from "zod";
 
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -124,6 +124,31 @@ export function HistoryTable({ data }: { data: SchemaType[] }) {
   const handleRowClick = (submission: SchemaType) => {
     setSelectedSubmission(submission);
     setDialogOpen(true);
+    toastInfo(`Xem chi tiết submission: ${submission.question}`, {
+      description: `Kết quả: ${submission.result} - ${submission.status}`,
+    });
+  };
+  const handleViewSolution = () => {
+    toastSuccess("Mở solution", {
+      description: "Xem lời giải chi tiết cho bài tập này",
+      action: {
+        label: "Bookmark",
+        onClick: () => toastSuccess("Đã lưu solution vào bookmark"),
+      },
+    });
+  };
+
+  const handleResubmit = (submission: SchemaType) => {
+    toastInfo("Chuẩn bị submit lại", {
+      description: `Tải lại code cho bài: ${submission.question}`,
+      action: {
+        label: "Đi đến editor",
+        onClick: () => {
+          // Navigate to editor
+          toastSuccess("Đã tải code vào editor");
+        },
+      },
+    });
   };
 
   const columns: ColumnDef<SchemaType>[] = [
@@ -635,10 +660,35 @@ ORDER BY column_name;`}
               {selectedSubmission?.type}
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setDialogOpen(false);
+                  toastInfo("Đã đóng chi tiết submission");
+                }}
+              >
                 Đóng
               </Button>
-              <Button variant="default">View Solution</Button>
+              {selectedSubmission?.status !== "AC" && (
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    setDialogOpen(false);
+                    handleResubmit(selectedSubmission!);
+                  }}
+                >
+                  Submit lại
+                </Button>
+              )}
+              <Button
+                variant="default"
+                onClick={() => {
+                  setDialogOpen(false);
+                  handleViewSolution();
+                }}
+              >
+                View Solution
+              </Button>
             </div>
           </DialogFooter>
         </DialogContent>

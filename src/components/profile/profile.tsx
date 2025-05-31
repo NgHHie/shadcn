@@ -1,3 +1,4 @@
+// src/components/profile/profile.tsx
 "use client";
 
 import { useState } from "react";
@@ -17,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { toastSuccess, toastError, toastWarning, toastInfo } from "@/lib/toast";
 
 export function Profile() {
   const [isEditing, setIsEditing] = useState<string | null>(null);
@@ -30,15 +32,116 @@ export function Profile() {
 
   const handleEdit = (field: string) => {
     setIsEditing(field);
+    toastInfo(`Chỉnh sửa ${getFieldLabel(field)}`);
+  };
+
+  const getFieldLabel = (field: string) => {
+    const labels = {
+      firstName: "Họ",
+      lastName: "Tên",
+      email: "Email",
+      phone: "Số điện thoại",
+      birthday: "Ngày sinh",
+    };
+    return labels[field as keyof typeof labels] || field;
   };
 
   const handleSave = (field: string, value: string) => {
+    if (!value.trim()) {
+      toastWarning("Vui lòng nhập giá trị hợp lệ");
+      return;
+    }
+
+    // Validate email
+    if (field === "email" && !value.includes("@")) {
+      toastError("Email không hợp lệ", {
+        description: "Vui lòng nhập địa chỉ email đúng định dạng",
+      });
+      return;
+    }
+
+    // Validate phone
+    if (field === "phone" && !/^\d{10,11}$/.test(value)) {
+      toastError("Số điện thoại không hợp lệ", {
+        description: "Số điện thoại phải có 10-11 chữ số",
+      });
+      return;
+    }
+
     setProfileData((prev) => ({ ...prev, [field]: value }));
     setIsEditing(null);
+
+    toastSuccess(`Cập nhật ${getFieldLabel(field)} thành công!`, {
+      description: `${getFieldLabel(field)} đã được thay đổi thành: ${value}`,
+    });
   };
 
   const handleCancel = () => {
     setIsEditing(null);
+    toastInfo("Đã hủy chỉnh sửa");
+  };
+
+  const handleChangeAvatar = () => {
+    toastInfo("Thay đổi ảnh đại diện", {
+      description: "Chọn ảnh mới từ thiết bị của bạn",
+      action: {
+        label: "Chọn ảnh",
+        onClick: () => {
+          // Simulate file selection
+          setTimeout(() => {
+            if (Math.random() > 0.3) {
+              toastSuccess("Ảnh đại diện đã được cập nhật!");
+            } else {
+              toastError("Lỗi tải ảnh", {
+                description: "File ảnh không hợp lệ hoặc quá lớn",
+              });
+            }
+          }, 1000);
+        },
+      },
+    });
+  };
+
+  const handleSaveAllChanges = () => {
+    toastSuccess("Tất cả thay đổi đã được lưu!", {
+      description: "Thông tin cá nhân đã được cập nhật thành công",
+      duration: 5000,
+    });
+  };
+
+  const handleCancelAllChanges = () => {
+    setIsEditing(null);
+    toastWarning("Đã hủy tất cả thay đổi", {
+      description: "Thông tin trở về trạng thái ban đầu",
+    });
+  };
+
+  const handleChangePassword = (
+    newPassword: string,
+    confirmPassword: string
+  ) => {
+    if (!newPassword) {
+      toastWarning("Vui lòng nhập mật khẩu mới");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toastError("Mật khẩu quá ngắn", {
+        description: "Mật khẩu phải có ít nhất 6 ký tự",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toastError("Mật khẩu không khớp", {
+        description: "Mật khẩu xác nhận không trùng với mật khẩu mới",
+      });
+      return;
+    }
+
+    toastSuccess("Mật khẩu đã được thay đổi!", {
+      description: "Vui lòng đăng nhập lại với mật khẩu mới",
+    });
   };
 
   const PasswordField = ({
@@ -120,13 +223,7 @@ export function Profile() {
                   autoFocus
                 />
               </div>
-              <Button
-                size="sm"
-                onClick={() => handleSave(field, tempValue)}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Save className="w-4 h-4" />
-              </Button>
+
               <Button size="sm" variant="outline" onClick={handleCancel}>
                 <X className="w-4 h-4" />
               </Button>
@@ -154,7 +251,10 @@ export function Profile() {
           <div className="grid lg:grid-cols-3 gap-8 items-start">
             {/* Avatar Section */}
             <div className="lg:col-span-1 flex flex-col items-center">
-              <div className="relative group cursor-pointer">
+              <div
+                className="relative group cursor-pointer"
+                onClick={handleChangeAvatar}
+              >
                 <div className="w-64 h-64 rounded-full bg-gradient-to-br from-pink-400 via-red-400 to-orange-400 p-1 shadow-2xl transform transition-all duration-300 group-hover:scale-105">
                   <div className="w-full h-full rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center overflow-hidden border">
                     <div className="w-full h-full rounded-full bg-muted flex items-center justify-center text-6xl font-bold text-muted-foreground">
@@ -246,8 +346,14 @@ export function Profile() {
 
               {/* Action Buttons */}
               <div className="flex gap-4 mt-8 pt-6 border-t">
-                <Button className="px-6 py-2">Lưu thay đổi</Button>
-                <Button variant="outline" className="px-6 py-2">
+                <Button className="px-6 py-2" onClick={handleSaveAllChanges}>
+                  Lưu thay đổi
+                </Button>
+                <Button
+                  variant="outline"
+                  className="px-6 py-2"
+                  onClick={handleCancelAllChanges}
+                >
                   Hủy bỏ
                 </Button>
               </div>

@@ -73,9 +73,9 @@ export function AppSidebar({
       },
       {
         title: "Contest",
-        url: "#",
+        url: "/contest",
         icon: FolderIcon,
-        isActive: false,
+        isActive: location.pathname === "/contest",
       },
       // {
       //   title: "Discuss",

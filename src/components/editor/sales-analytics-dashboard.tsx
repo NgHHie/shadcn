@@ -18,6 +18,15 @@ import { QueryHistoryPanel } from "@/components/editor/query-history-panel";
 import { Card } from "@/components/ui/card";
 import { QueryHistoryItem } from "@/types/sales";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  toastSuccess,
+  toastError,
+  toastWarning,
+  toastInfo,
+  toastLoading,
+  toastPromise,
+  dismissToast,
+} from "@/lib/toast";
 
 // Import dữ liệu lịch sử truy vấn với kiểu đúng
 import queryHistoryDataJson from "./data/query-history-mock-data.json";
@@ -41,16 +50,136 @@ WHERE 0=0
   AND opp.created_date >= CURRENT_DATE - INTERVAL '2 months'`);
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [editorHeight, setEditorHeight] = useState(isMobile ? 150 : 200); // Smaller on mobile
+  const [editorHeight, setEditorHeight] = useState(isMobile ? 150 : 200);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<HTMLTextAreaElement>(null);
 
   const minEditorHeight = isMobile ? 100 : 50;
   const maxEditorHeight = isMobile ? 300 : 800;
 
-  // Xử lý kéo đổi kích thước
+  // Mock function to simulate SQL execution
+  const executeQuery = async (query: string) => {
+    // Simulate API call delay
+    await new Promise((resolve) =>
+      setTimeout(resolve, 2000 + Math.random() * 2000)
+    );
+
+    // Simulate success/failure randomly
+    if (Math.random() > 0.3) {
+      return {
+        success: true,
+        rows: 5240,
+        duration: (Math.random() * 0.1 + 0.01).toFixed(3) + "s",
+        data: [],
+      };
+    } else {
+      throw new Error("Syntax error: Invalid column name 'invalid_column'");
+    }
+  };
+
+  const handleSubmitQuery = async () => {
+    if (!sqlQuery.trim()) {
+      toastWarning("Vui lòng nhập SQL query trước khi thực thi");
+      return;
+    }
+
+    // Show loading toast
+    const loadingToastId = toastLoading("Đang thực thi SQL query...");
+
+    try {
+      const result = await executeQuery(sqlQuery);
+
+      // Dismiss loading toast
+      dismissToast(loadingToastId);
+
+      // Show success toast
+      toastSuccess("Query thực thi thành công!", {
+        description: `Trả về ${result.rows.toLocaleString()} rows trong ${
+          result.duration
+        }`,
+        action: {
+          label: "Xem chi tiết",
+          onClick: () => toastInfo("Chi tiết kết quả query"),
+        },
+      });
+    } catch (error: any) {
+      // Dismiss loading toast
+      dismissToast(loadingToastId);
+
+      // Show error toast
+      toastError("Lỗi thực thi SQL query", {
+        description: error.message,
+        duration: 6000,
+        action: {
+          label: "Sửa lỗi",
+          onClick: () => toastInfo("Gợi ý: Kiểm tra syntax và tên bảng/cột"),
+        },
+      });
+    }
+  };
+
+  const handleRunQuery = () => {
+    // Use toast promise for better UX
+    const queryPromise = executeQuery(sqlQuery);
+
+    toastPromise(queryPromise, {
+      loading: "Đang chạy SQL query...",
+      success: (result) =>
+        `Query hoàn thành! ${result.rows.toLocaleString()} rows trong ${
+          result.duration
+        }`,
+      error: (error) => `Lỗi: ${error.message}`,
+    });
+  };
+
+  const handleSaveQuery = () => {
+    if (!sqlQuery.trim()) {
+      toastWarning("Không có query để lưu");
+      return;
+    }
+
+    // Simulate save operation
+    setTimeout(() => {
+      toastSuccess("Query đã được lưu thành công!", {
+        description: "Query đã được thêm vào danh sách yêu thích",
+        action: {
+          label: "Xem danh sách",
+          onClick: () => toastInfo("Mở danh sách query đã lưu"),
+        },
+      });
+    }, 500);
+  };
+
+  const handleUploadFile = () => {
+    toastInfo("Tính năng upload file", {
+      description: "Chọn file SQL để import vào editor",
+      action: {
+        label: "Chọn file",
+        onClick: () => {
+          // Simulate file upload
+          setTimeout(() => {
+            if (Math.random() > 0.5) {
+              toastSuccess("File đã được upload thành công!");
+            } else {
+              toastError("Lỗi upload file", {
+                description: "File không đúng định dạng hoặc quá lớn",
+              });
+            }
+          }, 1000);
+        },
+      },
+    });
+  };
+
+  const handleSelectDatabase = () => {
+    toastInfo("Chọn loại database", {
+      description: "MySQL, PostgreSQL, SQL Server, Oracle",
+      duration: 3000,
+    });
+  };
+
+  // Existing drag handling code...
   const startDragging = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -64,7 +193,7 @@ WHERE 0=0
     if (isDragging && containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
       const containerTop = containerRect.top;
-      const newHeight = e.clientY - containerTop - 32; // 32px for header
+      const newHeight = e.clientY - containerTop - 32;
 
       if (newHeight >= minEditorHeight && newHeight <= maxEditorHeight) {
         setEditorHeight(newHeight);
@@ -84,7 +213,6 @@ WHERE 0=0
     };
   }, [isDragging]);
 
-  // Update editor height when switching between mobile/desktop
   useEffect(() => {
     if (isMobile && editorHeight > 300) {
       setEditorHeight(150);
@@ -95,24 +223,20 @@ WHERE 0=0
 
   const toggleHistory = () => {
     setIsHistoryOpen(!isHistoryOpen);
+    if (!isHistoryOpen) {
+      toastInfo("Mở lịch sử query", {
+        description: "Xem các query đã thực thi trước đó",
+      });
+    }
   };
 
   const handleSelectQuery = (query: QueryHistoryItem) => {
     console.log("Selected query:", query);
     setIsHistoryOpen(false);
+    toastSuccess("Đã tải query từ lịch sử", {
+      description: `Query từ ${query.time}`,
+    });
   };
-
-  // Handle editor input and syntax highlighting
-  const handleEditorChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setSqlQuery(e.target.value);
-  };
-
-  // Auto-focus khi component được render
-  useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.focus();
-    }
-  }, []);
 
   return (
     <div
@@ -143,7 +267,6 @@ WHERE 0=0
           </span>
         </div>
 
-        {/* Mobile: Stack buttons vertically when needed */}
         <div
           className={`flex items-center gap-2 ${
             isMobile ? "flex-wrap w-full mt-2" : "ml-4"
@@ -155,6 +278,7 @@ WHERE 0=0
             className={`gap-1 whitespace-nowrap flex-shrink-0 ${
               isMobile ? "text-xs h-7" : ""
             }`}
+            onClick={handleSelectDatabase}
           >
             <span className={isMobile ? "text-xs" : "text-sm"}>
               {isMobile ? "Database" : "Select database type"}
@@ -166,6 +290,7 @@ WHERE 0=0
             variant="ghost"
             size="sm"
             className={`gap-1 ${isMobile ? "text-xs h-7" : ""}`}
+            onClick={handleUploadFile}
           >
             <Upload className="h-4 w-4" />
             <span
@@ -214,20 +339,19 @@ WHERE 0=0
             {/* SQL Editor with resizable height */}
             <SqlEditor height={`${editorHeight}px`} />
 
-            {/* Resizable divider - only show if not mobile or allow mobile resize */}
+            {/* Resizable divider */}
             <div
               className={`relative h-3 bg-muted hover:bg-primary/20 cursor-row-resize z-10 ${
                 isDragging ? "bg-primary/30" : ""
               } transition-colors flex-shrink-0`}
               onMouseDown={startDragging}
             >
-              {/* Drag handle indicator */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="h-0.5 w-8 bg-muted-foreground/50 rounded-full"></div>
               </div>
             </div>
 
-            {/* Action buttons - responsive */}
+            {/* Action buttons with toast notifications */}
             <div
               className={`flex items-center gap-3 p-2 flex-shrink-0 bg-background border-b ${
                 isMobile ? "flex-wrap gap-2" : "overflow-x-auto"
@@ -237,6 +361,7 @@ WHERE 0=0
                 className={`bg-primary text-primary-foreground font-medium whitespace-nowrap flex-shrink-0 hover:bg-primary/90 shadow-sm transition-all duration-200 hover:shadow transform hover:-translate-y-0.5 ${
                   isMobile ? "text-xs h-7" : "text-xs h-8"
                 }`}
+                onClick={handleSubmitQuery}
               >
                 Submit
               </Button>
@@ -248,6 +373,7 @@ WHERE 0=0
                 }`}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
+                onClick={handleRunQuery}
               >
                 <span className="transition-opacity duration-200 ease-in-out">
                   {isHovering && !isMobile ? "Ctrl + Enter" : "Run query"}
@@ -259,6 +385,7 @@ WHERE 0=0
                 className={`border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 whitespace-nowrap flex-shrink-0 transition-all duration-200 hover:border-primary/50 font-medium ${
                   isMobile ? "text-xs h-7" : "text-xs h-8"
                 }`}
+                onClick={handleSaveQuery}
               >
                 Save query
               </Button>

@@ -7,6 +7,7 @@ import { ProfilePage } from "./app/profile/page";
 import { Login } from "./login";
 import { MainLayout } from "./layouts/MainLayout";
 import { RankPage } from "./app/rank/page";
+import { ContestPage } from "./app/contest/page";
 
 function App() {
   return (
@@ -42,6 +43,14 @@ function App() {
           element={
             <MainLayout>
               <RankPage />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/contest"
+          element={
+            <MainLayout>
+              <ContestPage />
             </MainLayout>
           }
         />

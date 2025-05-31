@@ -31,6 +31,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { toastSuccess, toastInfo } from "@/lib/toast";
 
 export function NavUser({
   user,
@@ -47,11 +48,32 @@ export function NavUser({
 
   const handleAccountClick = () => {
     navigate("/profile");
+    toastInfo("Chuyển đến trang cá nhân");
+  };
+
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme);
+    const themeLabels = {
+      light: "Sáng",
+      dark: "Tối",
+      system: "Hệ thống",
+    };
+    toastSuccess(
+      `Đã chuyển sang giao diện ${
+        themeLabels[newTheme as keyof typeof themeLabels]
+      }`
+    );
   };
 
   const handleLogout = () => {
     // Thực hiện logout logic ở đây
-    navigate("/");
+    toastSuccess("Đăng xuất thành công!", {
+      description: "Hẹn gặp lại bạn!",
+    });
+
+    setTimeout(() => {
+      navigate("/");
+    }, 1000);
   };
 
   return (
@@ -111,15 +133,15 @@ export function NavUser({
                 <span>Theme</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
-                <DropdownMenuItem onClick={() => setTheme("light")}>
+                <DropdownMenuItem onClick={() => handleThemeChange("light")}>
                   <Sun className="h-4 w-4" />
                   <span>Light</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
                   <Moon className="h-4 w-4" />
                   <span>Dark</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
+                <DropdownMenuItem onClick={() => handleThemeChange("system")}>
                   <Monitor className="h-4 w-4" />
                   <span>System</span>
                 </DropdownMenuItem>
