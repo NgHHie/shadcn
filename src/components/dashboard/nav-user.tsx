@@ -10,6 +10,7 @@ import {
   Monitor,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useNavigate } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -42,6 +43,16 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const { setTheme, theme } = useTheme();
+  const navigate = useNavigate();
+
+  const handleAccountClick = () => {
+    navigate("/profile");
+  };
+
+  const handleLogout = () => {
+    // Thực hiện logout logic ở đây
+    navigate("/");
+  };
 
   return (
     <SidebarMenu>
@@ -87,7 +98,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAccountClick}>
                 <UserCircleIcon />
                 Account
               </DropdownMenuItem>
@@ -115,7 +126,7 @@ export function NavUser({
               </DropdownMenuSubContent>
             </DropdownMenuSub>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOutIcon />
               Log out
             </DropdownMenuItem>

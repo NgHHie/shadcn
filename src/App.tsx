@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Page } from "./app/dashboard/page";
 import { Editor } from "./app/editor/page";
 import { HistoryPage } from "./app/history/page";
+import { ProfilePage } from "./app/profile/page";
 import { Login } from "./login";
 import { MainLayout } from "./layouts/MainLayout";
 import { RankPage } from "./app/rank/page";
@@ -41,6 +42,14 @@ function App() {
           element={
             <MainLayout>
               <RankPage />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <MainLayout>
+              <ProfilePage />
             </MainLayout>
           }
         />
