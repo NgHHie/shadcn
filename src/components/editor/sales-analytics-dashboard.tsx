@@ -1,7 +1,7 @@
 // src/components/editor/sales-analytics-dashboard.tsx
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ChevronDown,
@@ -12,6 +12,7 @@ import {
   Upload,
   Terminal,
   Type,
+  Send,
 } from "lucide-react";
 import { SalesTable } from "@/components/editor/sales-table";
 import { QueryHistoryPanel } from "@/components/editor/query-history-panel";
@@ -27,36 +28,62 @@ import {
   toastPromise,
   dismissToast,
 } from "@/lib/toast";
+import { QuestionDetail, useApi, SubmissionRequest } from "@/lib/api";
 
 // Import dữ liệu lịch sử truy vấn với kiểu đúng
 import queryHistoryDataJson from "./data/query-history-mock-data.json";
 import { SqlEditor } from "./sql-editor";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 const queryHistoryData: QueryHistoryItem[] =
   queryHistoryDataJson as QueryHistoryItem[];
 
-export function SalesAnalyticsDashboard() {
-  const isMobile = useIsMobile();
-  const [sqlQuery, setSqlQuery] = useState(`SELECT
-  DATE_TRUNC('day', opp.created_date)::DATE AS opp_created_date
-,DATE_TRUNC('week',opp.created_date)::DATE AS opp_created_week
-,EXTRACT(DOW FROM opp.created_date::DATE) AS opp_created_dow
-,u.name AS opp_owner
-,opp.stage_name
-,SUM(COALESCE(opp.amount,0)) AS opp_amount
-,COUNT(opp.id) AS opp_count
-FROM opportunity opp
-LEFT JOIN user u ON u.id = opp.owner_id
-WHERE 0=0
-  AND opp.created_date >= CURRENT_DATE - INTERVAL '2 months'`);
+interface SalesAnalyticsDashboardProps {
+  question?: QuestionDetail | null;
+}
 
+export function SalesAnalyticsDashboard({
+  question,
+}: SalesAnalyticsDashboardProps) {
+  const isMobile = useIsMobile();
+  const api = useApi();
+
+  const [sqlQuery, setSqlQuery] = useState(""); // Empty by default
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [editorHeight, setEditorHeight] = useState(isMobile ? 150 : 200);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [selectedDatabase, setSelectedDatabase] = useState(""); // Empty by default
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const minEditorHeight = isMobile ? 100 : 50;
   const maxEditorHeight = isMobile ? 300 : 800;
+
+  // Set initial database from question if available
+  useEffect(() => {
+    if (question?.questionDetails?.[0]?.typeDatabase) {
+      if (!selectedDatabase) {
+        // Only set if not already selected
+        setSelectedDatabase(question.questionDetails[0].typeDatabase.name);
+      }
+    }
+  }, [question, selectedDatabase]);
+
+  // Get available databases from question
+  const availableDatabases = useMemo(() => {
+    if (!question?.questionDetails) return [];
+
+    return question.questionDetails.map((detail) => ({
+      id: detail.typeDatabase.id,
+      name: detail.typeDatabase.name,
+    }));
+  }, [question?.questionDetails]);
 
   // Mock function to simulate SQL execution
   const executeQuery = async (query: string) => {
@@ -69,7 +96,7 @@ WHERE 0=0
     if (Math.random() > 0.3) {
       return {
         success: true,
-        rows: 5240,
+        rows: Math.floor(Math.random() * 10000) + 100,
         duration: (Math.random() * 0.1 + 0.01).toFixed(3) + "s",
         data: [],
       };
@@ -78,44 +105,85 @@ WHERE 0=0
     }
   };
 
-  const handleSubmitQuery = async () => {
-    if (!sqlQuery.trim()) {
-      toastWarning("Vui lòng nhập SQL query trước khi thực thi");
+  // Submit solution to API
+  const submitSolution = async () => {
+    if (!question) {
+      toastError("Chưa có đề bài", {
+        description: "Vui lòng chọn một câu hỏi để nộp bài",
+      });
       return;
     }
 
-    // Show loading toast
-    const loadingToastId = toastLoading("Đang thực thi SQL query...");
+    if (!sqlQuery.trim()) {
+      toastWarning("Vui lòng nhập SQL query trước khi nộp bài");
+      return;
+    }
+
+    if (!selectedDatabase) {
+      toastWarning("Vui lòng chọn loại database");
+      return;
+    }
+
+    // Find the selected database ID
+    const selectedDbDetail = availableDatabases.find(
+      (db) => db.name === selectedDatabase
+    );
+    if (!selectedDbDetail) {
+      toastError("Database không hợp lệ");
+      return;
+    }
 
     try {
-      const result = await executeQuery(sqlQuery);
+      setIsSubmitting(true);
 
-      // Dismiss loading toast
-      dismissToast(loadingToastId);
+      const submissionData: SubmissionRequest = {
+        questionId: question.id,
+        sqlCode: sqlQuery,
+        typeDatabase: selectedDbDetail.id,
+      };
 
-      // Show success toast
-      toastSuccess("Query thực thi thành công!", {
-        description: `Trả về ${result.rows.toLocaleString()} rows trong ${
-          result.duration
-        }`,
-        action: {
-          label: "Xem chi tiết",
-          onClick: () => toastInfo("Chi tiết kết quả query"),
-        },
-      });
+      const result = await api.question.submitSolution(submissionData);
+
+      if (result.status === "ACCEPTED") {
+        toastSuccess("🎉 Accepted! Chúc mừng bạn đã giải đúng!", {
+          description: `Thời gian thực thi: ${result.executionTime}ms | Rows: ${result.resultRows}`,
+          action: {
+            label: "Xem chi tiết",
+            onClick: () =>
+              toastInfo("Kết quả chi tiết", {
+                description: `ID: ${result.id} | Tạo lúc: ${new Date(
+                  result.createdAt
+                ).toLocaleString()}`,
+              }),
+          },
+        });
+      } else if (result.status === "WRONG_ANSWER") {
+        toastError("❌ Wrong Answer", {
+          description: result.errorMessage || "Kết quả không đúng với mong đợi",
+          duration: 8000,
+        });
+      } else if (result.status === "TIME_LIMIT_EXCEEDED") {
+        toastError("⏰ Time Limit Exceeded", {
+          description: "Query chạy quá lâu, vui lòng tối ưu lại",
+          duration: 6000,
+        });
+      } else {
+        toastError("💥 Runtime Error", {
+          description: result.errorMessage || "Có lỗi xảy ra khi thực thi",
+          duration: 8000,
+        });
+      }
     } catch (error: any) {
-      // Dismiss loading toast
-      dismissToast(loadingToastId);
-
-      // Show error toast
-      toastError("Lỗi thực thi SQL query", {
-        description: error.message,
+      toastError("Lỗi khi nộp bài", {
+        description: api.utils.formatErrorMessage(error),
         duration: 6000,
         action: {
-          label: "Sửa lỗi",
-          onClick: () => toastInfo("Gợi ý: Kiểm tra syntax và tên bảng/cột"),
+          label: "Thử lại",
+          onClick: () => submitSolution(),
         },
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -173,10 +241,7 @@ WHERE 0=0
   };
 
   const handleSelectDatabase = () => {
-    toastInfo("Chọn loại database", {
-      description: "MySQL, PostgreSQL, SQL Server, Oracle",
-      duration: 3000,
-    });
+    // This will be handled by the Select component now
   };
 
   // Existing drag handling code...
@@ -272,19 +337,28 @@ WHERE 0=0
             isMobile ? "flex-wrap w-full mt-2" : "ml-4"
           }`}
         >
-          <Button
-            variant="outline"
-            size="sm"
-            className={`gap-1 whitespace-nowrap flex-shrink-0 ${
-              isMobile ? "text-xs h-7" : ""
-            }`}
-            onClick={handleSelectDatabase}
-          >
-            <span className={isMobile ? "text-xs" : "text-sm"}>
-              {isMobile ? "Database" : "Select database type"}
-            </span>
-            <ChevronDown className="h-3 w-3" />
-          </Button>
+          <Select value={selectedDatabase} onValueChange={setSelectedDatabase}>
+            <SelectTrigger
+              className={`gap-1 whitespace-nowrap flex-shrink-0 ${
+                isMobile ? "text-xs h-7 w-[140px]" : "w-[160px]"
+              }`}
+            >
+              <SelectValue placeholder="Chọn database" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableDatabases.length > 0 ? (
+                availableDatabases.map((db) => (
+                  <SelectItem key={db.id} value={db.name}>
+                    {db.name}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem value="default" disabled>
+                  Chưa có database
+                </SelectItem>
+              )}
+            </SelectContent>
+          </Select>
 
           <Button
             variant="ghost"
@@ -337,7 +411,11 @@ WHERE 0=0
             }`}
           >
             {/* SQL Editor with resizable height */}
-            <SqlEditor height={`${editorHeight}px`} />
+            <SqlEditor
+              height={`${editorHeight}px`}
+              initialValue="" // Empty by default
+              onChange={setSqlQuery}
+            />
 
             {/* Resizable divider */}
             <div
@@ -358,12 +436,14 @@ WHERE 0=0
               }`}
             >
               <Button
-                className={`bg-primary text-primary-foreground font-medium whitespace-nowrap flex-shrink-0 hover:bg-primary/90 shadow-sm transition-all duration-200 hover:shadow transform hover:-translate-y-0.5 ${
+                className={`bg-green-600 text-white font-medium whitespace-nowrap flex-shrink-0 hover:bg-green-700 shadow-sm transition-all duration-200 hover:shadow transform hover:-translate-y-0.5 ${
                   isMobile ? "text-xs h-7" : "text-xs h-8"
                 }`}
-                onClick={handleSubmitQuery}
+                onClick={submitSolution}
+                disabled={isSubmitting || !question}
               >
-                Submit
+                <Send className="h-3 w-3 mr-1" />
+                {isSubmitting ? "Đang nộp..." : "Submit"}
               </Button>
 
               <Button
@@ -399,23 +479,45 @@ WHERE 0=0
             >
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
-                  <div className="h-2 w-2 rounded-full bg-green-500 flex-shrink-0"></div>
+                  <div
+                    className={`h-2 w-2 rounded-full ${
+                      question ? "bg-green-500" : "bg-gray-400"
+                    } flex-shrink-0`}
+                  ></div>
                   <span
                     className={`text-muted-foreground font-medium ${
                       isMobile ? "text-xs" : "text-sm"
                     }`}
                   >
-                    5,240 rows
+                    {question
+                      ? `Đề bài: ${question.questionCode}`
+                      : "Chưa chọn đề bài"}
                   </span>
                 </div>
-                <div className="h-4 w-px bg-muted-foreground/20"></div>
-                <span
-                  className={`text-muted-foreground ${
-                    isMobile ? "text-xs" : "text-sm"
-                  }`}
-                >
-                  0.05s
-                </span>
+                {question && (
+                  <>
+                    <div className="h-4 w-px bg-muted-foreground/20"></div>
+                    <span
+                      className={`text-muted-foreground ${
+                        isMobile ? "text-xs" : "text-sm"
+                      }`}
+                    >
+                      {question.level} - {question.point} điểm
+                    </span>
+                  </>
+                )}
+                {selectedDatabase && (
+                  <>
+                    <div className="h-4 w-px bg-muted-foreground/20"></div>
+                    <span
+                      className={`text-muted-foreground ${
+                        isMobile ? "text-xs" : "text-sm"
+                      }`}
+                    >
+                      {selectedDatabase}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 

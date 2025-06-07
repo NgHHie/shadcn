@@ -1,3 +1,4 @@
+// src/App.tsx
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Page } from "./app/dashboard/page";
@@ -22,8 +23,18 @@ function App() {
             </MainLayout>
           }
         />
+        {/* Editor route - có thể không có questionId */}
         <Route
           path="/editor"
+          element={
+            <MainLayout>
+              <Editor />
+            </MainLayout>
+          }
+        />
+        {/* Editor route với question ID */}
+        <Route
+          path="/question-detail/:questionId"
           element={
             <MainLayout>
               <Editor />

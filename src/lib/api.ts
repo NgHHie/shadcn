@@ -1,0 +1,372 @@
+// src/lib/api.ts
+const API_BASE_URL = "https://api.learnsql.store/api/app";
+
+// Types
+export interface QuestionDetail {
+  id: string;
+  createdAt: string;
+  createdBy: string;
+  lastModifiedAt: string;
+  questionCode: string;
+  title: string;
+  content: string;
+  point: number;
+  prefixCode: string;
+  type:
+    | "SELECT"
+    | "INSERT"
+    | "UPDATE"
+    | "DELETE"
+    | "CREATE"
+    | "PROCEDURE"
+    | "INDEX";
+  enable: boolean;
+  level: "EASY" | "MEDIUM" | "HARD";
+  questionDetails: Array<{
+    id: string;
+    lastModifiedAt: string;
+    typeDatabase: {
+      id: string;
+      name: string;
+    };
+  }>;
+}
+
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+}
+
+export interface SubmissionRequest {
+  questionId: string;
+  sqlCode: string;
+  typeDatabase: string;
+}
+
+export interface SubmissionResponse {
+  id: string;
+  status: "ACCEPTED" | "WRONG_ANSWER" | "TIME_LIMIT_EXCEEDED" | "RUNTIME_ERROR";
+  executionTime: number;
+  resultRows: number;
+  errorMessage?: string;
+  createdAt: string;
+}
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  email: string;
+  fullName: string;
+  avatar?: string;
+  totalPoints: number;
+  rank: number;
+  createdAt: string;
+}
+
+export interface QuestionListItem {
+  id: string;
+  questionCode: string;
+  title: string;
+  type: string;
+  level: string;
+  point: number;
+  enable: boolean;
+  status?: "AC" | "WA" | "TLE" | "Not Started";
+}
+
+// HTTP Client with error handling
+class ApiClient {
+  private baseUrl: string;
+
+  constructor(baseUrl: string) {
+    this.baseUrl = baseUrl;
+  }
+
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    const defaultOptions: RequestInit = {
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    // Add auth token if available
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      defaultOptions.headers = {
+        ...defaultOptions.headers,
+        Authorization: `Bearer ${token}`,
+      };
+    }
+
+    try {
+      const response = await fetch(url, defaultOptions);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`API Error [${endpoint}]:`, error);
+      throw error;
+    }
+  }
+
+  async get<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: "GET" });
+  }
+
+  async post<T>(endpoint: string, body?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "POST",
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  }
+
+  async put<T>(endpoint: string, body?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "PUT",
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  }
+
+  async delete<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: "DELETE" });
+  }
+}
+
+// Initialize API client
+const apiClient = new ApiClient(API_BASE_URL);
+
+// API Service Functions
+export const questionApi = {
+  // Get question detail by ID
+  getQuestionDetail: async (questionId: string): Promise<QuestionDetail> => {
+    return apiClient.get<QuestionDetail>(`/question/${questionId}`);
+  },
+
+  // Get list of questions with pagination
+  getQuestions: async (params?: {
+    page?: number;
+    size?: number;
+    type?: string;
+    level?: string;
+    search?: string;
+  }): Promise<{
+    content: QuestionListItem[];
+    totalElements: number;
+    totalPages: number;
+    number: number;
+    size: number;
+  }> => {
+    const searchParams = new URLSearchParams();
+
+    if (params?.page) searchParams.append("page", params.page.toString());
+    if (params?.size) searchParams.append("size", params.size.toString());
+    if (params?.type) searchParams.append("type", params.type);
+    if (params?.level) searchParams.append("level", params.level);
+    if (params?.search) searchParams.append("search", params.search);
+
+    const endpoint = `/question${
+      searchParams.toString() ? `?${searchParams}` : ""
+    }`;
+    return apiClient.get(endpoint);
+  },
+
+  // Submit SQL solution
+  submitSolution: async (
+    submission: SubmissionRequest
+  ): Promise<SubmissionResponse> => {
+    return apiClient.post<SubmissionResponse>("/submission", submission);
+  },
+
+  // Get submission history for a question
+  getSubmissionHistory: async (
+    questionId: string
+  ): Promise<SubmissionResponse[]> => {
+    return apiClient.get<SubmissionResponse[]>(
+      `/submission/question/${questionId}`
+    );
+  },
+};
+
+export const userApi = {
+  // Get current user profile
+  getProfile: async (): Promise<UserProfile> => {
+    return apiClient.get<UserProfile>("/user/profile");
+  },
+
+  // Update user profile
+  updateProfile: async (
+    profileData: Partial<UserProfile>
+  ): Promise<UserProfile> => {
+    return apiClient.put<UserProfile>("/user/profile", profileData);
+  },
+
+  // Get user statistics
+  getStatistics: async (): Promise<{
+    totalSolved: number;
+    totalSubmissions: number;
+    acceptanceRate: number;
+    pointsByType: Record<string, number>;
+    submissionsByMonth: Array<{ month: string; count: number }>;
+  }> => {
+    return apiClient.get("/user/statistics");
+  },
+};
+
+export const rankingApi = {
+  // Get global ranking
+  getGlobalRanking: async (params?: {
+    page?: number;
+    size?: number;
+  }): Promise<{
+    content: Array<{
+      rank: number;
+      user: UserProfile;
+      totalPoints: number;
+      solvedCount: number;
+    }>;
+    totalElements: number;
+    totalPages: number;
+  }> => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append("page", params.page.toString());
+    if (params?.size) searchParams.append("size", params.size.toString());
+
+    const endpoint = `/ranking${
+      searchParams.toString() ? `?${searchParams}` : ""
+    }`;
+    return apiClient.get(endpoint);
+  },
+};
+
+export const contestApi = {
+  // Get active contests
+  getActiveContests: async (): Promise<
+    Array<{
+      id: string;
+      title: string;
+      description: string;
+      startTime: string;
+      endTime: string;
+      participants: number;
+      questions: QuestionListItem[];
+    }>
+  > => {
+    return apiClient.get("/contest/active");
+  },
+
+  // Join contest
+  joinContest: async (contestId: string): Promise<{ success: boolean }> => {
+    return apiClient.post(`/contest/${contestId}/join`);
+  },
+};
+
+// Auth API
+export const authApi = {
+  // Login
+  login: async (credentials: {
+    email: string;
+    password: string;
+  }): Promise<{
+    token: string;
+    user: UserProfile;
+    expiresIn: number;
+  }> => {
+    const response = await apiClient.post<{
+      token: string;
+      user: UserProfile;
+      expiresIn: number;
+    }>("/auth/login", credentials);
+
+    // Store token in localStorage
+    if (response.token) {
+      localStorage.setItem("auth_token", response.token);
+    }
+
+    return response;
+  },
+
+  // Register
+  register: async (userData: {
+    email: string;
+    password: string;
+    fullName: string;
+    username: string;
+  }): Promise<{
+    token: string;
+    user: UserProfile;
+  }> => {
+    return apiClient.post("/auth/register", userData);
+  },
+
+  // Logout
+  logout: async (): Promise<void> => {
+    localStorage.removeItem("auth_token");
+    await apiClient.post("/auth/logout");
+  },
+
+  // Refresh token
+  refreshToken: async (): Promise<{ token: string; expiresIn: number }> => {
+    return apiClient.post("/auth/refresh");
+  },
+};
+
+// Utility functions
+export const apiUtils = {
+  // Check if user is authenticated
+  isAuthenticated: (): boolean => {
+    return !!localStorage.getItem("auth_token");
+  },
+
+  // Get stored auth token
+  getAuthToken: (): string | null => {
+    return localStorage.getItem("auth_token");
+  },
+
+  // Clear auth data
+  clearAuthData: (): void => {
+    localStorage.removeItem("auth_token");
+  },
+
+  // Format error message
+  formatErrorMessage: (error: any): string => {
+    if (typeof error === "string") return error;
+    if (error.message) return error.message;
+    return "An unexpected error occurred";
+  },
+};
+
+// Custom hooks for React components
+export const useApi = () => {
+  return {
+    question: questionApi,
+    user: userApi,
+    ranking: rankingApi,
+    contest: contestApi,
+    auth: authApi,
+    utils: apiUtils,
+  };
+};
+
+export default {
+  question: questionApi,
+  user: userApi,
+  ranking: rankingApi,
+  contest: contestApi,
+  auth: authApi,
+  utils: apiUtils,
+};

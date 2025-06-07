@@ -1,28 +1,22 @@
 // src/components/editor/sidebar-panel.tsx
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, BookOpen, Bot, Paperclip, ArrowUp } from "lucide-react";
-import { QuestionSelector } from "@/components/editor/question-selector";
+import {
+  MessageSquare,
+  BookOpen,
+  Bot,
+  Paperclip,
+  ArrowUp,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import { toastSuccess, toastInfo, toastError } from "@/lib/toast";
-
-// Import data từ file JSON
-import questionsData from "./data/questions-data.json";
-
-interface Question {
-  id: number;
-  title: string;
-  status: "AC" | "WA" | "TLE" | "Not Started";
-  difficulty: "Easy" | "Medium" | "Hard";
-  type: string;
-  category: string;
-  tags: string[];
-  code: string;
-  description: string;
-}
+import { QuestionDetail } from "@/lib/api";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Message {
   role: "user" | "assistant";
@@ -30,14 +24,22 @@ interface Message {
 }
 
 interface SidebarPanelProps {
-  onQuestionChange?: (question: Question) => void;
+  question?: QuestionDetail | null;
+  loading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
+  onQuestionChange?: (question: QuestionDetail) => void;
 }
 
-export function SidebarPanel({ onQuestionChange }: SidebarPanelProps) {
+export function SidebarPanel({
+  question,
+  loading,
+  error,
+  onRetry,
+  onQuestionChange,
+}: SidebarPanelProps) {
   const [activeTab, setActiveTab] = useState("assignment");
   const [inputValue, setInputValue] = useState("");
-  const [currentQuestionId, setCurrentQuestionId] = useState(1);
-  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -48,17 +50,6 @@ export function SidebarPanel({ onQuestionChange }: SidebarPanelProps) {
   // Refs for auto-scrolling
   const discussionMessagesRef = useRef<HTMLDivElement>(null);
   const assistantMessagesRef = useRef<HTMLDivElement>(null);
-
-  // Cast imported data to proper type
-  const questions: Question[] = questionsData as Question[];
-
-  // Set initial question
-  useEffect(() => {
-    const initialQuestion = questions.find((q) => q.id === currentQuestionId);
-    if (initialQuestion) {
-      setCurrentQuestion(initialQuestion);
-    }
-  }, []);
 
   // Auto scroll to bottom when messages change
   useEffect(() => {
@@ -75,32 +66,14 @@ export function SidebarPanel({ onQuestionChange }: SidebarPanelProps) {
     }
   }, [messages, activeTab]);
 
-  const handleQuestionChange = (question: Question) => {
-    setCurrentQuestionId(question.id);
-    setCurrentQuestion(question);
-
-    toastSuccess(`Đã chọn câu hỏi: ${question.title}`, {
-      description: `Độ khó: ${question.difficulty} | Loại: ${question.type}`,
-      duration: 3000,
-    });
-
-    if (onQuestionChange) {
-      onQuestionChange(question);
-    }
-  };
-
-  const handleSendMessage = () => {
+  const handleSendMessage = useCallback(() => {
     if (inputValue.trim()) {
-      setMessages([...messages, { role: "user", content: inputValue }]);
+      setMessages((prev) => [...prev, { role: "user", content: inputValue }]);
 
       if (activeTab === "discussion") {
-        toastInfo("Đã gửi bình luận", {
-          description: "Bình luận của bạn đã được đăng",
-        });
+        toastInfo("Đã gửi bình luận");
       } else if (activeTab === "assistant") {
-        toastInfo("Đã gửi tin nhắn cho AI", {
-          description: "AI đang xử lý câu hỏi của bạn...",
-        });
+        toastInfo("Đã gửi tin nhắn cho AI");
 
         // Simulate AI response
         setTimeout(() => {
@@ -109,34 +82,28 @@ export function SidebarPanel({ onQuestionChange }: SidebarPanelProps) {
             {
               role: "assistant",
               content:
-                "Tôi đã xem qua truy vấn SQL của bạn. Bạn đang truy xuất dữ liệu cơ hội bán hàng trong 2 tháng qua, được nhóm theo ngày, tuần và chủ sở hữu. Bạn có cần giải thích thêm về cách truy vấn này hoạt động không?",
+                "Tôi đã xem qua câu hỏi của bạn. Đây là một bài tập về " +
+                (question?.type || "SQL") +
+                ". " +
+                "Bạn cần viết truy vấn để " +
+                (question?.title || "giải quyết bài toán này") +
+                ". " +
+                "Bạn có cần giải thích thêm về cách tiếp cận không?",
             },
           ]);
 
-          toastSuccess("AI đã trả lời!", {
-            description: "Xem phản hồi từ AI Assistant",
-            action: {
-              label: "Cuộn xuống",
-              onClick: () => {
-                if (assistantMessagesRef.current) {
-                  assistantMessagesRef.current.scrollTop =
-                    assistantMessagesRef.current.scrollHeight;
-                }
-              },
-            },
-          });
+          toastSuccess("AI đã trả lời!");
         }, 1000);
       }
 
       setInputValue("");
     } else {
-      toastError("Tin nhắn trống", {
-        description: "Vui lòng nhập nội dung trước khi gửi",
-      });
+      toastError("Tin nhắn trống");
     }
-  };
+  }, [inputValue, activeTab, question?.type, question?.title]);
 
-  const getTypeColor = (type: string) => {
+  // Memoize color functions to prevent recalculation
+  const getTypeColor = useCallback((type: string) => {
     switch (type) {
       case "SELECT":
         return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200";
@@ -155,20 +122,104 @@ export function SidebarPanel({ onQuestionChange }: SidebarPanelProps) {
       default:
         return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200";
     }
-  };
+  }, []);
 
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyColor = useCallback((difficulty: string) => {
     switch (difficulty) {
-      case "Easy":
+      case "EASY":
         return "text-green-600 dark:text-green-400";
-      case "Medium":
+      case "MEDIUM":
         return "text-yellow-600 dark:text-yellow-400";
-      case "Hard":
+      case "HARD":
         return "text-red-600 dark:text-red-400";
       default:
         return "text-gray-600 dark:text-gray-400";
     }
+  }, []);
+
+  // Memoize parsed HTML content to prevent re-parsing
+  const parsedContent = useMemo(() => {
+    if (!question?.content) {
+      return `Vui lòng chọn một câu hỏi từ danh sách để bắt đầu luyện tập SQL.
+
+Bạn có thể:
+• Xem đề bài chi tiết
+• Viết và chạy thử SQL
+• Nộp bài để kiểm tra kết quả
+• Trao đổi với cộng đồng
+• Nhận hỗ trợ từ AI Assistant`;
+    }
+
+    return question.content; // Return raw HTML content
+  }, [question?.content]);
+
+  // Function to render HTML content safely
+  const renderHTMLContent = (htmlContent: string) => {
+    // Decode Unicode characters
+    const decodedContent = htmlContent.replace(
+      /\\u([0-9A-Fa-f]{4})/g,
+      (match, code) => String.fromCharCode(parseInt(code, 16))
+    );
+
+    return (
+      <div
+        className="prose-question-content"
+        dangerouslySetInnerHTML={{ __html: decodedContent }}
+      />
+    );
   };
+
+  // Memoize question metadata
+  const questionMetadata = useMemo(() => {
+    if (!question) return null;
+
+    return (
+      <div className="flex items-center gap-2 mb-3">
+        <Badge
+          variant="outline"
+          className={`text-xs px-2 py-1 font-medium ${getTypeColor(
+            question.type
+          )} border-0`}
+        >
+          {question.type}
+        </Badge>
+        <span
+          className={`text-sm font-medium ${getDifficultyColor(
+            question.level
+          )}`}
+        >
+          {question.level}
+        </span>
+        <span className="text-sm text-muted-foreground">
+          {question.point} điểm
+        </span>
+      </div>
+    );
+  }, [question, getTypeColor, getDifficultyColor]);
+
+  // Memoize additional info
+  const additionalInfo = useMemo(() => {
+    if (!question) return null;
+
+    return (
+      <div className="mt-6 p-3 bg-muted/50 rounded-lg">
+        <h4 className="text-sm font-medium mb-2 text-foreground">
+          Thông tin thêm:
+        </h4>
+        <div className="space-y-1 text-xs text-muted-foreground">
+          <p>Mã câu hỏi: {question.questionCode}</p>
+          <p>
+            Loại cơ sở dữ liệu:{" "}
+            {question.questionDetails?.[0]?.typeDatabase?.name || "MySQL"}
+          </p>
+          <p>
+            Cập nhật lần cuối:{" "}
+            {new Date(question.lastModifiedAt).toLocaleDateString("vi-VN")}
+          </p>
+        </div>
+      </div>
+    );
+  }, [question]);
 
   return (
     <div className="flex flex-col h-full bg-background border-r w-full">
@@ -210,59 +261,60 @@ export function SidebarPanel({ onQuestionChange }: SidebarPanelProps) {
           <TabsContent value="assignment" className="flex-1 h-full m-0">
             <div className="h-full flex flex-col">
               <div className="flex-1 p-4 overflow-auto">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between gap-2 w-full">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-lg mb-1 text-foreground truncate">
-                        {currentQuestion?.title || "Chọn câu hỏi"}
-                      </h3>
+                {loading ? (
+                  // Loading state chỉ hiển thị ở phần đề bài
+                  <div className="flex items-center justify-center min-h-[200px]">
+                    <div className="flex flex-col items-center gap-4">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      <p className="text-sm text-muted-foreground">
+                        Đang tải đề bài...
+                      </p>
+                    </div>
+                  </div>
+                ) : error ? (
+                  // Error state chỉ hiển thị ở phần đề bài
+                  <div className="flex flex-col items-center justify-center min-h-[200px] gap-4">
+                    <Alert className="max-w-md">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
 
-                      {/* Question metadata */}
-                      {currentQuestion && (
-                        <div className="flex items-center gap-2 mb-3">
-                          <Badge
-                            variant="outline"
-                            className={`text-xs px-2 py-1 font-medium ${getTypeColor(
-                              currentQuestion.type
-                            )} border-0`}
-                          >
-                            {currentQuestion.type}
-                          </Badge>
-                          <span
-                            className={`text-sm font-medium ${getDifficultyColor(
-                              currentQuestion.difficulty
-                            )}`}
-                          >
-                            {currentQuestion.difficulty}
-                          </span>
+                    {onRetry && (
+                      <Button onClick={onRetry} size="sm">
+                        Thử lại
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  // Normal content
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-2 w-full">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-lg mb-1 text-foreground truncate">
+                          {question?.questionCode || "SQL001"}:{" "}
+                          {question?.title || "Chưa có đề bài"}
+                        </h3>
+
+                        {/* Question metadata */}
+                        {questionMetadata}
+                      </div>
+                    </div>
+
+                    {/* Question description */}
+                    <div className="prose prose-sm max-w-none">
+                      {question?.content ? (
+                        renderHTMLContent(parsedContent)
+                      ) : (
+                        <div className="text-sm mb-4 text-foreground whitespace-pre-line leading-relaxed">
+                          {parsedContent}
                         </div>
                       )}
                     </div>
 
-                    <QuestionSelector
-                      currentQuestionId={currentQuestionId}
-                      onQuestionChange={handleQuestionChange}
-                    />
+                    {/* Additional question info */}
+                    {additionalInfo}
                   </div>
-
-                  {/* Question description */}
-                  <div className="prose prose-sm max-w-none">
-                    <p className="text-sm mb-4 text-foreground whitespace-pre-line leading-relaxed">
-                      {currentQuestion?.description ||
-                        `Sử dụng SQL để phân tích dữ liệu cơ hội bán hàng trong 2 tháng qua. Truy vấn cần trả về các thông tin sau:
-
-• Ngày tạo cơ hội (theo ngày)
-• Ngày tạo cơ hội (theo tuần)
-• Ngày trong tuần
-• Chủ sở hữu cơ hội
-• Trạng thái cơ hội
-• Tổng giá trị cơ hội
-• Số lượng cơ hội
-
-Kết quả cần được nhóm theo ngày, tuần và chủ sở hữu để phân tích hiệu suất bán hàng.`}
-                    </p>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </TabsContent>
@@ -282,8 +334,8 @@ Kết quả cần được nhóm theo ngày, tuần và chủ sở hữu để p
                       Nguyễn Văn A
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Tôi đang gặp vấn đề với hàm DATE_TRUNC, nó không hoạt động
-                      trong MySQL. Có ai biết cách thay thế không?
+                      Bài này có thể dùng JOIN để kết nối các bảng không? Tôi
+                      đang gặp khó khăn với phần GROUP BY.
                     </p>
                   </div>
                   <div className="bg-muted p-3 rounded-lg">
@@ -291,9 +343,9 @@ Kết quả cần được nhóm theo ngày, tuần và chủ sở hữu để p
                       Trần Thị B
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Trong MySQL bạn có thể dùng DATE_FORMAT hoặc YEARWEEK để
-                      nhóm theo tuần. Ví dụ: DATE_FORMAT(created_date,
-                      '%Y-%m-%d')
+                      Bạn có thể sử dụng LEFT JOIN hoặc INNER JOIN tùy vào yêu
+                      cầu. Với GROUP BY, hãy chú ý các cột trong SELECT phải có
+                      trong GROUP BY hoặc là aggregate function.
                     </p>
                   </div>
 
