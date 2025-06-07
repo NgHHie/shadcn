@@ -23,16 +23,16 @@ function App() {
             </MainLayout>
           }
         />
-        {/* Editor route - có thể không có questionId */}
-        {/* <Route
+        {/* Editor route without question ID - just show empty editor */}
+        <Route
           path="/editor"
           element={
             <MainLayout>
               <Editor />
             </MainLayout>
           }
-        /> */}
-        {/* Editor route với question ID */}
+        />
+        {/* Editor route with question ID - load specific question */}
         <Route
           path="/question-detail/:questionId"
           element={

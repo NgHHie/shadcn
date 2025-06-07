@@ -322,6 +322,17 @@ export function SalesAnalyticsDashboard({
 
   // Convert submissions to QueryHistoryItem format for compatibility
   const queryHistoryData: QueryHistoryItem[] = useMemo(() => {
+    // If no question selected, return empty array
+    if (!question) {
+      return [];
+    }
+
+    // If question exists but no submissions (Not Started), return empty array
+    if (!submissions) {
+      return [];
+    }
+
+    // Convert submissions to QueryHistoryItem format
     return submissions.map((submission, index) => ({
       id: index + 1,
       time: new Date(submission.timeSubmit).toLocaleString("vi-VN"),
@@ -331,7 +342,7 @@ export function SalesAnalyticsDashboard({
       dbType: submission.database.name,
       sqlCode: "", // SQL code is not returned from the API
     }));
-  }, [submissions]);
+  }, [submissions, question]);
 
   const handleSelectQuery = (query: QueryHistoryItem) => {
     console.log("Selected query:", query);

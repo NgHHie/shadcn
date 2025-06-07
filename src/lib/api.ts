@@ -91,7 +91,7 @@ export interface QuestionListItem {
   level: string;
   point: number;
   enable: boolean;
-  status?: "AC" | "WA" | "TLE" | "Not Started";
+  status?: "AC" | "WA" | "TLE" | "CE" | "Not Started";
 }
 
 // HTTP Client with error handling and auto token refresh
@@ -206,6 +206,16 @@ const apiClient = new ApiClient(API_BASE_URL);
 
 // API Service Functions
 export const questionApi = {
+  // Check completion status for multiple questions
+  checkCompletionStatus: async (
+    payload: CheckCompletionRequest
+  ): Promise<QuestionCompletionStatus[]> => {
+    return apiClient.post<QuestionCompletionStatus[]>(
+      "/submit-history/check/complete",
+      payload
+    );
+  },
+
   // Get question detail by ID
   getQuestionDetail: async (questionId: string): Promise<QuestionDetail> => {
     return apiClient.get<QuestionDetail>(`/question/${questionId}`);
@@ -530,3 +540,15 @@ export default {
   auth: authApi,
   utils: apiUtils,
 };
+
+// Add these new interfaces
+export interface QuestionCompletionStatus {
+  status: "AC" | "WA" | "TLE" | "CE" | "Not Started";
+  questionId: string;
+  completed: "done" | "not_done";
+}
+
+export interface CheckCompletionRequest {
+  questionIds: string[];
+  userId: string;
+}

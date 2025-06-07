@@ -89,9 +89,11 @@ export function Editor({ question: propQuestion }: EditorProps) {
   // Effects
   useEffect(() => {
     const fetchQuestion = async () => {
+      // Only fetch if there's a questionId, otherwise leave everything as null/empty
       if (!questionId) {
         setApiQuestion(null);
         setError(null);
+        setLoading(false);
         return;
       }
 

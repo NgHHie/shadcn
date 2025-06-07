@@ -17,6 +17,8 @@ import {
 import { toastSuccess, toastInfo, toastError } from "@/lib/toast";
 import { QuestionDetail } from "@/lib/api";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { QuestionSelector } from "./question-selector";
+import { useNavigate } from "react-router-dom";
 
 interface Message {
   role: "user" | "assistant";
@@ -38,6 +40,7 @@ export function SidebarPanel({
   onRetry,
   onQuestionChange,
 }: SidebarPanelProps) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("assignment");
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState<Message[]>([
@@ -101,6 +104,14 @@ export function SidebarPanel({
       toastError("Tin nhắn trống");
     }
   }, [inputValue, activeTab, question?.type, question?.title]);
+
+  // Handle question selection from dropdown
+  const handleQuestionSelect = useCallback(
+    (questionId: string) => {
+      navigate(`/question-detail/${questionId}`);
+    },
+    [navigate]
+  );
 
   // Memoize color functions to prevent recalculation
   const getTypeColor = useCallback((type: string) => {
@@ -288,12 +299,18 @@ Bạn có thể:
                 ) : (
                   // Normal content
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between gap-2 w-full">
+                    <div className="flex items-center gap-2 w-full">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-lg mb-1 text-foreground truncate">
-                          {question?.questionCode || "SQL001"}:{" "}
-                          {question?.title || "Chưa có đề bài"}
-                        </h3>
+                        <div className="flex items-center gap-1 mb-1">
+                          <h3 className="font-medium text-lg text-foreground">
+                            {question?.questionCode || "SQL Editor"}:{" "}
+                            {question?.title || "Chọn câu hỏi để bắt đầu"}
+                          </h3>
+                          <QuestionSelector
+                            currentQuestionId={question?.id}
+                            onQuestionChange={handleQuestionSelect}
+                          />
+                        </div>
 
                         {/* Question metadata */}
                         {questionMetadata}
