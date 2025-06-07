@@ -8,20 +8,20 @@ import { QuestionDetail, useApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toastError, toastSuccess } from "@/lib/toast";
+import { toastError } from "@/lib/toast";
 
 interface EditorProps {
   question?: QuestionDetail | null;
 }
 
 export function Editor({ question: propQuestion }: EditorProps) {
-  // ALL HOOKS FIRST
+  // ⚠️ CRITICAL: ALL HOOKS MUST BE DECLARED FIRST - NO EXCEPTIONS!
   const { questionId } = useParams<{ questionId?: string }>();
   const navigate = useNavigate();
   const api = useApi();
   const isMobile = useIsMobile();
 
-  // State
+  // State hooks
   const [apiQuestion, setApiQuestion] = useState<QuestionDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,52 +29,26 @@ export function Editor({ question: propQuestion }: EditorProps) {
   const [sidebarHeight, setSidebarHeight] = useState(300);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Refs
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Debounced resize function to prevent too many reflows
+  const startDragging = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  // Debounced resize function
   const debouncedResize = useCallback(
     (() => {
       let timeoutId: NodeJS.Timeout;
       return (callback: () => void) => {
         clearTimeout(timeoutId);
-        timeoutId = setTimeout(callback, 16); // ~60fps
+        timeoutId = setTimeout(callback, 16);
       };
     })(),
     []
   );
 
-  // Load question from API if questionId is provided
-  useEffect(() => {
-    const fetchQuestion = async () => {
-      if (!questionId) {
-        setApiQuestion(null);
-        setError(null);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        const questionData = await api.question.getQuestionDetail(questionId);
-        setApiQuestion(questionData);
-
-        // Remove success toast - silent loading
-      } catch (err: any) {
-        const errorMessage = api.utils.formatErrorMessage(err);
-        setError(errorMessage);
-        // Only show error toast when actually fails
-        toastError("Lỗi khi tải đề bài: " + errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchQuestion();
-    // ONLY depend on questionId, NOT on api object
-  }, [questionId]);
-
-  // Optimized drag handler with debouncing
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (!isDragging || !containerRef.current) return;
@@ -112,7 +86,33 @@ export function Editor({ question: propQuestion }: EditorProps) {
     setIsDragging(false);
   }, []);
 
-  // Handle drag events
+  // Effects
+  useEffect(() => {
+    const fetchQuestion = async () => {
+      if (!questionId) {
+        setApiQuestion(null);
+        setError(null);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const questionData = await api.question.getQuestionDetail(questionId);
+        setApiQuestion(questionData);
+      } catch (err: any) {
+        const errorMessage = api.utils.formatErrorMessage(err);
+        setError(errorMessage);
+        toastError("Lỗi khi tải đề bài: " + errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestion();
+  }, [questionId]); // Only depend on questionId
+
   useEffect(() => {
     if (isDragging) {
       document.addEventListener("mousemove", handleMouseMove, {
@@ -127,7 +127,6 @@ export function Editor({ question: propQuestion }: EditorProps) {
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  // Optimized window resize handler
   useEffect(() => {
     const handleResize = () => {
       debouncedResize(() => {
@@ -153,51 +152,9 @@ export function Editor({ question: propQuestion }: EditorProps) {
     return () => window.removeEventListener("resize", handleResize);
   }, [sidebarWidth, sidebarHeight, isMobile, debouncedResize]);
 
-  // Use either prop question or API-loaded question
+  // Memoized values (after all hooks)
   const question = propQuestion || apiQuestion;
 
-  const handleBackToDashboard = useCallback(() => {
-    navigate("/dashboard");
-  }, [navigate]);
-
-  const startDragging = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  // Early returns after all hooks
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Đang tải đề bài...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error && questionId) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <Alert className="max-w-md">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleBackToDashboard}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Quay lại Dashboard
-          </Button>
-
-          <Button onClick={() => window.location.reload()}>Thử lại</Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Common drag handle component
   const DragHandle = ({
     direction,
   }: {
@@ -220,6 +177,7 @@ export function Editor({ question: propQuestion }: EditorProps) {
     </div>
   );
 
+  // NOW it's safe to render conditionally - all hooks have been called
   if (isMobile) {
     return (
       <div className="flex flex-col">
@@ -234,7 +192,12 @@ export function Editor({ question: propQuestion }: EditorProps) {
             }}
             className="w-full overflow-hidden border-b"
           >
-            <SidebarPanel question={question} />
+            <SidebarPanel
+              question={question}
+              loading={loading}
+              error={error}
+              onRetry={() => window.location.reload()}
+            />
           </div>
 
           <div
@@ -264,7 +227,12 @@ export function Editor({ question: propQuestion }: EditorProps) {
           style={{ width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}
           className="h-full overflow-hidden border-r"
         >
-          <SidebarPanel question={question} />
+          <SidebarPanel
+            question={question}
+            loading={loading}
+            error={error}
+            onRetry={() => window.location.reload()}
+          />
         </div>
 
         <div

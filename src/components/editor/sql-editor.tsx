@@ -10,12 +10,14 @@ interface SqlEditorProps {
   initialValue?: string;
   onChange?: (value: string) => void;
   height?: string;
+  database?: string;
 }
 
 export function SqlEditor({
   initialValue = "SELECT * FROM users WHERE id = 1;",
   onChange,
   height = "300px",
+  database = "MySQL", // ← Thêm parameter này
 }: SqlEditorProps) {
   const [value, setValue] = useState(initialValue);
   const { theme } = useTheme();

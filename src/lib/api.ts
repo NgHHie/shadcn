@@ -185,6 +185,22 @@ export const questionApi = {
     return apiClient.get(endpoint);
   },
 
+  // Execute SQL query (for Run button)
+  executeSql: async (payload: {
+    questionId: string;
+    sql: string;
+    typeDatabaseId: string;
+  }): Promise<{
+    status: number;
+    result: any[] | string;
+    typeQuery: string;
+    timeExec: number;
+    testPass: number;
+    totalTest: number;
+  }> => {
+    return apiClient.post("/executor/user", payload);
+  },
+
   // Submit SQL solution
   submitSolution: async (
     submission: SubmissionRequest
