@@ -1,4 +1,6 @@
 // src/lib/api.ts
+import { TokenManager } from "./token-manager";
+
 const API_BASE_URL = "https://api.learnsql.store/api/app";
 
 const PUBLIC_ENDPOINTS = [
@@ -15,6 +17,8 @@ const isPublicEndpoint = (endpoint: string): boolean => {
     return endpoint === publicPath || endpoint.startsWith(publicPath + "?");
   });
 };
+
+// Token management - Remove old TokenManager class definition since we import it
 
 // Types
 export interface QuestionDetail {
@@ -90,7 +94,7 @@ export interface QuestionListItem {
   status?: "AC" | "WA" | "TLE" | "Not Started";
 }
 
-// HTTP Client with error handling
+// HTTP Client with error handling and auto token refresh
 class ApiClient {
   private baseUrl: string;
 
@@ -100,7 +104,8 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    retryCount = 0
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const defaultOptions: RequestInit = {
@@ -111,25 +116,52 @@ class ApiClient {
       ...options,
     };
 
-    // Add auth token if available
+    // Add auth token if available and endpoint requires it
     if (!isPublicEndpoint(endpoint)) {
-      let token = localStorage.getItem("access_token");
+      const token = TokenManager.getAccessToken();
 
       if (token) {
-        if (token.startsWith('"') && token.endsWith('"')) {
-          token = token.slice(1, -1);
-        }
-
-        if (token.trim()) {
-          defaultOptions.headers = {
-            ...defaultOptions.headers,
-            Authorization: `Bearer ${token}`,
-          };
-        }
+        defaultOptions.headers = {
+          ...defaultOptions.headers,
+          Authorization: `Bearer ${token}`,
+        };
       }
     }
+
     try {
       const response = await fetch(url, defaultOptions);
+
+      // Handle 401 Unauthorized - try to refresh token
+      if (
+        response.status === 401 &&
+        retryCount === 0 &&
+        !isPublicEndpoint(endpoint)
+      ) {
+        console.log("Access token expired, attempting refresh...");
+
+        try {
+          const newToken = await TokenManager.refreshAccessToken();
+          console.log("Token refreshed successfully");
+
+          // Retry the original request with new token
+          const newHeaders = {
+            ...defaultOptions.headers,
+            Authorization: `Bearer ${newToken}`,
+          };
+
+          return this.request<T>(
+            endpoint,
+            {
+              ...options,
+              headers: newHeaders,
+            },
+            retryCount + 1
+          );
+        } catch (refreshError) {
+          console.error("Token refresh failed:", refreshError);
+          throw new Error("Authentication failed. Please login again.");
+        }
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -247,6 +279,36 @@ export const questionApi = {
       `/submission/question/${questionId}`
     );
   },
+
+  // Get submission history for user (NEW)
+  getUserSubmissionHistory: async (
+    userId: string,
+    params?: {
+      questionId?: string;
+      page?: number;
+      size?: number;
+    }
+  ): Promise<{
+    content: any[];
+    totalElements: number;
+    totalPages: number;
+    number: number;
+    size: number;
+  }> => {
+    const searchParams = new URLSearchParams();
+
+    if (params?.page !== undefined)
+      searchParams.append("page", params.page.toString());
+    if (params?.size !== undefined)
+      searchParams.append("size", params.size.toString());
+    if (params?.questionId)
+      searchParams.append("questionId", params.questionId);
+
+    const endpoint = `/submit-history/user/${userId}${
+      searchParams.toString() ? `?${searchParams}` : ""
+    }`;
+    return apiClient.get(endpoint);
+  },
 };
 
 export const userApi = {
@@ -352,18 +414,20 @@ export const authApi = {
     password: string;
   }): Promise<{
     token: string;
+    refreshToken?: string;
     user: UserProfile;
     expiresIn: number;
   }> => {
     const response = await apiClient.post<{
       token: string;
+      refreshToken?: string;
       user: UserProfile;
       expiresIn: number;
     }>("/auth/login", credentials);
 
-    // Store token in localStorage
+    // Store tokens in localStorage
     if (response.token) {
-      localStorage.setItem("access_token", response.token);
+      TokenManager.setTokens(response.token, response.refreshToken);
     }
 
     return response;
@@ -377,20 +441,37 @@ export const authApi = {
     username: string;
   }): Promise<{
     token: string;
+    refreshToken?: string;
     user: UserProfile;
   }> => {
-    return apiClient.post("/auth/register", userData);
+    const response = await apiClient.post<{
+      token: string;
+      refreshToken?: string;
+      user: UserProfile;
+    }>("/auth/register", userData);
+
+    // Store tokens in localStorage
+    if (response.token) {
+      TokenManager.setTokens(response.token, response.refreshToken);
+    }
+
+    return response;
   },
 
   // Logout
   logout: async (): Promise<void> => {
-    localStorage.removeItem("access_token");
-    await apiClient.post("/auth/logout");
+    try {
+      await apiClient.post("/auth/logout");
+    } finally {
+      // Always clear tokens even if API call fails
+      TokenManager.clearTokens();
+    }
   },
 
-  // Refresh token
+  // Refresh token (manual call)
   refreshToken: async (): Promise<{ token: string; expiresIn: number }> => {
-    return apiClient.post("/auth/refresh");
+    const newToken = await TokenManager.refreshAccessToken();
+    return { token: newToken, expiresIn: 3600 }; // Assuming 1 hour expiry
   },
 };
 
@@ -398,17 +479,22 @@ export const authApi = {
 export const apiUtils = {
   // Check if user is authenticated
   isAuthenticated: (): boolean => {
-    return !!localStorage.getItem("access_token");
+    return !!TokenManager.getAccessToken();
   },
 
   // Get stored auth token
   getAuthToken: (): string | null => {
-    return localStorage.getItem("access_token");
+    return TokenManager.getAccessToken();
+  },
+
+  // Get refresh token
+  getRefreshToken: (): string | null => {
+    return TokenManager.getRefreshToken();
   },
 
   // Clear auth data
   clearAuthData: (): void => {
-    localStorage.removeItem("access_token");
+    TokenManager.clearTokens();
   },
 
   // Format error message
@@ -416,6 +502,11 @@ export const apiUtils = {
     if (typeof error === "string") return error;
     if (error.message) return error.message;
     return "An unexpected error occurred";
+  },
+
+  // Manually refresh token
+  refreshAccessToken: async (): Promise<string> => {
+    return TokenManager.refreshAccessToken();
   },
 };
 

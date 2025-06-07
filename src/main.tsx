@@ -10,6 +10,10 @@ import App from "./App.tsx";
 import "./index.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { TokenManager } from "@/lib/token-manager";
+
+// Initialize tokens from cookies
+TokenManager.initializeFromCookies();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
