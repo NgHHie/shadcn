@@ -14,6 +14,8 @@ import {
   Type,
   Send,
   Loader2,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 import { SalesTable } from "@/components/editor/sales-table";
 import { QueryHistoryPanel } from "@/components/editor/query-history-panel";
@@ -37,11 +39,12 @@ import {
   dismissToast,
 } from "@/lib/toast";
 import { QuestionDetail, useApi, SubmissionRequest } from "@/lib/api";
+import { useSubmissionHistory } from "@/hooks/use-submission-history";
 
 // Import dữ liệu lịch sử truy vấn với kiểu đúng
 import queryHistoryDataJson from "./data/query-history-mock-data.json";
 import { SqlEditor } from "./sql-editor";
-const queryHistoryData: QueryHistoryItem[] =
+const queryHistoryDataOld: QueryHistoryItem[] =
   queryHistoryDataJson as QueryHistoryItem[];
 
 interface SalesAnalyticsDashboardProps {
@@ -53,6 +56,19 @@ export function SalesAnalyticsDashboard({
 }: SalesAnalyticsDashboardProps) {
   const isMobile = useIsMobile();
   const api = useApi();
+
+  // Use submission history hook for WebSocket integration
+  const {
+    userInfo,
+    submissions,
+    loading: historyLoading,
+    isWebSocketConnected,
+    submitSolution: submitToAPI,
+    refresh: refreshHistory,
+  } = useSubmissionHistory(question?.id, {
+    code: question?.questionCode || "",
+    title: question?.title || "",
+  });
 
   const [sqlQuery, setSqlQuery] = useState(""); // Empty by default
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -196,43 +212,24 @@ export function SalesAnalyticsDashboard({
     try {
       setIsSubmitting(true);
 
-      const submissionData: SubmissionRequest = {
+      const payload = {
         questionId: question.id,
-        sqlCode: sqlQuery,
-        typeDatabase: selectedDbDetail.id,
+        sql: sqlQuery,
+        typeDatabaseId: selectedDbDetail.id,
       };
 
-      const result = await api.question.submitSolution(submissionData);
+      // Use the WebSocket-integrated submit function
+      const result = await submitToAPI(payload, {
+        databaseName: selectedDatabase,
+        questionCode: question.questionCode,
+        questionTitle: question.title,
+      });
 
-      if (result.status === "ACCEPTED") {
-        toastSuccess("🎉 Accepted! Chúc mừng bạn đã giải đúng!", {
-          description: `Thời gian thực thi: ${result.executionTime}ms | Rows: ${result.resultRows}`,
-          action: {
-            label: "Xem chi tiết",
-            onClick: () =>
-              toastInfo("Kết quả chi tiết", {
-                description: `ID: ${result.id} | Tạo lúc: ${new Date(
-                  result.createdAt
-                ).toLocaleString()}`,
-              }),
-          },
-        });
-      } else if (result.status === "WRONG_ANSWER") {
-        toastError("❌ Wrong Answer", {
-          description: result.errorMessage || "Kết quả không đúng với mong đợi",
-          duration: 8000,
-        });
-      } else if (result.status === "TIME_LIMIT_EXCEEDED") {
-        toastError("⏰ Time Limit Exceeded", {
-          description: "Query chạy quá lâu, vui lòng tối ưu lại",
-          duration: 6000,
-        });
-      } else {
-        toastError("💥 Runtime Error", {
-          description: result.errorMessage || "Có lỗi xảy ra khi thực thi",
-          duration: 8000,
-        });
-      }
+      toastInfo("Đã nộp bài thành công!", {
+        description: `Submit ID: ${result.submitId} - Đang chờ kết quả từ hệ thống...`,
+      });
+
+      // The result will be updated via WebSocket in real-time
     } catch (error: any) {
       toastError("Lỗi khi nộp bài", {
         description: api.utils.formatErrorMessage(error),
@@ -321,17 +318,25 @@ export function SalesAnalyticsDashboard({
 
   const toggleHistory = () => {
     setIsHistoryOpen(!isHistoryOpen);
-    if (!isHistoryOpen) {
-      toastInfo("Mở lịch sử query", {
-        description: "Xem các query đã thực thi trước đó",
-      });
-    }
   };
+
+  // Convert submissions to QueryHistoryItem format for compatibility
+  const queryHistoryData: QueryHistoryItem[] = useMemo(() => {
+    return submissions.map((submission, index) => ({
+      id: index + 1,
+      time: new Date(submission.timeSubmit).toLocaleString("vi-VN"),
+      status: submission.status,
+      duration: `${submission.timeout}ms`,
+      result: `${submission.testPass}/${submission.totalTest}`,
+      dbType: submission.database.name,
+      sqlCode: "", // SQL code is not returned from the API
+    }));
+  }, [submissions]);
 
   const handleSelectQuery = (query: QueryHistoryItem) => {
     console.log("Selected query:", query);
     setIsHistoryOpen(false);
-    toastSuccess("Đã tải query từ lịch sử", {
+    toastSuccess("Đã chọn query từ lịch sử", {
       description: `Query từ ${query.time}`,
     });
   };

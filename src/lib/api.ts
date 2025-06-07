@@ -55,8 +55,8 @@ export interface ApiResponse<T> {
 
 export interface SubmissionRequest {
   questionId: string;
-  sqlCode: string;
-  typeDatabase: string;
+  sql: string;
+  typeDatabaseId: string;
 }
 
 export interface SubmissionResponse {
@@ -223,14 +223,23 @@ export const questionApi = {
     return apiClient.post("/executor/user", payload);
   },
 
-  // Submit SQL solution
-  submitSolution: async (
-    submission: SubmissionRequest
-  ): Promise<SubmissionResponse> => {
-    return apiClient.post<SubmissionResponse>("/submission", submission);
+  // Submit SQL solution (NEW - for real submission with WebSocket)
+  submitSolution: async (payload: {
+    questionId: string;
+    sql: string;
+    typeDatabaseId: string;
+  }): Promise<{
+    status: number;
+    timeExec: number;
+    testPass: number;
+    totalTest: number;
+    timeSubmit: string;
+    submitId: string;
+  }> => {
+    return apiClient.post("/executor/submit", payload);
   },
 
-  // Get submission history for a question
+  // Get submission history for a question (LEGACY - keeping for compatibility)
   getSubmissionHistory: async (
     questionId: string
   ): Promise<SubmissionResponse[]> => {
@@ -244,6 +253,28 @@ export const userApi = {
   // Get current user profile
   getProfile: async (): Promise<UserProfile> => {
     return apiClient.get<UserProfile>("/user/profile");
+  },
+
+  // Get user info (NEW - specific endpoint)
+  getUserInfo: async (): Promise<{
+    id: string;
+    createdAt: string;
+    createdBy: string;
+    lastModifiedAt: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+    avatar: string;
+    email: string;
+    phone: string;
+    birthDay: string;
+    role: string;
+    userCode: string;
+    userPrefix: string;
+    fullName: string;
+    isPremium: boolean;
+  }> => {
+    return apiClient.get("/user/info");
   },
 
   // Update user profile

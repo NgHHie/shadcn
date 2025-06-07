@@ -301,7 +301,7 @@ Bạn có thể:
                     </div>
 
                     {/* Question description */}
-                    <div className="prose prose-sm max-w-none">
+                    <div className="prose prose-sm max-w-none [&_ul]:pl-6 [&_li]:ml-2">
                       {question?.content ? (
                         renderHTMLContent(parsedContent)
                       ) : (

@@ -24,14 +24,14 @@ function App() {
           }
         />
         {/* Editor route - có thể không có questionId */}
-        <Route
+        {/* <Route
           path="/editor"
           element={
             <MainLayout>
               <Editor />
             </MainLayout>
           }
-        />
+        /> */}
         {/* Editor route với question ID */}
         <Route
           path="/question-detail/:questionId"

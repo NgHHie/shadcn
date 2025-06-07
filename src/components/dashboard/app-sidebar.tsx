@@ -55,9 +55,9 @@ export function AppSidebar({
       },
       {
         title: "Editor",
-        url: "/editor",
+        url: "/question-detail/",
         icon: FileCodeIcon,
-        isActive: location.pathname === "/editor",
+        isActive: location.pathname.startsWith("/question-detail/"),
       },
       {
         title: "History",

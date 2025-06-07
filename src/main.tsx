@@ -1,4 +1,9 @@
 // src/main.tsx
+// Fix for sockjs-client global variable issue
+if (typeof (globalThis as any).global === "undefined") {
+  (globalThis as any).global = globalThis;
+}
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";

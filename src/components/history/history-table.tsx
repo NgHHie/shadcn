@@ -209,9 +209,9 @@ export function HistoryTable({ data }: { data: SchemaType[] }) {
             icon = <TimerIcon className="size-3" />;
             displayText = "Time Limit Exceeded";
             break;
-          case "RE":
+          case "CE":
             icon = <AlertTriangleIcon className="size-3" />;
-            displayText = "Runtime Error";
+            displayText = "Compile Error";
             break;
           default:
             icon = <CircleIcon className="size-3" />;
@@ -305,7 +305,7 @@ export function HistoryTable({ data }: { data: SchemaType[] }) {
     const total = data.length;
     const wrongAnswer = data.filter((item) => item.status === "WA").length;
     const timeLimit = data.filter((item) => item.status === "TLE").length;
-    const runtimeError = data.filter((item) => item.status === "RE").length;
+    const runtimeError = data.filter((item) => item.status === "CE").length;
 
     return { accepted, wrongAnswer, timeLimit, runtimeError, total };
   }, [data]);
@@ -584,7 +584,7 @@ export function HistoryTable({ data }: { data: SchemaType[] }) {
                   {selectedSubmission?.status === "TLE" && (
                     <TimerIcon className="size-4 text-yellow-600" />
                   )}
-                  {selectedSubmission?.status === "RE" && (
+                  {selectedSubmission?.status === "CE" && (
                     <AlertTriangleIcon className="size-4 text-red-600" />
                   )}
                   <span
@@ -598,7 +598,7 @@ export function HistoryTable({ data }: { data: SchemaType[] }) {
                     {selectedSubmission?.status === "WA" && "Wrong Answer"}
                     {selectedSubmission?.status === "TLE" &&
                       "Time Limit Exceeded"}
-                    {selectedSubmission?.status === "RE" && "Runtime Error"}
+                    {selectedSubmission?.status === "CE" && "Runtime Error"}
                   </span>
                 </div>
               </div>

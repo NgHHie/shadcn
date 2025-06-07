@@ -9,18 +9,19 @@ export const useSubmission = () => {
 
   const api = useApi();
 
+  // src/hooks/use-submission.tsx (nếu còn dùng)
   const submitSolution = async (
     questionId: string,
-    sqlCode: string,
-    typeDatabase: string
+    sql: string, // thay vì sqlCode
+    typeDatabaseId: string // thay vì typeDatabase
   ) => {
     try {
       setSubmitting(true);
 
       const result = await api.question.submitSolution({
         questionId,
-        sqlCode,
-        typeDatabase,
+        sql, // đúng format
+        typeDatabaseId, // đúng format
       });
 
       setLastSubmission(result);
