@@ -1,6 +1,21 @@
 // src/lib/api.ts
 const API_BASE_URL = "https://api.learnsql.store/api/app";
 
+const PUBLIC_ENDPOINTS = [
+  "/question", // GET /question (list questions)
+  "/question/", // GET /question/{id} (get question detail)
+];
+
+// Helper function to check if endpoint is public
+const isPublicEndpoint = (endpoint: string): boolean => {
+  return PUBLIC_ENDPOINTS.some((publicPath) => {
+    if (publicPath.endsWith("/")) {
+      return endpoint.startsWith(publicPath);
+    }
+    return endpoint === publicPath || endpoint.startsWith(publicPath + "?");
+  });
+};
+
 // Types
 export interface QuestionDetail {
   id: string;
@@ -88,7 +103,6 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-
     const defaultOptions: RequestInit = {
       headers: {
         "Content-Type": "application/json",
@@ -98,14 +112,22 @@ class ApiClient {
     };
 
     // Add auth token if available
-    const token = localStorage.getItem("auth_token");
-    if (token) {
-      defaultOptions.headers = {
-        ...defaultOptions.headers,
-        Authorization: `Bearer ${token}`,
-      };
-    }
+    if (!isPublicEndpoint(endpoint)) {
+      let token = localStorage.getItem("access_token");
 
+      if (token) {
+        if (token.startsWith('"') && token.endsWith('"')) {
+          token = token.slice(1, -1);
+        }
+
+        if (token.trim()) {
+          defaultOptions.headers = {
+            ...defaultOptions.headers,
+            Authorization: `Bearer ${token}`,
+          };
+        }
+      }
+    }
     try {
       const response = await fetch(url, defaultOptions);
 
@@ -310,7 +332,7 @@ export const authApi = {
 
     // Store token in localStorage
     if (response.token) {
-      localStorage.setItem("auth_token", response.token);
+      localStorage.setItem("access_token", response.token);
     }
 
     return response;
@@ -331,7 +353,7 @@ export const authApi = {
 
   // Logout
   logout: async (): Promise<void> => {
-    localStorage.removeItem("auth_token");
+    localStorage.removeItem("access_token");
     await apiClient.post("/auth/logout");
   },
 
@@ -345,17 +367,17 @@ export const authApi = {
 export const apiUtils = {
   // Check if user is authenticated
   isAuthenticated: (): boolean => {
-    return !!localStorage.getItem("auth_token");
+    return !!localStorage.getItem("access_token");
   },
 
   // Get stored auth token
   getAuthToken: (): string | null => {
-    return localStorage.getItem("auth_token");
+    return localStorage.getItem("access_token");
   },
 
   // Clear auth data
   clearAuthData: (): void => {
-    localStorage.removeItem("auth_token");
+    localStorage.removeItem("access_token");
   },
 
   // Format error message

@@ -151,29 +151,15 @@ export function SalesAnalyticsDashboard({
       if (result.status === 1) {
         // Success
         setQueryResult(result);
-        toastSuccess(`Query thành công! ${result.timeExec}ms`, {
-          description: `${
-            Array.isArray(result.result) ? result.result.length : 0
-          } rows returned`,
-        });
       } else {
         // Error
         setQueryError(
           typeof result.result === "string" ? result.result : "Unknown error"
         );
-        toastError("Lỗi SQL", {
-          description:
-            typeof result.result === "string"
-              ? result.result
-              : "Query execution failed",
-        });
       }
     } catch (error: any) {
       const errorMessage = api.utils.formatErrorMessage(error);
       setQueryError(errorMessage);
-      toastError("Lỗi khi chạy query", {
-        description: errorMessage,
-      });
     } finally {
       setIsRunning(false);
     }
@@ -262,21 +248,8 @@ export function SalesAnalyticsDashboard({
   };
 
   const handleSaveQuery = () => {
-    if (!sqlQuery.trim()) {
-      toastWarning("Không có query để lưu");
-      return;
-    }
-
-    // Simulate save operation
-    setTimeout(() => {
-      toastSuccess("Query đã được lưu thành công!", {
-        description: "Query đã được thêm vào danh sách yêu thích",
-        action: {
-          label: "Xem danh sách",
-          onClick: () => toastInfo("Mở danh sách query đã lưu"),
-        },
-      });
-    }, 500);
+    toastWarning("Chưa có chức năng này.");
+    return;
   };
 
   const handleUploadFile = () => {
@@ -545,84 +518,6 @@ export function SalesAnalyticsDashboard({
               </Button>
             </div>
 
-            {/* Status bar */}
-            <div
-              className={`p-2 bg-card border-b flex-shrink-0 ${
-                isMobile ? "px-2 py-1" : ""
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  <div
-                    className={`h-2 w-2 rounded-full ${
-                      question ? "bg-green-500" : "bg-gray-400"
-                    } flex-shrink-0`}
-                  ></div>
-                  <span
-                    className={`text-muted-foreground font-medium ${
-                      isMobile ? "text-xs" : "text-sm"
-                    }`}
-                  >
-                    {question
-                      ? `Đề bài: ${question.questionCode}`
-                      : "Chưa chọn đề bài"}
-                  </span>
-                </div>
-                {question && (
-                  <>
-                    <div className="h-4 w-px bg-muted-foreground/20"></div>
-                    <span
-                      className={`text-muted-foreground ${
-                        isMobile ? "text-xs" : "text-sm"
-                      }`}
-                    >
-                      {question.level} - {question.point} điểm
-                    </span>
-                  </>
-                )}
-                {selectedDatabase && (
-                  <>
-                    <div className="h-4 w-px bg-muted-foreground/20"></div>
-                    <span
-                      className={`text-muted-foreground ${
-                        isMobile ? "text-xs" : "text-sm"
-                      }`}
-                    >
-                      {selectedDatabase}
-                    </span>
-                  </>
-                )}
-                {queryResult && (
-                  <>
-                    <div className="h-4 w-px bg-muted-foreground/20"></div>
-                    <span
-                      className={`text-green-600 font-medium ${
-                        isMobile ? "text-xs" : "text-sm"
-                      }`}
-                    >
-                      {queryResult.timeExec}ms -{" "}
-                      {Array.isArray(queryResult.result)
-                        ? queryResult.result.length
-                        : 0}{" "}
-                      rows
-                    </span>
-                  </>
-                )}
-                {queryError && (
-                  <>
-                    <div className="h-4 w-px bg-muted-foreground/20"></div>
-                    <span
-                      className={`text-red-600 font-medium ${
-                        isMobile ? "text-xs" : "text-sm"
-                      }`}
-                    >
-                      Error
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-
             {/* Results table */}
             <div
               className={`flex-1 bg-card ${
@@ -644,7 +539,7 @@ export function SalesAnalyticsDashboard({
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-medium text-red-800 dark:text-red-200 mb-1">
-                            SQL Error
+                            Error
                           </h4>
                           <pre className="text-sm text-red-700 dark:text-red-300 whitespace-pre-wrap font-mono">
                             {queryError}
@@ -654,72 +549,24 @@ export function SalesAnalyticsDashboard({
                     </div>
                   </div>
                 ) : queryResult && Array.isArray(queryResult.result) ? (
-                  // Success - show data table
-                  <div className="p-4">
-                    <div className="mb-3 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                          Query executed successfully
+                  // Success - show header info then use SalesTable with query data
+                  <div>
+                    <div className="p-4 pb-0">
+                      <div className="mb-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                            Query executed successfully
+                          </span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {queryResult.result.length} rows •{" "}
+                          {queryResult.timeExec}ms • {queryResult.typeQuery}
                         </span>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {queryResult.result.length} rows •{" "}
-                        {queryResult.timeExec}ms • {queryResult.typeQuery}
-                      </span>
                     </div>
-
-                    {queryResult.result.length > 0 ? (
-                      <div className="border rounded-lg overflow-hidden">
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-sm">
-                            <thead className="bg-muted/50">
-                              <tr>
-                                {Object.keys(queryResult.result[0]).map(
-                                  (column, index) => (
-                                    <th
-                                      key={index}
-                                      className="text-left p-3 font-medium border-b"
-                                    >
-                                      {column}
-                                    </th>
-                                  )
-                                )}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {queryResult.result.map(
-                                (row: any, rowIndex: number) => (
-                                  <tr
-                                    key={rowIndex}
-                                    className="border-b hover:bg-muted/30"
-                                  >
-                                    {Object.values(row).map(
-                                      (value: any, colIndex: number) => (
-                                        <td key={colIndex} className="p-3">
-                                          {value !== null &&
-                                          value !== undefined ? (
-                                            String(value)
-                                          ) : (
-                                            <span className="text-muted-foreground italic">
-                                              null
-                                            </span>
-                                          )}
-                                        </td>
-                                      )
-                                    )}
-                                  </tr>
-                                )
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <p>Query executed successfully but returned no data</p>
-                      </div>
-                    )}
+                    {/* Use SalesTable component but pass query result data */}
+                    <SalesTable data={queryResult.result} />
                   </div>
                 ) : (
                   // Default state - show mock sales table
