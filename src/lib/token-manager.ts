@@ -266,7 +266,7 @@ export class TokenManager {
 
       // Redirect to login page
       if (typeof window !== "undefined") {
-        window.location.href = "/";
+        window.location.href = "/login";
       }
 
       throw error;

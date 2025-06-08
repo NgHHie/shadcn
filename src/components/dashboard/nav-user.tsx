@@ -105,11 +105,11 @@ export function NavUser() {
       toastSuccess("Đăng xuất thành công!", {
         description: "Hẹn gặp lại bạn!",
       });
-      setTimeout(() => navigate("/"), 1000);
+      setTimeout(() => navigate("/login"), 1000);
     } catch (error) {
       api.utils.clearAuthData();
       toastSuccess("Đăng xuất thành công!");
-      setTimeout(() => navigate("/"), 1000);
+      setTimeout(() => navigate("/login"), 1000);
     }
   }, [api, navigate]);
 

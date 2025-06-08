@@ -14,7 +14,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" Component={Login} />
+        <Route path="/login" Component={Login} />
         <Route
           path="/dashboard"
           element={
@@ -26,6 +26,14 @@ function App() {
         {/* Editor route without question ID - just show empty editor */}
         <Route
           path="/question-detail"
+          element={
+            <MainLayout>
+              <Editor />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/"
           element={
             <MainLayout>
               <Editor />
