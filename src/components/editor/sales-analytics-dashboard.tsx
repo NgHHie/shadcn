@@ -175,7 +175,7 @@ export function SalesAnalyticsDashboard({
       };
 
       // Use the WebSocket-integrated submit function
-      const result = await submitToAPI(payload, {
+      await submitToAPI(payload, {
         databaseName: selectedDatabase,
         questionCode: question.questionCode,
         questionTitle: question.title,

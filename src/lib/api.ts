@@ -214,58 +214,6 @@ class ApiClient {
   }
 }
 
-// Add this function to check if error is auth-related
-const isAuthError = (error: any): boolean => {
-  if (typeof error === "string") {
-    return (
-      error.toLowerCase().includes("authentication") ||
-      error.toLowerCase().includes("unauthorized") ||
-      error.toLowerCase().includes("token") ||
-      error.toLowerCase().includes("login")
-    );
-  }
-
-  if (error.message) {
-    const message = error.message.toLowerCase();
-    return (
-      message.includes("authentication") ||
-      message.includes("unauthorized") ||
-      message.includes("token") ||
-      message.includes("login") ||
-      message.includes("401")
-    );
-  }
-
-  return false;
-};
-
-// Add this function to handle navigation to login
-const redirectToLogin = (message?: string) => {
-  TokenManager.clearTokens();
-
-  // Check if we're in a browser environment
-  if (typeof window !== "undefined") {
-    // Import toast dynamically to avoid SSR issues
-    import("@/lib/toast").then(({ toastError }) => {
-      toastError(message || "Phiên đăng nhập đã hết hạn", {
-        description: "Vui lòng đăng nhập lại để tiếp tục",
-        duration: 5000,
-        action: {
-          label: "Đăng nhập lại",
-          onClick: () => {
-            window.location.href = "/login";
-          },
-        },
-      });
-    });
-
-    // Redirect after a short delay to show the toast
-    setTimeout(() => {
-      window.location.href = "/login";
-    }, 1000);
-  }
-};
-
 // Initialize API client
 const apiClient = new ApiClient(API_BASE_URL);
 
