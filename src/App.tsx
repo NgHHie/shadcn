@@ -1,4 +1,4 @@
-// src/App.tsx
+// src/App.tsx (Updated with Auth Guard)
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Page } from "./app/dashboard/page";
@@ -9,76 +9,110 @@ import { Login } from "./login";
 import { MainLayout } from "./layouts/MainLayout";
 import { RankPage } from "./app/rank/page";
 import { ContestPage } from "./app/contest/page";
+import { AuthRouteGuard } from "./components/auth/auth-route-guard";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" Component={Login} />
+        {/* Public routes */}
+        <Route
+          path="/login"
+          element={
+            <AuthRouteGuard requireAuth={false}>
+              <Login />
+            </AuthRouteGuard>
+          }
+        />
+
+        {/* Protected routes */}
         <Route
           path="/dashboard"
           element={
-            <MainLayout>
-              <Page />
-            </MainLayout>
+            <AuthRouteGuard>
+              <MainLayout>
+                <Page />
+              </MainLayout>
+            </AuthRouteGuard>
           }
         />
+
         {/* Editor route without question ID - just show empty editor */}
         <Route
           path="/question-detail"
           element={
-            <MainLayout>
-              <Editor />
-            </MainLayout>
+            <AuthRouteGuard>
+              <MainLayout>
+                <Editor />
+              </MainLayout>
+            </AuthRouteGuard>
           }
         />
+
         <Route
           path="/"
           element={
-            <MainLayout>
-              <Editor />
-            </MainLayout>
+            <AuthRouteGuard>
+              <MainLayout>
+                <Editor />
+              </MainLayout>
+            </AuthRouteGuard>
           }
         />
+
         {/* Editor route with question ID - load specific question */}
         <Route
           path="/question-detail/:questionId"
           element={
-            <MainLayout>
-              <Editor />
-            </MainLayout>
+            <AuthRouteGuard>
+              <MainLayout>
+                <Editor />
+              </MainLayout>
+            </AuthRouteGuard>
           }
         />
+
         <Route
           path="/history"
           element={
-            <MainLayout>
-              <HistoryPage />
-            </MainLayout>
+            <AuthRouteGuard>
+              <MainLayout>
+                <HistoryPage />
+              </MainLayout>
+            </AuthRouteGuard>
           }
         />
+
         <Route
           path="/rank"
           element={
-            <MainLayout>
-              <RankPage />
-            </MainLayout>
+            <AuthRouteGuard>
+              <MainLayout>
+                <RankPage />
+              </MainLayout>
+            </AuthRouteGuard>
           }
         />
+
         <Route
           path="/contest"
           element={
-            <MainLayout>
-              <ContestPage />
-            </MainLayout>
+            <AuthRouteGuard>
+              <MainLayout>
+                <ContestPage />
+              </MainLayout>
+            </AuthRouteGuard>
           }
         />
+
         <Route
           path="/profile"
           element={
-            <MainLayout>
-              <ProfilePage />
-            </MainLayout>
+            <AuthRouteGuard>
+              <MainLayout>
+                <ProfilePage />
+              </MainLayout>
+            </AuthRouteGuard>
           }
         />
       </Routes>

@@ -31,7 +31,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { toastSuccess } from "@/lib/toast";
+import { toastInfo, toastSuccess } from "@/lib/toast";
 import { useApi } from "@/lib/api";
 
 interface UserInfo {
@@ -101,15 +101,45 @@ export function NavUser() {
 
   const handleLogout = useCallback(async () => {
     try {
+      // Show loading toast
+      const loadingToast = toastInfo("Đang đăng xuất...", {
+        duration: Infinity, // Keep until we dismiss it
+      });
+
+      // Call logout API which will clear tokens
       await api.auth.logout();
+
+      // Dismiss loading toast
+      if (loadingToast) {
+        import("@/lib/toast").then(({ dismissToast }) => {
+          dismissToast(loadingToast);
+        });
+      }
+
+      // Show success toast
       toastSuccess("Đăng xuất thành công!", {
         description: "Hẹn gặp lại bạn!",
+        duration: 3000,
       });
-      setTimeout(() => navigate("/login"), 1000);
+
+      // Redirect after showing toast
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 1000);
     } catch (error) {
+      console.error("Logout error:", error);
+
+      // Even if API call fails, still clear local tokens and redirect
       api.utils.clearAuthData();
-      toastSuccess("Đăng xuất thành công!");
-      setTimeout(() => navigate("/login"), 1000);
+
+      toastSuccess("Đăng xuất thành công!", {
+        description: "Đã xóa phiên đăng nhập cục bộ",
+        duration: 3000,
+      });
+
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 1000);
     }
   }, [api, navigate]);
 

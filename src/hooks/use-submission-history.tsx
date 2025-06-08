@@ -86,7 +86,8 @@ interface QuestionInfo {
 
 export const useSubmissionHistory = (
   questionId?: string,
-  questionInfo?: QuestionInfo
+  questionInfo?: QuestionInfo,
+  onOpenHistory?: () => void
 ) => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [submissions, setSubmissions] = useState<SubmissionHistoryItem[]>([]);
@@ -127,10 +128,22 @@ export const useSubmissionHistory = (
         if (message.statusSubmit === "AC") {
           toastSuccess("🎉 Accepted!", {
             description: `Test passed: ${message.testPass}/${message.totalTest} | Time: ${message.timeExec}ms`,
+            action: onOpenHistory
+              ? {
+                  label: "Xem History",
+                  onClick: onOpenHistory,
+                }
+              : undefined,
           });
         } else {
           toastError("Rejected!", {
             description: `Test passed: ${message.testPass}/${message.totalTest} | Time: ${message.timeExec}ms`,
+            action: onOpenHistory
+              ? {
+                  label: "Xem History",
+                  onClick: onOpenHistory,
+                }
+              : undefined,
           });
         }
       }
@@ -171,9 +184,9 @@ export const useSubmissionHistory = (
     } catch (err: any) {
       const errorMessage = api.utils.formatErrorMessage(err);
       setError(errorMessage);
-      toastError("Lỗi khi tải thông tin người dùng", {
-        description: errorMessage,
-      });
+      // toastError("Lỗi khi tải thông tin người dùng", {
+      //   description: errorMessage,
+      // });
       throw err;
     }
   }, [api.utils]);

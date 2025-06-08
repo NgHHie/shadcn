@@ -62,58 +62,17 @@ export class TokenManager {
   private static readonly COOKIE_ACCESS_TOKEN = "access_token";
   private static readonly COOKIE_REFRESH_TOKEN = "refresh_token";
 
-  // Initialize tokens from cookies on app start
-  static initializeFromCookies(): void {
-    console.log("🚀 Starting token initialization from cookies...");
+  // Simple validation - just check if tokens exist and not empty
+  static hasValidTokens(): boolean {
+    const accessToken = this.getAccessToken();
+    const refreshToken = this.getRefreshToken();
 
-    try {
-      const cookieAccessToken = CookieUtils.getCookie(this.COOKIE_ACCESS_TOKEN);
-      const cookieRefreshToken = CookieUtils.getCookie(
-        this.COOKIE_REFRESH_TOKEN
-      );
-
-      const localAccessToken = localStorage.getItem(this.ACCESS_TOKEN_KEY);
-      const localRefreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
-
-      console.log("📋 Token status check:", {
-        cookie: {
-          access: !!cookieAccessToken,
-          refresh: !!cookieRefreshToken,
-        },
-        localStorage: {
-          access: !!localAccessToken,
-          refresh: !!localRefreshToken,
-        },
-      });
-
-      // Sync from cookies to localStorage if missing
-      if (cookieAccessToken && !localAccessToken) {
-        localStorage.setItem(this.ACCESS_TOKEN_KEY, cookieAccessToken);
-        console.log("✅ Synced access token: Cookie → localStorage");
-      }
-
-      if (cookieRefreshToken && !localRefreshToken) {
-        localStorage.setItem(this.REFRESH_TOKEN_KEY, cookieRefreshToken);
-        console.log("✅ Synced refresh token: Cookie → localStorage");
-      }
-
-      // Reverse sync: localStorage to cookies (backup)
-      if (localAccessToken && !cookieAccessToken) {
-        this.setCookieToken(this.COOKIE_ACCESS_TOKEN, localAccessToken);
-        console.log("✅ Synced access token: localStorage → Cookie");
-      }
-
-      if (localRefreshToken && !cookieRefreshToken) {
-        this.setCookieToken(this.COOKIE_REFRESH_TOKEN, localRefreshToken);
-        console.log("✅ Synced refresh token: localStorage → Cookie");
-      }
-
-      // Log final status
-      const finalStatus = this.debugTokenSources();
-      console.log("🏁 Final token status:", finalStatus);
-    } catch (error) {
-      console.error("❌ Error initializing tokens from cookies:", error);
-    }
+    return !!(
+      accessToken &&
+      refreshToken &&
+      accessToken.trim() !== "" &&
+      refreshToken.trim() !== ""
+    );
   }
 
   static getAccessToken(): string | null {
@@ -124,7 +83,6 @@ export class TokenManager {
     if (!token) {
       token = CookieUtils.getCookie(this.COOKIE_ACCESS_TOKEN);
       if (token) {
-        // Sync to localStorage for future use
         localStorage.setItem(this.ACCESS_TOKEN_KEY, token);
         console.log("🔄 Retrieved access token from cookie");
       }
@@ -146,7 +104,6 @@ export class TokenManager {
     if (!token) {
       token = CookieUtils.getCookie(this.COOKIE_REFRESH_TOKEN);
       if (token) {
-        // Sync to localStorage for future use
         localStorage.setItem(this.REFRESH_TOKEN_KEY, token);
         console.log("🔄 Retrieved refresh token from cookie");
       }
@@ -176,21 +133,9 @@ export class TokenManager {
     console.log("💾 Tokens saved to both localStorage and cookies");
   }
 
-  private static setCookieToken(name: string, value: string): void {
-    try {
-      CookieUtils.setCookie(name, value, {
-        domain: ".learnsql.store", // Shared across subdomains
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60, // 7 days
-        secure: window.location.protocol === "https:",
-        sameSite: "Lax",
-      });
-    } catch (error) {
-      console.warn(`Failed to set cookie ${name}:`, error);
-    }
-  }
-
   static clearTokens(): void {
+    console.log("🗑️ Clearing all authentication tokens...");
+
     // Clear localStorage
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
@@ -199,7 +144,11 @@ export class TokenManager {
     CookieUtils.removeCookie(this.COOKIE_ACCESS_TOKEN);
     CookieUtils.removeCookie(this.COOKIE_REFRESH_TOKEN);
 
-    console.log("🗑️ Cleared tokens from both localStorage and cookies");
+    // Clear any other auth-related data
+    localStorage.removeItem("user_info");
+    localStorage.removeItem("user_profile");
+
+    console.log("✅ All tokens and auth data cleared");
   }
 
   static async refreshAccessToken(): Promise<string> {
@@ -231,7 +180,7 @@ export class TokenManager {
       console.log("🔄 Attempting to refresh access token...");
 
       const response = await fetch(
-        "https://api.learnsql.store/api/app/auth/refresh",
+        "https://api.learnsql.store/api/app/user/auth/refresh",
         {
           method: "POST",
           headers: {
@@ -242,13 +191,14 @@ export class TokenManager {
       );
 
       if (!response.ok) {
+        this.clearTokens();
         throw new Error(`Refresh failed: ${response.status}`);
       }
 
       const data = await response.json();
 
-      if (data.token || data.accessToken) {
-        const newAccessToken = data.token || data.accessToken;
+      if (data.status === 1 && data.accessToken) {
+        const newAccessToken = data.accessToken;
         const newRefreshToken = data.refreshToken || refreshToken;
 
         this.setTokens(newAccessToken, newRefreshToken);
@@ -256,26 +206,67 @@ export class TokenManager {
 
         return newAccessToken;
       } else {
-        throw new Error("Invalid refresh response");
+        this.clearTokens();
+        throw new Error("Invalid refresh response format");
       }
     } catch (error) {
       console.error("❌ Token refresh failed:", error);
-
-      // If refresh fails, clear all tokens and redirect to login
       this.clearTokens();
-
-      // Redirect to login page
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
-
       throw error;
     }
   }
 
-  // Check if tokens are available (from any source)
-  static hasValidTokens(): boolean {
-    return !!(this.getAccessToken() && this.getRefreshToken());
+  // Initialize tokens from cookies on app start
+  static initializeFromCookies(): void {
+    console.log("🚀 Starting token initialization from cookies...");
+
+    try {
+      const cookieAccessToken = CookieUtils.getCookie(this.COOKIE_ACCESS_TOKEN);
+      const cookieRefreshToken = CookieUtils.getCookie(
+        this.COOKIE_REFRESH_TOKEN
+      );
+
+      const localAccessToken = localStorage.getItem(this.ACCESS_TOKEN_KEY);
+      const localRefreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
+
+      // Sync from cookies to localStorage if missing
+      if (cookieAccessToken && !localAccessToken) {
+        localStorage.setItem(this.ACCESS_TOKEN_KEY, cookieAccessToken);
+        console.log("✅ Synced access token: Cookie → localStorage");
+      }
+
+      if (cookieRefreshToken && !localRefreshToken) {
+        localStorage.setItem(this.REFRESH_TOKEN_KEY, cookieRefreshToken);
+        console.log("✅ Synced refresh token: Cookie → localStorage");
+      }
+
+      // Reverse sync: localStorage to cookies (backup)
+      if (localAccessToken && !cookieAccessToken) {
+        this.setCookieToken(this.COOKIE_ACCESS_TOKEN, localAccessToken);
+        console.log("✅ Synced access token: localStorage → Cookie");
+      }
+
+      if (localRefreshToken && !cookieRefreshToken) {
+        this.setCookieToken(this.COOKIE_REFRESH_TOKEN, localRefreshToken);
+        console.log("✅ Synced refresh token: localStorage → Cookie");
+      }
+    } catch (error) {
+      console.error("❌ Error initializing tokens from cookies:", error);
+    }
+  }
+
+  private static setCookieToken(name: string, value: string): void {
+    try {
+      CookieUtils.setCookie(name, value, {
+        domain: ".learnsql.store",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60, // 7 days
+        secure: window.location.protocol === "https:",
+        sameSite: "Lax",
+      });
+    } catch (error) {
+      console.warn(`Failed to set cookie ${name}:`, error);
+    }
   }
 
   // Debug function to check token sources

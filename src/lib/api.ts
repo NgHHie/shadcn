@@ -1,4 +1,5 @@
 // src/lib/api.ts
+import { toastError } from "@/lib/toast";
 import { TokenManager } from "./token-manager";
 
 const API_BASE_URL = "https://api.learnsql.store/api/app";
@@ -81,6 +82,18 @@ export interface UserProfile {
   totalPoints: number;
   rank: number;
   createdAt: string;
+}
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+  remember?: boolean;
+}
+
+export interface LoginResponse {
+  status: number;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface QuestionListItem {
@@ -200,6 +213,58 @@ class ApiClient {
     return this.request<T>(endpoint, { method: "DELETE" });
   }
 }
+
+// Add this function to check if error is auth-related
+const isAuthError = (error: any): boolean => {
+  if (typeof error === "string") {
+    return (
+      error.toLowerCase().includes("authentication") ||
+      error.toLowerCase().includes("unauthorized") ||
+      error.toLowerCase().includes("token") ||
+      error.toLowerCase().includes("login")
+    );
+  }
+
+  if (error.message) {
+    const message = error.message.toLowerCase();
+    return (
+      message.includes("authentication") ||
+      message.includes("unauthorized") ||
+      message.includes("token") ||
+      message.includes("login") ||
+      message.includes("401")
+    );
+  }
+
+  return false;
+};
+
+// Add this function to handle navigation to login
+const redirectToLogin = (message?: string) => {
+  TokenManager.clearTokens();
+
+  // Check if we're in a browser environment
+  if (typeof window !== "undefined") {
+    // Import toast dynamically to avoid SSR issues
+    import("@/lib/toast").then(({ toastError }) => {
+      toastError(message || "Phiên đăng nhập đã hết hạn", {
+        description: "Vui lòng đăng nhập lại để tiếp tục",
+        duration: 5000,
+        action: {
+          label: "Đăng nhập lại",
+          onClick: () => {
+            window.location.href = "/login";
+          },
+        },
+      });
+    });
+
+    // Redirect after a short delay to show the toast
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 1000);
+  }
+};
 
 // Initialize API client
 const apiClient = new ApiClient(API_BASE_URL);
@@ -418,108 +483,218 @@ export const contestApi = {
 
 // Auth API
 export const authApi = {
-  // Login
-  login: async (credentials: {
-    email: string;
-    password: string;
-  }): Promise<{
-    token: string;
-    refreshToken?: string;
-    user: UserProfile;
-    expiresIn: number;
-  }> => {
-    const response = await apiClient.post<{
-      token: string;
-      refreshToken?: string;
-      user: UserProfile;
-      expiresIn: number;
-    }>("/auth/login", credentials);
+  // Login with correct endpoint and payload format
+  login: async (credentials: LoginRequest): Promise<LoginResponse> => {
+    const response = await fetch(
+      "https://api.learnsql.store/api/app/user/auth/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: credentials.username,
+          password: credentials.password,
+          remember: credentials.remember ?? true,
+        }),
+      }
+    );
 
-    // Store tokens in localStorage
-    if (response.token) {
-      TokenManager.setTokens(response.token, response.refreshToken);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message ||
+          `Login failed: ${response.status} ${response.statusText}`
+      );
     }
 
-    return response;
-  },
+    const data: LoginResponse = await response.json();
 
-  // Register
-  register: async (userData: {
-    email: string;
-    password: string;
-    fullName: string;
-    username: string;
-  }): Promise<{
-    token: string;
-    refreshToken?: string;
-    user: UserProfile;
-  }> => {
-    const response = await apiClient.post<{
-      token: string;
-      refreshToken?: string;
-      user: UserProfile;
-    }>("/auth/register", userData);
-
-    // Store tokens in localStorage
-    if (response.token) {
-      TokenManager.setTokens(response.token, response.refreshToken);
+    if (data.status !== 1) {
+      throw new Error("Login failed: Invalid response status");
     }
 
-    return response;
+    if (!data.accessToken || !data.refreshToken) {
+      throw new Error("Login failed: Missing tokens in response");
+    }
+
+    // Store tokens
+    TokenManager.setTokens(data.accessToken, data.refreshToken);
+    console.log("✅ Login successful, tokens stored");
+
+    return data;
   },
 
-  // Logout
+  // Logout - clear tokens
   logout: async (): Promise<void> => {
     try {
-      //   await apiClient.post("/auth/logout");
+      const token = TokenManager.getAccessToken();
+
+      if (token) {
+        try {
+          await fetch("https://api.learnsql.store/api/app/user/auth/logout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log("✅ Server logout successful");
+        } catch (error) {
+          console.warn(
+            "Server logout failed, but continuing with local logout:",
+            error
+          );
+        }
+      }
     } finally {
-      // Always clear tokens even if API call fails
+      // Always clear local tokens
       TokenManager.clearTokens();
+      console.log("✅ Local tokens cleared");
     }
   },
 
-  // Refresh token (manual call)
-  refreshToken: async (): Promise<{ token: string; expiresIn: number }> => {
-    const newToken = await TokenManager.refreshAccessToken();
-    return { token: newToken, expiresIn: 3600 }; // Assuming 1 hour expiry
+  // Check if user is logged in (simple check)
+  isLoggedIn: (): boolean => {
+    return TokenManager.hasValidTokens();
+  },
+
+  // Refresh token
+  refreshToken: async (): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> => {
+    const newAccessToken = await TokenManager.refreshAccessToken();
+    const refreshToken = TokenManager.getRefreshToken();
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: refreshToken || "",
+    };
+  },
+
+  // Get user info from API (not from token)
+  getCurrentUser: async (): Promise<any> => {
+    // Call API to get current user info instead of parsing token
+    return apiClient.get("/user/info");
   },
 };
 
 // Utility functions
 export const apiUtils = {
-  // Check if user is authenticated
   isAuthenticated: (): boolean => {
-    return !!TokenManager.getAccessToken();
+    return TokenManager.hasValidTokens();
   },
 
-  // Get stored auth token
   getAuthToken: (): string | null => {
     return TokenManager.getAccessToken();
   },
 
-  // Get refresh token
   getRefreshToken: (): string | null => {
     return TokenManager.getRefreshToken();
   },
 
-  // Clear auth data
   clearAuthData: (): void => {
     TokenManager.clearTokens();
   },
 
-  // Format error message
-  formatErrorMessage: (error: any): string => {
-    if (typeof error === "string") return error;
-    if (error.message) return error.message;
-    return "An unexpected error occurred";
+  // Helper function to check if error is auth-related
+  isAuthError: (error: any): boolean => {
+    if (typeof error === "string") {
+      return (
+        error.toLowerCase().includes("authentication") ||
+        error.toLowerCase().includes("unauthorized") ||
+        error.toLowerCase().includes("token") ||
+        error.toLowerCase().includes("login")
+      );
+    }
+
+    if (error?.message) {
+      const message = error.message.toLowerCase();
+      return (
+        message.includes("authentication") ||
+        message.includes("unauthorized") ||
+        message.includes("token") ||
+        message.includes("login") ||
+        message.includes("401")
+      );
+    }
+
+    return false;
   },
 
-  // Manually refresh token
+  // Simple error message formatting without JWT parsing
+  formatErrorMessage: (error: any): string => {
+    let message = "";
+
+    if (typeof error === "string") {
+      message = error;
+    } else if (error?.message) {
+      message = error.message;
+    } else {
+      message = "An unexpected error occurred";
+    }
+
+    // Check if this is an auth error and show appropriate toast
+    // if (apiUtils.isAuthError(error)) {
+    //   setTimeout(() => {
+    //     import("@/lib/toast").then(({ toastError }) => {
+    //       toastError("Lỗi xác thực", {
+    //         description: message,
+    //         duration: 6000,
+    //         action: {
+    //           label: "Đăng nhập lại",
+    //           onClick: () => {
+    //             if (typeof window !== "undefined") {
+    //               window.location.href = "/login";
+    //             }
+    //           },
+    //         },
+    //       });
+    //     });
+    //   }, 100);
+    // }
+
+    return message;
+  },
+
   refreshAccessToken: async (): Promise<string> => {
-    return TokenManager.refreshAccessToken();
+    try {
+      return await TokenManager.refreshAccessToken();
+    } catch (error) {
+      // Clear tokens and redirect on refresh failure
+      TokenManager.clearTokens();
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+      throw error;
+    }
+  },
+
+  requireAuth: (): boolean => {
+    if (!TokenManager.hasValidTokens()) {
+      // Show toast and redirect
+      setTimeout(() => {
+        toastError("Vui lòng đăng nhập để tiếp tục", {
+          action: {
+            label: "Đăng nhập",
+            onClick: () => {
+              if (typeof window !== "undefined") {
+                window.location.href = "/login";
+              }
+            },
+          },
+        });
+      }, 100);
+
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+      return false;
+    }
+    return true;
   },
 };
-
 // Custom hooks for React components
 export const useApi = () => {
   return {

@@ -1,7 +1,7 @@
 // src/components/editor/sales-analytics-dashboard.tsx
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { History, Upload, Terminal, Send, Loader2 } from "lucide-react";
 import { SalesTable } from "@/components/editor/sales-table";
@@ -32,13 +32,18 @@ export function SalesAnalyticsDashboard({
   const isMobile = useIsMobile();
   const api = useApi();
 
+  const handleOpenHistory = useCallback(() => {
+    setIsHistoryOpen(true); // ⭐ Mở history panel
+  }, []);
+
   // Use submission history hook for WebSocket integration
   const { submissions, submitSolution: submitToAPI } = useSubmissionHistory(
     question?.id,
     {
       code: question?.questionCode || "",
       title: question?.title || "",
-    }
+    },
+    handleOpenHistory
   );
 
   const [sqlQuery, setSqlQuery] = useState(""); // Empty by default
@@ -177,7 +182,8 @@ export function SalesAnalyticsDashboard({
       });
 
       toastInfo("Đã nộp bài thành công!", {
-        description: `Submit ID: ${result.submitId} - Đang chờ kết quả từ hệ thống...`,
+        description: `Đang chờ kết quả từ hệ thống...`,
+        duration: 1000,
       });
 
       // The result will be updated via WebSocket in real-time
