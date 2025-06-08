@@ -4,7 +4,6 @@
 import { useState } from "react";
 import {
   Edit3,
-  Save,
   X,
   Mail,
   Phone,
@@ -22,7 +21,7 @@ import { toastSuccess, toastError, toastWarning, toastInfo } from "@/lib/toast";
 
 export function Profile() {
   const [isEditing, setIsEditing] = useState<string | null>(null);
-  const [profileData, setProfileData] = useState({
+  const [profileData] = useState({
     firstName: "Nguyễn",
     lastName: "Hoàng Hiệp",
     email: "hoang.hiep@email.com",
@@ -44,36 +43,6 @@ export function Profile() {
       birthday: "Ngày sinh",
     };
     return labels[field as keyof typeof labels] || field;
-  };
-
-  const handleSave = (field: string, value: string) => {
-    if (!value.trim()) {
-      toastWarning("Vui lòng nhập giá trị hợp lệ");
-      return;
-    }
-
-    // Validate email
-    if (field === "email" && !value.includes("@")) {
-      toastError("Email không hợp lệ", {
-        description: "Vui lòng nhập địa chỉ email đúng định dạng",
-      });
-      return;
-    }
-
-    // Validate phone
-    if (field === "phone" && !/^\d{10,11}$/.test(value)) {
-      toastError("Số điện thoại không hợp lệ", {
-        description: "Số điện thoại phải có 10-11 chữ số",
-      });
-      return;
-    }
-
-    setProfileData((prev) => ({ ...prev, [field]: value }));
-    setIsEditing(null);
-
-    toastSuccess(`Cập nhật ${getFieldLabel(field)} thành công!`, {
-      description: `${getFieldLabel(field)} đã được thay đổi thành: ${value}`,
-    });
   };
 
   const handleCancel = () => {
@@ -116,36 +85,7 @@ export function Profile() {
     });
   };
 
-  const handleChangePassword = (
-    newPassword: string,
-    confirmPassword: string
-  ) => {
-    if (!newPassword) {
-      toastWarning("Vui lòng nhập mật khẩu mới");
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      toastError("Mật khẩu quá ngắn", {
-        description: "Mật khẩu phải có ít nhất 6 ký tự",
-      });
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      toastError("Mật khẩu không khớp", {
-        description: "Mật khẩu xác nhận không trùng với mật khẩu mới",
-      });
-      return;
-    }
-
-    toastSuccess("Mật khẩu đã được thay đổi!", {
-      description: "Vui lòng đăng nhập lại với mật khẩu mới",
-    });
-  };
-
   const PasswordField = ({
-    field,
     label,
     placeholder,
   }: {

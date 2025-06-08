@@ -1,11 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  QuestionListItem,
-  QuestionDetail,
-  useApi,
-  UserProfile,
-} from "@/lib/api";
-import { toastError } from "@/lib/toast";
+import { useApi, UserProfile } from "@/lib/api";
 
 // src/hooks/use-auth.tsx
 export const useAuth = () => {

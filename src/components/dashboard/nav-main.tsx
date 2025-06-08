@@ -1,8 +1,7 @@
 // src/components/dashboard/nav-main.tsx
-import { MailIcon, PlusCircleIcon, type LucideIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import { Button } from "@/components/ui/button";
 import {
   SidebarGroup,
   SidebarGroupContent,

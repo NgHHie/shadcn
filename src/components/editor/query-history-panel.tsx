@@ -22,7 +22,6 @@ export function QueryHistoryPanel({
   isOpen,
   onClose,
   queryHistory,
-  onSelectQuery,
 }: QueryHistoryPanelProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedQuery, setSelectedQuery] = useState<QueryHistoryItem | null>(

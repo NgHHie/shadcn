@@ -2,7 +2,6 @@ import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
-  Row,
   SortingState,
   VisibilityState,
   flexRender,
@@ -15,41 +14,27 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  AlertTriangleIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-  ColumnsIcon,
   SearchIcon,
-  ShieldAlertIcon,
-  TrendingUpIcon,
-  ZapIcon,
   CircleCheckIcon,
   XCircleIcon,
   CircleIcon,
   TimerIcon,
 } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { toast } from "sonner";
+
 import { z } from "zod";
 
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -61,17 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+
 import {
   Table,
   TableBody,
@@ -120,18 +95,14 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     cell: ({ row }) => {
       // Xác định icon và màu sắc dựa trên mức độ khó
       const difficulty = row.original.status;
-      let icon = null;
       let bgColor = "";
       let textColor = "";
 
       if (difficulty === "Easy") {
-        icon = <ZapIcon className="size-3" />;
         textColor = "text-green-700";
       } else if (difficulty === "Medium") {
-        icon = <AlertTriangleIcon className="size-3" />;
         textColor = "text-yellow-700";
       } else if (difficulty === "Hard") {
-        icon = <ShieldAlertIcon className="size-3" />;
         textColor = "text-red-700";
       }
 
@@ -243,7 +214,7 @@ export function DataTable({
     });
   }, [initialData]);
 
-  const [data, setData] = React.useState(() => convertedData);
+  const [data] = React.useState(() => convertedData);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});

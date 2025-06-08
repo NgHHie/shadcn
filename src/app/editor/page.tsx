@@ -1,13 +1,10 @@
 // src/app/editor/page.tsx
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { SalesAnalyticsDashboard } from "@/components/editor/sales-analytics-dashboard";
 import { SidebarPanel } from "@/components/editor/sidebar-panel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { QuestionDetail, useApi } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toastError } from "@/lib/toast";
 
 interface EditorProps {
@@ -17,7 +14,6 @@ interface EditorProps {
 export function Editor({ question: propQuestion }: EditorProps) {
   // ⚠️ CRITICAL: ALL HOOKS MUST BE DECLARED FIRST - NO EXCEPTIONS!
   const { questionId } = useParams<{ questionId?: string }>();
-  const navigate = useNavigate();
   const api = useApi();
   const isMobile = useIsMobile();
 

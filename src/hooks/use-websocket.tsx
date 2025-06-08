@@ -5,7 +5,6 @@ import {
   WebSocketService,
   SocketMessage,
 } from "@/lib/websocket";
-import { toastError, toastInfo } from "@/lib/toast";
 
 export interface UseWebSocketOptions {
   userId?: string;

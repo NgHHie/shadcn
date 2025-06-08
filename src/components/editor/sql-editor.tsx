@@ -17,7 +17,6 @@ export function SqlEditor({
   initialValue = "SELECT * FROM users WHERE id = 1;",
   onChange,
   height = "300px",
-  database = "MySQL", // ← Thêm parameter này
 }: SqlEditorProps) {
   const [value, setValue] = useState(initialValue);
   const { theme } = useTheme();

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { QuestionListItem, QuestionDetail, useApi } from "@/lib/api";
+import { useState } from "react";
+import { useApi } from "@/lib/api";
 import { toastError } from "@/lib/toast";
 
 // src/hooks/use-submission.tsx

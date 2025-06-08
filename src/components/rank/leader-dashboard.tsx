@@ -1,20 +1,6 @@
 import { useState } from "react";
-import {
-  Trophy,
-  Star,
-  Crown,
-  Award,
-  Users,
-  TrendingUp,
-  Target,
-} from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Trophy, Star, Crown, Award, Users, Target } from "lucide-react";
+
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -142,7 +128,7 @@ export function Leaderboard({ data }: { data: SchemaType[] }) {
         {/* Podium với staggered animation */}
         <div className="flex justify-center mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full max-w-4xl md:items-end">
-            {topThree.map((user, index) => {
+            {topThree.map((user) => {
               const actualRank = user.rank;
               const order =
                 actualRank === 1
@@ -258,7 +244,7 @@ export function Leaderboard({ data }: { data: SchemaType[] }) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {otherUsers.map((user, index) => (
+                  {otherUsers.map((user) => (
                     <TableRow
                       key={user.id}
                       className="hover:bg-sidebar-accent transition-colors"

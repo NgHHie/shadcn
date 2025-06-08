@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChartAreaInteractive } from "@/components/dashboard/chart-area-interactive";
-import { SectionCards } from "@/components/dashboard/section-cards";
 import { useQuestions } from "@/hooks/use-questions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,10 +19,7 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
-  Code,
   Trophy,
-  Clock,
-  Target,
   Loader2,
   AlertCircle,
   Play,

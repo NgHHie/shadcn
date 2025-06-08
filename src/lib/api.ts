@@ -471,7 +471,7 @@ export const authApi = {
   // Logout
   logout: async (): Promise<void> => {
     try {
-      await apiClient.post("/auth/logout");
+      //   await apiClient.post("/auth/logout");
     } finally {
       // Always clear tokens even if API call fails
       TokenManager.clearTokens();

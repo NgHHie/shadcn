@@ -9,8 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUpDown } from "lucide-react";
-import { SalesDataItem } from "@/types/sales";
 
 interface SalesTableProps {
   data?: any[]; // Optional prop for dynamic data

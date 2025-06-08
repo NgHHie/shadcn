@@ -5,14 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Eye, EyeOff, Lock, Mail, Boxes } from "lucide-react";
-import {
-  toastSuccess,
-  toastError,
-  toastWarning,
-  toastLoading,
-  dismissToast,
-  toastInfo,
-} from "@/lib/toast";
+import { toastSuccess, toastError, toastWarning, toastInfo } from "@/lib/toast";
 
 export function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +43,6 @@ export function Login() {
     }
 
     setIsLoading(true);
-    const loadingToastId = toastLoading("Đang đăng nhập...");
 
     try {
       // Simulate API call
@@ -58,8 +50,6 @@ export function Login() {
 
       // Simulate success/failure
       if (email === "admin@example.com" && password === "123456") {
-        dismissToast(loadingToastId);
-
         toastSuccess("Đăng nhập thành công!", {
           description: `Chào mừng ${email} quay lại!`,
           duration: 3000,
@@ -69,8 +59,6 @@ export function Login() {
           navigate("/dashboard");
         }, 1000);
       } else {
-        dismissToast(loadingToastId);
-
         toastError("Đăng nhập thất bại", {
           description: "Email hoặc mật khẩu không chính xác",
           action: {
@@ -83,28 +71,12 @@ export function Login() {
         });
       }
     } catch (error) {
-      dismissToast(loadingToastId);
       toastError("Lỗi kết nối", {
         description: "Không thể kết nối đến server. Vui lòng thử lại sau.",
       });
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleDemoLogin = () => {
-    setEmail("admin@example.com");
-    setPassword("123456");
-    toastInfo("Đã điền thông tin demo", {
-      description: "Email: admin@example.com | Password: 123456",
-      action: {
-        label: "Đăng nhập ngay",
-        onClick: () => {
-          const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-          handleLogin(fakeEvent);
-        },
-      },
-    });
   };
 
   return (
@@ -206,7 +178,7 @@ export function Login() {
             </form>
           </Card>
 
-          <div className="mt-8 text-center">
+          {/* <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">
               Chưa có tài khoản?{" "}
               <Button
@@ -221,7 +193,7 @@ export function Login() {
                 Đăng ký ngay
               </Button>
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
       {/* Left side - Background Image */}

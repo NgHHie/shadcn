@@ -38,7 +38,6 @@ export function SidebarPanel({
   loading,
   error,
   onRetry,
-  onQuestionChange,
 }: SidebarPanelProps) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("assignment");
@@ -167,9 +166,8 @@ Bạn có thể:
   // Function to render HTML content safely
   const renderHTMLContent = (htmlContent: string) => {
     // Decode Unicode characters
-    const decodedContent = htmlContent.replace(
-      /\\u([0-9A-Fa-f]{4})/g,
-      (match, code) => String.fromCharCode(parseInt(code, 16))
+    const decodedContent = htmlContent.replace(/\\u([0-9A-Fa-f]{4})/g, (code) =>
+      String.fromCharCode(parseInt(code, 16))
     );
 
     return (

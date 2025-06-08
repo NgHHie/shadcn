@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { QuestionListItem, QuestionDetail, useApi } from "@/lib/api";
+import { QuestionDetail, useApi } from "@/lib/api";
 import { toastError } from "@/lib/toast";
 
 // src/hooks/use-question-detail.tsx

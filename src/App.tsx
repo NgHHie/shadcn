@@ -25,7 +25,7 @@ function App() {
         />
         {/* Editor route without question ID - just show empty editor */}
         <Route
-          path="/editor"
+          path="/question-detail"
           element={
             <MainLayout>
               <Editor />

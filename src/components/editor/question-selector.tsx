@@ -1,7 +1,7 @@
 // src/components/editor/question-selector.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,7 +19,6 @@ import {
   XCircleIcon,
   CircleIcon,
   TimerIcon,
-  AlertCircleIcon,
 } from "lucide-react";
 import { useQuestions } from "@/hooks/use-questions";
 
@@ -35,28 +34,135 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [hasFoundCurrentQuestion, setHasFoundCurrentQuestion] = useState(false);
 
   const pageSize = 10;
 
-  // Fetch questions from API with real completion status
-  const {
-    questions,
-    loading,
-    totalPages,
-    currentPage: apiCurrentPage,
-  } = useQuestions({
+  // Fetch questions from API
+  const { questions, loading, totalPages } = useQuestions({
     page: currentPage,
     size: pageSize,
     search: searchTerm || undefined,
   });
 
-  // Find current question
-  const currentQuestion = questions.find((q) => q.id === currentQuestionId);
+  // Function to find page containing current question
+  const findCurrentQuestionPage = async (questionId: string) => {
+    if (!questionId || hasFoundCurrentQuestion) return;
+
+    try {
+      try {
+        // Try to call find-page API if it exists
+        const response = await fetch(
+          `https://api.learnsql.store/api/app/question/find-page?questionId=${questionId}&size=${pageSize}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage
+                .getItem("access_token")
+                ?.replace(/"/g, "")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.ok) {
+          const pageData = await response.json();
+          setCurrentPage(pageData.page);
+          setHasFoundCurrentQuestion(true);
+          return;
+        }
+      } catch (apiError) {
+        console.log("Find-page API not available, using fallback method");
+      }
+
+      // Fallback: Search through pages manually
+      // This is less efficient but works without additional API
+      let found = false;
+      for (let page = 0; page < Math.min(totalPages, 10); page++) {
+        // Limit search to first 10 pages for performance
+        try {
+          const response = await fetch(
+            `https://api.learnsql.store/api/app/question?page=${page}&size=${pageSize}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage
+                  .getItem("access_token")
+                  ?.replace(/"/g, "")}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            const foundQuestion = data.content.find(
+              (q: any) => q.id === questionId
+            );
+
+            if (foundQuestion) {
+              setCurrentPage(page);
+              setHasFoundCurrentQuestion(true);
+              found = true;
+              break;
+            }
+          }
+        } catch (error) {
+          console.warn(`Error searching page ${page}:`, error);
+        }
+      }
+
+      if (!found) {
+        // If not found in first 10 pages, default to page 0
+        setCurrentPage(0);
+        setHasFoundCurrentQuestion(true);
+      }
+    } catch (error) {
+      console.warn("Could not find current question page:", error);
+      setCurrentPage(0);
+      setHasFoundCurrentQuestion(true);
+    }
+  };
+
+  // When dropdown opens and we have a current question, try to find its page
+  useEffect(() => {
+    if (
+      isOpen &&
+      currentQuestionId &&
+      !hasFoundCurrentQuestion &&
+      !searchTerm
+    ) {
+      // Add a small delay to ensure the dropdown is fully opened
+      const timeoutId = setTimeout(() => {
+        findCurrentQuestionPage(currentQuestionId);
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isOpen, currentQuestionId, hasFoundCurrentQuestion, searchTerm]);
+
+  // Reset state when search term changes or dropdown closes
+  useEffect(() => {
+    if (!isOpen) {
+      setHasFoundCurrentQuestion(false);
+    }
+  }, [isOpen]);
+
+  // Check if current question is in the current page
+  useEffect(() => {
+    if (currentQuestionId && questions.length > 0) {
+      const foundInCurrentPage = questions.find(
+        (q) => q.id === currentQuestionId
+      );
+      if (foundInCurrentPage && !hasFoundCurrentQuestion) {
+        setHasFoundCurrentQuestion(true);
+      }
+    }
+  }, [questions, currentQuestionId, hasFoundCurrentQuestion]);
 
   // Reset to page 0 when search changes
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(0);
+    setHasFoundCurrentQuestion(false); // Reset when searching
   };
 
   const getStatusIcon = (status: string) => {
@@ -67,8 +173,6 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
         return <XCircleIcon className="h-3 w-3" />;
       case "TLE":
         return <TimerIcon className="h-3 w-3" />;
-      case "CE":
-        return <AlertCircleIcon className="h-3 w-3" />;
       default:
         return <CircleIcon className="h-3 w-3" />;
     }
@@ -82,25 +186,8 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
         return "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200";
       case "TLE":
         return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200";
-      case "CE":
-        return "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-200";
       default:
         return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200";
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "AC":
-        return "AC";
-      case "WA":
-        return "WA";
-      case "TLE":
-        return "TLE";
-      case "CE":
-        return "CE";
-      default:
-        return "Not Started";
     }
   };
 
@@ -219,7 +306,7 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
                       )} border-0`}
                     >
                       {getStatusIcon(question.status || "Not Started")}
-                      {getStatusText(question.status || "Not Started")}
+                      {question.status || "Not Started"}
                     </Badge>
                     <div className="flex items-center gap-2">
                       <span

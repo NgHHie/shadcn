@@ -1,24 +1,6 @@
 // src/components/dashboard/app-sidebar.tsx
 import * as React from "react";
-import {
-  ArrowUpCircleIcon,
-  BarChartIcon,
-  CameraIcon,
-  ClipboardListIcon,
-  DatabaseIcon,
-  FileCodeIcon,
-  FileIcon,
-  FileTextIcon,
-  FolderIcon,
-  HelpCircleIcon,
-  LayoutDashboardIcon,
-  ListIcon,
-  SearchIcon,
-  SettingsIcon,
-  UsersIcon,
-  BookOpenIcon,
-  Boxes,
-} from "lucide-react";
+import { FileCodeIcon, HelpCircleIcon, Boxes } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
 import { NavMain } from "@/components/dashboard/nav-main";
@@ -41,96 +23,37 @@ export function AppSidebar({
   const location = useLocation();
 
   const data = {
-    user: {
-      name: "shadcn",
-      email: "m@example.com",
-      avatar: "/avatars/shadcn.jpg",
-    },
     navMain: [
-      {
-        title: "Assignment",
-        url: "/dashboard",
-        icon: LayoutDashboardIcon,
-        isActive: location.pathname === "/dashboard",
-      },
+      // {
+      //   title: "Assignment",
+      //   url: "/dashboard",
+      //   icon: LayoutDashboardIcon,
+      //   isActive: location.pathname === "/dashboard",
+      // },
       {
         title: "Editor",
         url: "/question-detail/",
         icon: FileCodeIcon,
         isActive: location.pathname.startsWith("/question-detail/"),
       },
-      {
-        title: "History",
-        url: "/history",
-        icon: ListIcon,
-        isActive: location.pathname === "/history",
-      },
-      {
-        title: "Rank",
-        url: "/rank",
-        icon: BarChartIcon,
-        isActive: location.pathname === "/rank",
-      },
-      {
-        title: "Contest",
-        url: "/contest",
-        icon: FolderIcon,
-        isActive: location.pathname === "/contest",
-      },
       // {
-      //   title: "Discuss",
-      //   url: "#",
-      //   icon: UsersIcon,
-      //   isActive: false,
+      //   title: "History",
+      //   url: "/history",
+      //   icon: ListIcon,
+      //   isActive: location.pathname === "/history",
       // },
-    ],
-    navClouds: [
-      {
-        title: "Capture",
-        icon: CameraIcon,
-        isActive: true,
-        url: "#",
-        items: [
-          {
-            title: "Active Proposals",
-            url: "#",
-          },
-          {
-            title: "Archived",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Proposal",
-        icon: FileTextIcon,
-        url: "#",
-        items: [
-          {
-            title: "Active Proposals",
-            url: "#",
-          },
-          {
-            title: "Archived",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Prompts",
-        icon: FileCodeIcon,
-        url: "#",
-        items: [
-          {
-            title: "Active Proposals",
-            url: "#",
-          },
-          {
-            title: "Archived",
-            url: "#",
-          },
-        ],
-      },
+      // {
+      //   title: "Rank",
+      //   url: "/rank",
+      //   icon: BarChartIcon,
+      //   isActive: location.pathname === "/rank",
+      // },
+      // {
+      //   title: "Contest",
+      //   url: "/contest",
+      //   icon: FolderIcon,
+      //   isActive: location.pathname === "/contest",
+      // },
     ],
     navSecondary: [
       {
@@ -170,7 +93,7 @@ export function AppSidebar({
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="bg-sidebar border-t border-sidebar-border">
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );

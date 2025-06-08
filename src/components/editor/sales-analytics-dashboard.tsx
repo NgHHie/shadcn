@@ -3,20 +3,7 @@
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  ChevronDown,
-  Database,
-  DollarSign,
-  History,
-  Percent,
-  Upload,
-  Terminal,
-  Type,
-  Send,
-  Loader2,
-  Wifi,
-  WifiOff,
-} from "lucide-react";
+import { History, Upload, Terminal, Send, Loader2 } from "lucide-react";
 import { SalesTable } from "@/components/editor/sales-table";
 import { QueryHistoryPanel } from "@/components/editor/query-history-panel";
 import { Card } from "@/components/ui/card";
@@ -29,23 +16,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  toastSuccess,
-  toastError,
-  toastWarning,
-  toastInfo,
-  toastLoading,
-  toastPromise,
-  dismissToast,
-} from "@/lib/toast";
-import { QuestionDetail, useApi, SubmissionRequest } from "@/lib/api";
+import { toastSuccess, toastError, toastWarning, toastInfo } from "@/lib/toast";
+import { QuestionDetail, useApi } from "@/lib/api";
 import { useSubmissionHistory } from "@/hooks/use-submission-history";
 
-// Import dữ liệu lịch sử truy vấn với kiểu đúng
-import queryHistoryDataJson from "./data/query-history-mock-data.json";
 import { SqlEditor } from "./sql-editor";
-const queryHistoryDataOld: QueryHistoryItem[] =
-  queryHistoryDataJson as QueryHistoryItem[];
 
 interface SalesAnalyticsDashboardProps {
   question?: QuestionDetail | null;
@@ -58,17 +33,13 @@ export function SalesAnalyticsDashboard({
   const api = useApi();
 
   // Use submission history hook for WebSocket integration
-  const {
-    userInfo,
-    submissions,
-    loading: historyLoading,
-    isWebSocketConnected,
-    submitSolution: submitToAPI,
-    refresh: refreshHistory,
-  } = useSubmissionHistory(question?.id, {
-    code: question?.questionCode || "",
-    title: question?.title || "",
-  });
+  const { submissions, submitSolution: submitToAPI } = useSubmissionHistory(
+    question?.id,
+    {
+      code: question?.questionCode || "",
+      title: question?.title || "",
+    }
+  );
 
   const [sqlQuery, setSqlQuery] = useState(""); // Empty by default
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -104,26 +75,6 @@ export function SalesAnalyticsDashboard({
       name: detail.typeDatabase.name,
     }));
   }, [question?.questionDetails]);
-
-  // Mock function to simulate SQL execution
-  const executeQuery = async (query: string) => {
-    // Simulate API call delay
-    await new Promise((resolve) =>
-      setTimeout(resolve, 2000 + Math.random() * 2000)
-    );
-
-    // Simulate success/failure randomly
-    if (Math.random() > 0.3) {
-      return {
-        success: true,
-        rows: Math.floor(Math.random() * 10000) + 100,
-        duration: (Math.random() * 0.1 + 0.01).toFixed(3) + "s",
-        data: [],
-      };
-    } else {
-      throw new Error("Syntax error: Invalid column name 'invalid_column'");
-    }
-  };
 
   // Execute SQL query via API
   const handleRunQuery = async () => {
@@ -268,10 +219,6 @@ export function SalesAnalyticsDashboard({
         },
       },
     });
-  };
-
-  const handleSelectDatabase = () => {
-    // This will be handled by the Select component now
   };
 
   // Existing drag handling code...

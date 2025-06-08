@@ -1,4 +1,4 @@
-import { LucideCalendar, Clock, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,19 +22,6 @@ interface ContestCardProps {
 }
 
 export function ContestCard({ contest }: ContestCardProps) {
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case "ongoing":
-        return "default";
-      case "upcoming":
-        return "secondary";
-      case "finished":
-        return "outline";
-      default:
-        return "outline";
-    }
-  };
-
   const getStatusText = (status: string) => {
     switch (status) {
       case "ongoing":
@@ -45,19 +32,6 @@ export function ContestCard({ contest }: ContestCardProps) {
         return "Đã kết thúc";
       default:
         return "Không xác định";
-    }
-  };
-
-  const getTagVariant = (tag: string) => {
-    switch (tag.toLowerCase()) {
-      case "kiểm tra":
-        return "destructive";
-      case "thực hành":
-        return "success";
-      case "thi thử":
-        return "warning";
-      default:
-        return "outline";
     }
   };
 
