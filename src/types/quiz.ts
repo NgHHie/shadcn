@@ -56,7 +56,7 @@ export interface SubmitAnswerRequest {
 export interface SubmitSingleAnswerRequest {
   submissionId: string;
   questionId: string;
-  listAnswerIdsJson: string[];
+  selectedAnswerId: string;
 }
 
 export interface SubmitSingleAnswerResponse {

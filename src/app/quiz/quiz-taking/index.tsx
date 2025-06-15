@@ -25,6 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useQuiz } from "@/hooks/use-quiz";
 import type { PublicQuiz, Question } from "@/services/quizService";
+import { quizService } from "@/services/quizService";
 import "@/styles/quiz-shared.css";
 import "./style.css";
 import { QuestionMap } from "@/components/quiz/QuestionMap/QuestionMap";
@@ -39,7 +40,7 @@ interface QuestionStatus {
 }
 
 interface LocationState {
-  submissionId: string;
+  submissionId: { submissionId: string };
   quizInfo: PublicQuiz;
   questions: Question[];
 }
@@ -55,7 +56,6 @@ export default function QuizTakingPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string[]>>({});
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<string>>(new Set());
-  const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
@@ -71,40 +71,10 @@ export default function QuizTakingPage() {
     questionRefs.current = new Array(currentPageQuestions.length).fill(null);
   }, [currentPage, currentPageQuestions.length]);
 
-  // Initialize time remaining
-  useEffect(() => {
-    if (state?.quizInfo) {
-      const endTime = new Date(state.quizInfo.endTime).getTime();
-      const now = new Date().getTime();
-      const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
-      setTimeRemaining(remaining);
-    }
-  }, [state?.quizInfo]);
-
-  // Timer effect
-  useEffect(() => {
-    if (timeRemaining <= 0) {
-      handleFinishQuiz();
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleFinishQuiz();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeRemaining]);
-
   // Handle answer selection
   const handleAnswerSelect = async (questionId: string, answerId: string, isMultipleChoice: boolean) => {
     try {
+      const actualSubmissionId = state.submissionId.submissionId
       if (isMultipleChoice) {
         setSelectedAnswers((prev) => {
           const currentAnswers = prev[questionId] || [];
@@ -114,29 +84,17 @@ export default function QuizTakingPage() {
           return { ...prev, [questionId]: newAnswers };
         });
       } else {
-        setSelectedAnswers((prev) => ({
-          ...prev,
-          [questionId]: [answerId],
-        }));
+        setSelectedAnswers((prev) => {
+          return { ...prev, [questionId]: [answerId] };
+        });
       }
 
-      // Save answer to backend
-      const response = await fetch("/api/submit-answer", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          submissionId: state.submissionId,
-          questionId: questionId,
-          answerIds: isMultipleChoice ? selectedAnswers[questionId] : [answerId]
-        }),
+      // Always send only answerId as string
+      await quizService.submitSingleAnswer({
+        submissionId: actualSubmissionId,
+        questionId: questionId,
+        selectedAnswerId: answerId
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Không thể lưu câu trả lời");
-      }
     } catch (err) {
       console.error("Error submitting answer:", err);
       toast.error(err instanceof Error ? err.message : "Không thể lưu câu trả lời");
@@ -204,26 +162,28 @@ export default function QuizTakingPage() {
     if (!confirmed) return;
 
     try {
-      setIsSubmitting(true);
-      const response = await fetch(`/api/submit-answer/finish`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          submissionId: state.submissionId,
-          answers: selectedAnswers
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Không thể nộp bài thi");
+      console.log('State:', state);
+      console.log('SubmissionId:', state.submissionId);
+      console.log('Type of submissionId:', typeof state.submissionId);
+      
+      if (!state?.submissionId) {
+        throw new Error('Không tìm thấy ID bài thi');
       }
 
-      const result = await response.json();
-      navigate(`/quiz/result/${state.submissionId}`, {
-        state: { result }
+      // Extract the actual submissionId value
+      let actualSubmissionId: string;
+      if (typeof state.submissionId === 'object' && state.submissionId !== null) {
+        actualSubmissionId = (state.submissionId as { submissionId: string }).submissionId;
+      } else {
+        actualSubmissionId = String(state.submissionId);
+      }
+
+      console.log('Actual submissionId:', actualSubmissionId);
+
+      setIsSubmitting(true);
+      const result = await quizService.finishSubmission(actualSubmissionId);
+      navigate(`/quiz/quiz-result/${actualSubmissionId}`, {
+        state: { result: result.data }
       });
     } catch (err) {
       console.error("Error finishing quiz:", err);

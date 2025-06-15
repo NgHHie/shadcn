@@ -178,21 +178,30 @@ export const quizService = {
     }
   },
 
-  // API để submit single answer (auto-save mỗi lần click)
+  // API để submit single answer
   submitSingleAnswer: async (
-    submitData: SubmitSingleAnswerRequest
+    data: SubmitSingleAnswerRequest
   ): Promise<SubmitSingleAnswerResponse> => {
     try {
       const response = await axios.post(
         `${API_BASE_URL}/submit-answer/submit`,
-        submitData,
+        {
+          examQuizzSubmissionId: data.submissionId,
+          questionId: data.questionId,
+          listAnswerIdsJson: data.selectedAnswerId,
+        },
         {
           headers: getAuthHeaders(),
         }
       );
       return response.data;
     } catch (error) {
-      console.error("Error submitting single answer:", error);
+      console.error("Error submitting answer:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+      }
+      toast.error("Đã có lỗi xảy ra khi lưu câu trả lời");
       throw error;
     }
   },
@@ -203,7 +212,7 @@ export const quizService = {
   ): Promise<FinishSubmissionResponse> => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/submit-answer/finish?submissionId=${submissionId}`,
+        `${API_BASE_URL}/submit-answer/finish-exam-submission?submissionId=${submissionId}`,
         {},
         {
           headers: getAuthHeaders(),
@@ -212,6 +221,10 @@ export const quizService = {
       return response.data;
     } catch (error) {
       console.error("Error finishing submission:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+      }
       toast.error("Đã có lỗi xảy ra khi nộp bài");
       throw error;
     }

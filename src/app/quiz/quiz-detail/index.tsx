@@ -71,7 +71,7 @@ export default function QuizDetailPage() {
       const submissionRes = await quizService.createSubmission(userId, quiz.examQuizzesId);
       navigate(`/quiz/take/${quiz.examQuizzesId}`, {
         state: {
-          submissionId: submissionRes?.data,
+          submissionId: submissionRes.data,
           quizInfo: quiz,
           questions: examUserQuizRes?.data?.questions || [],
         },
