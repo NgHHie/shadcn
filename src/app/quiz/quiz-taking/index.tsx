@@ -96,7 +96,6 @@ export default function QuizTakingPage() {
         selectedAnswerId: answerId
       });
     } catch (err) {
-      console.error("Error submitting answer:", err);
       toast.error(err instanceof Error ? err.message : "Không thể lưu câu trả lời");
     }
   };
@@ -162,9 +161,6 @@ export default function QuizTakingPage() {
     if (!confirmed) return;
 
     try {
-      console.log('State:', state);
-      console.log('SubmissionId:', state.submissionId);
-      console.log('Type of submissionId:', typeof state.submissionId);
       
       if (!state?.submissionId) {
         throw new Error('Không tìm thấy ID bài thi');
@@ -178,15 +174,12 @@ export default function QuizTakingPage() {
         actualSubmissionId = String(state.submissionId);
       }
 
-      console.log('Actual submissionId:', actualSubmissionId);
-
       setIsSubmitting(true);
       const result = await quizService.finishSubmission(actualSubmissionId);
       navigate(`/quiz/quiz-result/${actualSubmissionId}`, {
         state: { result: result.data }
       });
     } catch (err) {
-      console.error("Error finishing quiz:", err);
       toast.error(err instanceof Error ? err.message : "Không thể nộp bài thi");
       setIsSubmitting(false);
     }

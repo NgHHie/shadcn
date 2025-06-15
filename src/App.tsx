@@ -153,9 +153,7 @@ function App() {
             path="/quiz/take/:quizId"
             element={
               <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <QuizTakingPage />
-                </MainLayout>
+                <QuizTakingPage />
               </AuthRouteGuard>
             }
           />
