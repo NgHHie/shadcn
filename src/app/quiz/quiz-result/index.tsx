@@ -3,14 +3,13 @@ import { useParams, useLocation, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Award,
   CheckCircle,
   XCircle,
   ArrowLeft,
   RotateCcw,
-  AlertTriangle
+  FileText
 } from "lucide-react";
 import { quizSubmissionService, type QuizResult } from "@/services/quizSubmissionService";
 import "@/styles/quiz-shared.css";
@@ -22,7 +21,7 @@ export default function QuizResultPage() {
 
   const [result, setResult] = useState<QuizResult | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
 
   // Get result from location state or API
   useEffect(() => {

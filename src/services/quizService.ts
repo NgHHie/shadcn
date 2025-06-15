@@ -232,7 +232,7 @@ export const quizService = {
         message: "Answers submitted successfully",
         data: {
           submissionId: submitData.submissionId,
-          totalAnswers: submitData.answers.length,
+          totalAnswers: submitData.listAnswerIdsJson.length,
           submittedAt: new Date().toISOString(),
         },
       };

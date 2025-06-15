@@ -67,11 +67,8 @@ export default function QuizDetailPage() {
     if (!quiz || !userId) return;
     setStarting(true);
     try {
-      // 1. Lấy danh sách câu hỏi cho user và quiz này
       const examUserQuizRes = await quizService.getExamUserQuizzes(userId, quiz.examQuizzesId);
-      // 2. Tạo submission cho user và quiz này
       const submissionRes = await quizService.createSubmission(userId, quiz.examQuizzesId);
-      // 3. Chuyển sang trang làm bài, truyền state
       navigate(`/quiz/take/${quiz.examQuizzesId}`, {
         state: {
           submissionId: submissionRes?.data,
