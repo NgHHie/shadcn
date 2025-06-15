@@ -1,0 +1,52 @@
+/* Question Map Sidebar Styles */
+
+/* Question Map Sidebar - Use CSS variables for theme sync */
+.question-map-sidebar {
+  background: hsl(var(--background));
+  border-right: 1px solid hsl(var(--border));
+  transition: all 0.2s ease-in-out;
+}
+
+/* Question Map Buttons - Use Shadcn UI variables for theme sync */
+.question-map-button {
+  position: relative;
+  transition: all 0.2s ease-in-out;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.question-map-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Use Tailwind/Shadcn classes instead of custom CSS for better theme sync */
+
+/* Question Navigation Improvements */
+.question-map-button:active {
+  transform: scale(0.95);
+}
+
+.question-map-button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Responsive Design for Question Map */
+@media (max-width: 1024px) {
+  .question-map-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .question-map-sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .question-map-button {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+}
