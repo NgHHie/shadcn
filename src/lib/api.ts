@@ -470,6 +470,24 @@ export const authApi = {
     TokenManager.setTokens(data.accessToken, data.refreshToken);
     console.log("✅ Login successful, tokens stored");
 
+    // Debug token information
+    const tokenInfo = TokenManager.decodeToken(data.accessToken);
+    console.group("🔑 Token Information");
+    console.log("📝 Raw Token:", data.accessToken);
+    console.log("🔍 Decoded Token:", {
+      userId: tokenInfo?.sub,
+      email: tokenInfo?.email,
+      name: tokenInfo?.name,
+      role: tokenInfo?.role,
+      issuedAt: tokenInfo?.iatDate,
+      expiresAt: tokenInfo?.expDate,
+      remainingTime: tokenInfo?.exp
+        ? Math.round((tokenInfo.exp * 1000 - Date.now()) / 1000 / 60) +
+          " minutes"
+        : "unknown",
+    });
+    console.groupEnd();
+
     return data;
   },
 

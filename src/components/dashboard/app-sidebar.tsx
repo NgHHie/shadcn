@@ -1,6 +1,6 @@
 // src/components/dashboard/app-sidebar.tsx
 import * as React from "react";
-import { FileCodeIcon, HelpCircleIcon, Boxes } from "lucide-react";
+import { FileCodeIcon, HelpCircleIcon, Boxes, BookOpen } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
 import { NavMain } from "@/components/dashboard/nav-main";
@@ -35,6 +35,22 @@ export function AppSidebar({
         url: "/question-detail/",
         icon: FileCodeIcon,
         isActive: location.pathname.startsWith("/question-detail/"),
+      },
+      {
+        title: "Quiz",
+        url: "/quiz/quiz-list",
+        icon: BookOpen,
+        isActive: location.pathname.startsWith("/quiz/"),
+        items: [
+          {
+            title: "Danh sách bài thi",
+            url: "/quiz/quiz-list",
+          },
+          {
+            title: "Demo Quiz",
+            url: "/quiz/quiz-demo",
+          },
+        ],
       },
       // {
       //   title: "History",

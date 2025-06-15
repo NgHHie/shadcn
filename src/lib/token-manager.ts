@@ -53,6 +53,18 @@ class CookieUtils {
   }
 }
 
+interface TokenPayload {
+  sub?: string; // Subject (user ID)
+  email?: string; // User email
+  name?: string; // User name
+  role?: string; // User role
+  exp?: number; // Expiration time
+  iat?: number; // Issued at time
+  expDate?: string; // Human readable expiration date
+  iatDate?: string; // Human readable issued date
+  [key: string]: any; // Other custom claims
+}
+
 // Token management with cookie integration
 export class TokenManager {
   private static isRefreshing = false;
@@ -284,6 +296,46 @@ export class TokenManager {
         refresh: !!CookieUtils.getCookie(this.COOKIE_REFRESH_TOKEN),
       },
     };
+  }
+
+  /**
+   * Decode JWT token and return its payload
+   */
+  static decodeToken(token: string | null): TokenPayload | null {
+    if (!token) return null;
+
+    try {
+      // Split the token into parts
+      const parts = token.split(".");
+      if (parts.length !== 3) {
+        console.error("Invalid token format");
+        return null;
+      }
+
+      // Decode the payload (second part)
+      const payload = JSON.parse(atob(parts[1])) as TokenPayload;
+
+      // Add human-readable dates
+      if (payload.exp) {
+        payload.expDate = new Date(payload.exp * 1000).toLocaleString();
+      }
+      if (payload.iat) {
+        payload.iatDate = new Date(payload.iat * 1000).toLocaleString();
+      }
+
+      return payload;
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Get decoded information from current access token
+   */
+  static getTokenInfo(): TokenPayload | null {
+    const token = this.getAccessToken();
+    return this.decodeToken(token);
   }
 }
 
