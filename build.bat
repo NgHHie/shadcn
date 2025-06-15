@@ -1,8 +1,8 @@
 @echo off
 
 REM Set environment variables for Docker registry
-set IMAGE_NAME=registry.gitlab.com/learn-sql-system/learnsql-web-v2
-set IMAGE_TAG=1.0.6
+set IMAGE_NAME=registry.gitlab.com/dblab-system/dblab-web
+set IMAGE_TAG=1.0.7
 
 echo Building web ...
 call npm run build
