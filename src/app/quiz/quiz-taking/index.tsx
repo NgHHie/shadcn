@@ -31,7 +31,7 @@ interface LocationState {
 export default function QuizTakingPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { submitSingleAnswer, finishSubmission, loading } = useQuiz();
+  const { loading } = useQuiz();
   const state = location.state as LocationState;
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -89,11 +89,22 @@ export default function QuizTakingPage() {
         }));
       }
 
-      await submitSingleAnswer({
-        submissionId: state.submissionId,
-        questionId,
-        selectedAnswerId: answerId
+      // Gọi API lưu đáp án
+      const response = await fetch("/submit-answer/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          examQuizzSubmissionId: state.submissionId,
+          questionId: questionId,
+          listAnswerIdsJson: isMultipleChoice ? JSON.stringify(selectedAnswers[questionId]) : answerId
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Không thể lưu câu trả lời");
+      }
     } catch (err) {
       console.error("Error submitting answer:", err);
       toast.error("Không thể lưu câu trả lời");
@@ -128,12 +139,18 @@ export default function QuizTakingPage() {
 
     try {
       setIsSubmitting(true);
-      const result = await finishSubmission(state.submissionId);
-      if (result) {
-        navigate(`/quiz/result/${state.submissionId}`, {
-          state: { result }
-        });
+      const response = await fetch(`/submit-answer/finish-exam-submission?submissionId=${state.submissionId}`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error("Không thể nộp bài thi");
       }
+
+      const result = await response.json();
+      navigate(`/quiz/result/${state.submissionId}`, {
+        state: { result }
+      });
     } catch (err) {
       console.error("Error finishing quiz:", err);
       toast.error("Không thể nộp bài thi");

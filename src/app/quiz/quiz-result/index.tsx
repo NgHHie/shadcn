@@ -134,7 +134,7 @@ export default function QuizResultPage() {
   const wrongAnswers = totalQuestions - correctAnswers;
 
   // Calculate score on scale of 10
-  const scoreOutOf10 = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 10) : 0;
+  const scoreOutOf10 = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 10 : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-green-900 dark:to-emerald-900">
@@ -182,7 +182,7 @@ export default function QuizResultPage() {
             {/* Score Display */}
             <div className="text-center mb-8">
               <div className="text-6xl font-bold text-green-600 mb-2">
-                {scoreOutOf10}/10
+                {scoreOutOf10.toFixed(1)}/10
               </div>
               <p className="text-lg text-gray-600 dark:text-gray-400">
                 Điểm số
@@ -199,7 +199,7 @@ export default function QuizResultPage() {
                 <div className="text-3xl font-bold text-green-600 mb-1">
                   {correctAnswers}
                 </div>
-                <div className="text-sm text-green-700 dark:text-green-300 font-medium">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   Câu đúng
                 </div>
               </div>
@@ -212,7 +212,7 @@ export default function QuizResultPage() {
                 <div className="text-3xl font-bold text-red-600 mb-1">
                   {wrongAnswers}
                 </div>
-                <div className="text-sm text-red-700 dark:text-red-300 font-medium">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   Câu sai
                 </div>
               </div>

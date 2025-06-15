@@ -39,9 +39,11 @@ function App() {
           <Route
             path="/dashboard"
             element={
-              <MainLayout>
-                <Page />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <Page />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
 
@@ -49,18 +51,22 @@ function App() {
           <Route
             path="/question-detail"
             element={
-              <MainLayout>
-                <Editor />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <Editor />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
 
           <Route
             path="/"
             element={
-              <MainLayout>
-                <Editor />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <Editor />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
 
@@ -68,45 +74,55 @@ function App() {
           <Route
             path="/question-detail/:questionId"
             element={
-              <MainLayout>
-                <Editor />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <Editor />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
 
           <Route
             path="/history"
             element={
-              <MainLayout>
-                <HistoryPage />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <HistoryPage />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
 
           <Route
             path="/rank"
             element={
-              <MainLayout>
-                <RankPage />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <RankPage />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
 
           <Route
             path="/contest"
             element={
-              <MainLayout>
-                <ContestPage />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <ContestPage />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
 
           <Route
             path="/profile"
             element={
-              <MainLayout>
-                <ProfilePage />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <ProfilePage />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
 
@@ -114,36 +130,44 @@ function App() {
           <Route
             path="/quiz/quiz-list"
             element={
-              <MainLayout>
-                <QuizListPage />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <QuizListPage />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
 
           <Route
             path="/quiz/quiz-detail/:quizId"
             element={
-              <MainLayout>
-                <QuizDetailPage />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <QuizDetailPage />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
 
           <Route
             path="/quiz/take/:quizId"
             element={
-              <MainLayout>
-                <QuizTakingPage />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <QuizTakingPage />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
 
           <Route
             path="/quiz/quiz-result/:id"
             element={
-              <MainLayout>
-                <QuizResultPage />
-              </MainLayout>
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <QuizResultPage />
+                </MainLayout>
+              </AuthRouteGuard>
             }
           />
         </Routes>
