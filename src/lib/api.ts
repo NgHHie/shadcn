@@ -104,6 +104,7 @@ export interface QuestionListItem {
   level: string;
   point: number;
   enable: boolean;
+  totalSub: number;
   status?: "AC" | "WA" | "TLE" | "CE" | "Not Started";
 }
 

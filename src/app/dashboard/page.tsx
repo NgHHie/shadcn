@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Loader2, AlertCircle, BookOpen } from "lucide-react";
+import { Search, Loader2, AlertCircle, BookOpen, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toastSuccess } from "@/lib/toast";
 
@@ -178,62 +178,64 @@ export function Page() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="px-4 lg:px-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              Tìm kiếm bài tập
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Tìm kiếm theo mã câu hỏi hoặc tên đề bài..."
-                    value={inputKeyword}
-                    onChange={(e) => setInputKeyword(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button onClick={handleSearch} disabled={loading}>
-                  Tìm kiếm
-                </Button>
-
-                {searchKeyword && (
-                  <Button
-                    variant="outline"
-                    onClick={handleClearSearch}
-                    disabled={loading}
-                  >
-                    Xóa bộ lọc
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Questions List */}
       <div className="px-4 lg:px-6">
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">
-                Bài tập {!loading && `(${totalElements} bài)`}
-              </CardTitle>
-              {loading && (
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-              )}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              {/* Bên trái: Tiêu đề */}
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-lg">
+                  Bài tập {!loading && `(${totalElements} bài)`}
+                </CardTitle>
+                {loading && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
+
+              {/* Bên phải: Search + Button */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+                {/* Input có độ rộng hợp lý ở laptop */}
+                <div className="relative w-full sm:w-[320px]">
+                  {/* Icon Search bên trái */}
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+                  {/* Input */}
+                  <Input
+                    placeholder="Tìm kiếm theo mã hoặc tên câu hỏi..."
+                    value={inputKeyword}
+                    onChange={(e) => setInputKeyword(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    className="pl-10 pr-10 w-full"
+                  />
+
+                  {/* Nút X xoá từ khoá */}
+                  {searchKeyword && (
+                    <button
+                      type="button"
+                      onClick={handleClearSearch}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      aria-label="Xoá bộ lọc"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Nút tìm kiếm và xóa */}
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <Button
+                    onClick={handleSearch}
+                    disabled={loading}
+                    className="w-full sm:w-auto"
+                  >
+                    Tìm kiếm
+                  </Button>
+                </div>
+              </div>
             </div>
           </CardHeader>
+
           <CardContent>{renderQuestionsContent()}</CardContent>
         </Card>
       </div>

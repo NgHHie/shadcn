@@ -3,7 +3,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trophy, Play } from "lucide-react";
+import { Trophy, Play, ArrowRight } from "lucide-react";
 
 interface QuestionCardProps {
   question: {
@@ -13,6 +13,7 @@ interface QuestionCardProps {
     type: string;
     level: string;
     point: number;
+    totalSub: number;
     status?: "AC" | "WA" | "TLE" | "CE" | "Not Started";
   };
   onClick: (questionId: string, questionTitle: string) => void;
@@ -156,11 +157,13 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             >
               {question.title}
             </h3>
+            <div className="text-[11px] sm:text-xs text-muted-foreground">
+              Đã có {question.totalSub} lượt sub
+            </div>
           </div>
 
-          {/* Right side - Button and Status stacked */}
-          <div className="flex flex-col items-end gap-2 flex-shrink-0">
-            {/* Button - Desktop: with text, Mobile: icon only */}
+          {/* Right side - Button + lượt sub */}
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
             <Button
               size="sm"
               variant="outline"
@@ -170,33 +173,23 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                 onClick(question.id, question.title);
               }}
             >
-              <Play className="h-3 w-3 sm:mr-1" />
-              <span className="hidden sm:inline">Bắt đầu</span>
+              <ArrowRight className="h-3 w-3 sm:mr-1" />
+              <span className="hidden sm:inline">Editor</span>
             </Button>
-
-            {/* Status badge - Desktop: full text, Mobile: short text */}
             {question.status && (
-              <>
-                {/* Desktop status */}
-                <Badge
-                  variant="outline"
-                  className={`hidden sm:inline-flex text-xs ${getStatusColor(
-                    question.status
-                  )} border-0`}
-                >
+              <Badge
+                variant="outline"
+                className={`mt-1 text-xs ${getStatusColor(
+                  question.status
+                )} border-0`}
+              >
+                <span className="hidden sm:inline">
                   {getStatusTextDesktop(question.status)}
-                </Badge>
-
-                {/* Mobile status */}
-                <Badge
-                  variant="outline"
-                  className={`sm:hidden text-xs px-1.5 py-0.5 ${getStatusColor(
-                    question.status
-                  )} border-0`}
-                >
+                </span>
+                <span className="sm:hidden">
                   {getStatusTextMobile(question.status)}
-                </Badge>
-              </>
+                </span>
+              </Badge>
             )}
           </div>
         </div>

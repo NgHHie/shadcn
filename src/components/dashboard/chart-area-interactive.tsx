@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
-import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Card,
   CardContent,
@@ -14,6 +13,8 @@ import {
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -25,117 +26,208 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-const chartData = [
-  { date: "2024-04-01", desktop: 222, mobile: 150 },
-  { date: "2024-04-02", desktop: 97, mobile: 180 },
-  { date: "2024-04-03", desktop: 167, mobile: 120 },
-  { date: "2024-04-04", desktop: 242, mobile: 260 },
-  { date: "2024-04-05", desktop: 373, mobile: 290 },
-  { date: "2024-04-06", desktop: 301, mobile: 340 },
-  { date: "2024-04-07", desktop: 245, mobile: 180 },
-  { date: "2024-04-08", desktop: 409, mobile: 320 },
-  { date: "2024-04-09", desktop: 59, mobile: 110 },
-  { date: "2024-04-10", desktop: 261, mobile: 190 },
-  { date: "2024-04-11", desktop: 327, mobile: 350 },
-  { date: "2024-04-12", desktop: 292, mobile: 210 },
-  { date: "2024-04-13", desktop: 342, mobile: 380 },
-  { date: "2024-04-14", desktop: 137, mobile: 220 },
-  { date: "2024-04-15", desktop: 120, mobile: 170 },
-  { date: "2024-04-16", desktop: 138, mobile: 190 },
-  { date: "2024-04-17", desktop: 446, mobile: 360 },
-  { date: "2024-04-18", desktop: 364, mobile: 410 },
-  { date: "2024-04-19", desktop: 243, mobile: 180 },
-  { date: "2024-04-20", desktop: 89, mobile: 150 },
-  { date: "2024-04-21", desktop: 137, mobile: 200 },
-  { date: "2024-04-22", desktop: 224, mobile: 170 },
-  { date: "2024-04-23", desktop: 138, mobile: 230 },
-  { date: "2024-04-24", desktop: 387, mobile: 290 },
-  { date: "2024-04-25", desktop: 215, mobile: 250 },
-  { date: "2024-04-26", desktop: 75, mobile: 130 },
-  { date: "2024-04-27", desktop: 383, mobile: 420 },
-  { date: "2024-04-28", desktop: 122, mobile: 180 },
-  { date: "2024-04-29", desktop: 315, mobile: 240 },
-  { date: "2024-04-30", desktop: 454, mobile: 380 },
-  { date: "2024-05-01", desktop: 165, mobile: 220 },
-  { date: "2024-05-02", desktop: 293, mobile: 310 },
-  { date: "2024-05-03", desktop: 247, mobile: 190 },
-  { date: "2024-05-04", desktop: 385, mobile: 420 },
-  { date: "2024-05-05", desktop: 481, mobile: 390 },
-  { date: "2024-05-06", desktop: 498, mobile: 520 },
-  { date: "2024-05-07", desktop: 388, mobile: 300 },
-  { date: "2024-05-08", desktop: 149, mobile: 210 },
-  { date: "2024-05-09", desktop: 227, mobile: 180 },
-  { date: "2024-05-10", desktop: 293, mobile: 330 },
-  { date: "2024-05-11", desktop: 335, mobile: 270 },
-  { date: "2024-05-12", desktop: 197, mobile: 240 },
-  { date: "2024-05-13", desktop: 197, mobile: 160 },
-  { date: "2024-05-14", desktop: 448, mobile: 490 },
-  { date: "2024-05-15", desktop: 473, mobile: 380 },
-  { date: "2024-05-16", desktop: 338, mobile: 400 },
-  { date: "2024-05-17", desktop: 499, mobile: 420 },
-  { date: "2024-05-18", desktop: 315, mobile: 350 },
-  { date: "2024-05-19", desktop: 235, mobile: 180 },
-  { date: "2024-05-20", desktop: 177, mobile: 230 },
-  { date: "2024-05-21", desktop: 82, mobile: 140 },
-  { date: "2024-05-22", desktop: 81, mobile: 120 },
-  { date: "2024-05-23", desktop: 252, mobile: 290 },
-  { date: "2024-05-24", desktop: 294, mobile: 220 },
-  { date: "2024-05-25", desktop: 201, mobile: 250 },
-  { date: "2024-05-26", desktop: 213, mobile: 170 },
-  { date: "2024-05-27", desktop: 420, mobile: 460 },
-  { date: "2024-05-28", desktop: 233, mobile: 190 },
-  { date: "2024-05-29", desktop: 78, mobile: 130 },
-  { date: "2024-05-30", desktop: 340, mobile: 280 },
-  { date: "2024-05-31", desktop: 178, mobile: 230 },
-  { date: "2024-06-01", desktop: 178, mobile: 200 },
-  { date: "2024-06-02", desktop: 470, mobile: 410 },
-  { date: "2024-06-03", desktop: 103, mobile: 160 },
-  { date: "2024-06-04", desktop: 439, mobile: 380 },
-  { date: "2024-06-05", desktop: 88, mobile: 140 },
-  { date: "2024-06-06", desktop: 294, mobile: 250 },
-  { date: "2024-06-07", desktop: 323, mobile: 370 },
-  { date: "2024-06-08", desktop: 385, mobile: 320 },
-  { date: "2024-06-09", desktop: 438, mobile: 480 },
-  { date: "2024-06-10", desktop: 155, mobile: 200 },
-  { date: "2024-06-11", desktop: 92, mobile: 150 },
-  { date: "2024-06-12", desktop: 492, mobile: 420 },
-  { date: "2024-06-13", desktop: 81, mobile: 130 },
-  { date: "2024-06-14", desktop: 426, mobile: 380 },
-  { date: "2024-06-15", desktop: 307, mobile: 350 },
-  { date: "2024-06-16", desktop: 371, mobile: 310 },
-  { date: "2024-06-17", desktop: 475, mobile: 520 },
-  { date: "2024-06-18", desktop: 107, mobile: 170 },
-  { date: "2024-06-19", desktop: 341, mobile: 290 },
-  { date: "2024-06-20", desktop: 408, mobile: 450 },
-  { date: "2024-06-21", desktop: 169, mobile: 210 },
-  { date: "2024-06-22", desktop: 317, mobile: 270 },
-  { date: "2024-06-23", desktop: 480, mobile: 530 },
-  { date: "2024-06-24", desktop: 132, mobile: 180 },
-  { date: "2024-06-25", desktop: 141, mobile: 190 },
-  { date: "2024-06-26", desktop: 434, mobile: 380 },
-  { date: "2024-06-27", desktop: 448, mobile: 490 },
-  { date: "2024-06-28", desktop: 149, mobile: 200 },
-  { date: "2024-06-29", desktop: 103, mobile: 160 },
-  { date: "2024-06-30", desktop: 446, mobile: 400 },
-];
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Loader2 } from "lucide-react";
+
+// Type definitions cho API response
+interface SubmitHistoryItem {
+  id: string;
+  createdAt: string;
+  timeSubmit: string;
+  status: "AC" | "WA" | "CE" | "TLE" | "RE";
+  user: {
+    firstName: string;
+    lastName: string;
+    userCode: string;
+    fullName: string;
+  };
+  testPass: number;
+  totalTest: number;
+  question: {
+    questionCode: string;
+    title: string;
+  };
+  database: {
+    id: string;
+    name: string;
+  };
+}
+
+interface ApiResponse {
+  content: SubmitHistoryItem[];
+  totalElements: number;
+  totalPages: number;
+}
+
+// Chart data interface
+interface ChartData {
+  date: string;
+  accepted: number;
+  rejected: number;
+}
 
 const chartConfig = {
   visitors: {
-    label: "Activities",
+    label: "Hoạt động",
   },
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
+  accepted: {
+    label: "Đúng (Accepted)",
+    color: "hsl(142, 76%, 36%)", // Green color for AC
   },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
+  rejected: {
+    label: "Sai (Rejected)",
+    color: "hsl(0, 84%, 60%)", // Red color for rejected
   },
 } satisfies ChartConfig;
+
+// Utility function để format date thành YYYY-MM-DD
+const formatDate = (date: Date): string => {
+  return date.toISOString().split("T")[0];
+};
+
+// Utility function để group data theo ngày
+const groupSubmissionsByDate = (
+  submissions: SubmitHistoryItem[]
+): ChartData[] => {
+  const groupedData: { [key: string]: { accepted: number; rejected: number } } =
+    {};
+
+  console.log("Processing", submissions.length, "submissions");
+
+  submissions.forEach((submission) => {
+    const date = formatDate(new Date(submission.timeSubmit));
+
+    if (!groupedData[date]) {
+      groupedData[date] = { accepted: 0, rejected: 0 };
+    }
+
+    if (submission.status === "AC") {
+      groupedData[date].accepted++;
+    } else {
+      groupedData[date].rejected++;
+    }
+  });
+
+  // Convert object to array và sort theo date
+  return Object.entries(groupedData)
+    .map(([date, counts]) => ({
+      date,
+      accepted: counts.accepted,
+      rejected: counts.rejected,
+    }))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+};
+
+// Utility function để filter data theo time range
+const filterDataByTimeRange = (
+  data: ChartData[],
+  timeRange: string
+): ChartData[] => {
+  const now = new Date();
+  let daysToSubtract = 90;
+
+  if (timeRange === "30d") {
+    daysToSubtract = 30;
+  } else if (timeRange === "7d") {
+    daysToSubtract = 7;
+  }
+
+  const startDate = new Date(now);
+  startDate.setDate(startDate.getDate() - daysToSubtract);
+
+  return data.filter((item) => {
+    const itemDate = new Date(item.date);
+    return itemDate >= startDate;
+  });
+};
+
+// API service functions
+const fetchUserInfo = async (): Promise<{ id: string }> => {
+  try {
+    const token = localStorage.getItem("access_token")?.replace(/"/g, "");
+
+    const response = await fetch(
+      "https://api.learnsql.store/api/app/user/info",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user info: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    throw error;
+  }
+};
+
+const fetchSubmitHistory = async (userId: string): Promise<ApiResponse> => {
+  try {
+    const token = localStorage.getItem("access_token")?.replace(/"/g, "");
+
+    // First call to get total count
+    const firstResponse = await fetch(
+      `https://api.learnsql.store/api/app/submit-history/user/filter/${userId}?page=0&size=20`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!firstResponse.ok) {
+      throw new Error(`HTTP error! status: ${firstResponse.status}`);
+    }
+
+    const firstData = await firstResponse.json();
+    const totalElements = firstData.totalElements;
+
+    console.log("Total submissions:", totalElements);
+
+    // If we have more than 20 items, fetch all data
+    if (totalElements > 20) {
+      // Use a large size to get all data at once
+      const url = `https://api.learnsql.store/api/app/submit-history/user/filter/${userId}?page=0&size=${totalElements}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    }
+
+    // If 20 or fewer items, return the first response
+    return firstData;
+  } catch (error) {
+    console.error("Error fetching submit history:", error);
+    throw error;
+  }
+};
 
 export function ChartAreaInteractive() {
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState("30d");
+  const [chartData, setChartData] = React.useState<ChartData[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [userId, setUserId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (isMobile) {
@@ -143,97 +235,215 @@ export function ChartAreaInteractive() {
     }
   }, [isMobile]);
 
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date);
-    const referenceDate = new Date("2024-06-30");
-    let daysToSubtract = 90;
-    if (timeRange === "30d") {
-      daysToSubtract = 30;
-    } else if (timeRange === "7d") {
-      daysToSubtract = 7;
+  // Fetch data from API
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // First get user info to get userId
+        const userInfo = await fetchUserInfo();
+        setUserId(userInfo.id);
+
+        // Then fetch submit history
+        const response = await fetchSubmitHistory(userInfo.id);
+
+        // Filter submissions to only last 3 months from current date
+        const currentDate = new Date();
+        const threeMonthsAgo = new Date(currentDate);
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+        console.log("Current date:", currentDate.toISOString().split("T")[0]);
+        console.log(
+          "3 months ago cutoff:",
+          threeMonthsAgo.toISOString().split("T")[0]
+        );
+        console.log("Total submissions from API:", response.content.length);
+
+        // Filter submissions within last 3 months
+        const recentSubmissions = response.content.filter((submission) => {
+          const submissionDate = new Date(submission.timeSubmit);
+          return (
+            submissionDate >= threeMonthsAgo && submissionDate <= currentDate
+          );
+        });
+
+        console.log("Submissions in last 3 months:", recentSubmissions.length);
+
+        // Process only the recent submissions
+        const processedData = groupSubmissionsByDate(recentSubmissions);
+        setChartData(processedData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load data");
+        console.error("Error loading submit history:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const filteredData = React.useMemo(() => {
+    return filterDataByTimeRange(chartData, timeRange);
+  }, [chartData, timeRange]);
+
+  // Calculate Y-axis domain with nice intervals (divisible by 5 or 10)
+  const yAxisDomain = React.useMemo(() => {
+    if (chartData.length === 0) return [0, 10];
+
+    // Find max submissions in one day
+    const maxSubmissionsInOneDay = Math.max(
+      ...chartData.map((item) => item.accepted + item.rejected)
+    );
+
+    console.log("Max submissions in one day:", maxSubmissionsInOneDay);
+
+    // Simply round up to next nice number
+    let yMax;
+    if (maxSubmissionsInOneDay <= 50) {
+      // For numbers ≤ 50, round up to next multiple of 5
+      yMax = Math.ceil(maxSubmissionsInOneDay / 5) * 5;
+    } else {
+      // For numbers > 50, round up to next multiple of 10
+      yMax = Math.ceil(maxSubmissionsInOneDay / 10) * 10;
     }
-    const startDate = new Date(referenceDate);
-    startDate.setDate(startDate.getDate() - daysToSubtract);
-    return date >= startDate;
-  });
+
+    // Ensure minimum scale
+    yMax = Math.max(yMax, 10);
+
+    console.log("Y-axis max:", yMax);
+
+    return [0, yMax];
+  }, [chartData]);
+
+  if (loading) {
+    return (
+      <Card className="@container/card">
+        <CardHeader>
+          <CardTitle>Thống kê hoạt động</CardTitle>
+        </CardHeader>
+        <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+          <div className="flex h-[250px] items-center justify-center">
+            <div className="flex flex-col items-center gap-6">
+              {/* Modern loading spinner */}
+
+              <Loader2 className="h-14 w-14 animate-spin text-muted-foreground" />
+
+              {/* Loading text */}
+              <div className="text-center space-y-2">
+                <div className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                  Đang tải dữ liệu
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Vui lòng đợi trong giây lát...
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="@container/card">
+        <CardHeader>
+          <CardTitle>Thống kê hoạt động</CardTitle>
+          <CardDescription>Lỗi khi tải dữ liệu</CardDescription>
+        </CardHeader>
+        <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+          <div className="flex h-[250px] items-center justify-center">
+            <div className="text-red-500">Lỗi: {error}</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="@container/card">
-      <CardHeader className="relative">
-        <CardTitle>Total Activitiess</CardTitle>
-        <CardDescription>
-          <span className="@[540px]/card:block hidden">
-            Total for the last 3 months
-          </span>
-          <span className="@[540px]/card:hidden">Last 3 months</span>
-        </CardDescription>
-        <div className="absolute right-4 top-4">
-          <ToggleGroup
-            type="single"
-            value={timeRange}
-            onValueChange={setTimeRange}
-            variant="outline"
-            className="@[767px]/card:flex hidden"
-          >
-            <ToggleGroupItem value="90d" className="h-8 px-2.5">
-              Last 3 months
-            </ToggleGroupItem>
-            <ToggleGroupItem value="30d" className="h-8 px-2.5">
-              Last 30 days
-            </ToggleGroupItem>
-            <ToggleGroupItem value="7d" className="h-8 px-2.5">
-              Last 7 days
-            </ToggleGroupItem>
-          </ToggleGroup>
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger
-              className="@[767px]/card:hidden flex w-40"
-              aria-label="Select a value"
+      <CardHeader>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle>Thống kê hoạt động</CardTitle>
+          </div>
+
+          {/* Bộ chọn thời gian */}
+          <div className="flex justify-end">
+            {/* Desktop */}
+            <ToggleGroup
+              type="single"
+              value={timeRange}
+              onValueChange={setTimeRange}
+              variant="outline"
+              className="hidden @[767px]/card:flex"
             >
-              <SelectValue placeholder="Last 3 months" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="90d" className="rounded-lg">
-                Last 3 months
-              </SelectItem>
-              <SelectItem value="30d" className="rounded-lg">
-                Last 30 days
-              </SelectItem>
-              <SelectItem value="7d" className="rounded-lg">
-                Last 7 days
-              </SelectItem>
-            </SelectContent>
-          </Select>
+              <ToggleGroupItem value="90d" className="h-8 px-2.5">
+                3 tháng qua
+              </ToggleGroupItem>
+              <ToggleGroupItem value="30d" className="h-8 px-2.5">
+                30 ngày qua
+              </ToggleGroupItem>
+              <ToggleGroupItem value="7d" className="h-8 px-2.5">
+                7 ngày qua
+              </ToggleGroupItem>
+            </ToggleGroup>
+
+            {/* Mobile */}
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger
+                className="flex w-40 @[767px]/card:hidden"
+                aria-label="Chọn khoảng thời gian"
+              >
+                <SelectValue placeholder="3 tháng qua" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl">
+                <SelectItem value="90d" className="rounded-lg">
+                  3 tháng qua
+                </SelectItem>
+                <SelectItem value="30d" className="rounded-lg">
+                  30 ngày qua
+                </SelectItem>
+                <SelectItem value="7d" className="rounded-lg">
+                  7 ngày qua
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+
+      <CardContent className="px-0">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
+          className="aspect-auto h-[250px] w-full pr-4"
         >
           <AreaChart data={filteredData}>
             <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillAccepted" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={1.0}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-mobile)"
+                  stopColor="hsl(142, 76%, 36%)"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-mobile)"
+                  stopColor="hsl(142, 76%, 36%)"
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+              <linearGradient id="fillRejected" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="hsl(0, 84%, 60%)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="hsl(0, 84%, 60%)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
@@ -245,22 +455,31 @@ export function ChartAreaInteractive() {
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
+              interval={0}
               tickFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
+                return date.toLocaleDateString("vi-VN", {
                   month: "short",
                   day: "numeric",
                 });
               }}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              domain={yAxisDomain}
+              allowDataOverflow={false}
             />
             <ChartTooltip
               cursor={false}
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
+                    return new Date(value).toLocaleDateString("vi-VN", {
                       month: "short",
                       day: "numeric",
+                      year: "numeric",
                     });
                   }}
                   indicator="dot"
@@ -268,19 +487,20 @@ export function ChartAreaInteractive() {
               }
             />
             <Area
-              dataKey="mobile"
+              dataKey="accepted"
               type="natural"
-              fill="url(#fillMobile)"
-              stroke="var(--color-mobile)"
-              stackId="a"
+              fill="url(#fillAccepted)"
+              stroke="hsl(142, 76%, 36%)"
+              fillOpacity={0.6}
             />
             <Area
-              dataKey="desktop"
+              dataKey="rejected"
               type="natural"
-              fill="url(#fillDesktop)"
-              stroke="var(--color-desktop)"
-              stackId="a"
+              fill="url(#fillRejected)"
+              stroke="hsl(0, 84%, 60%)"
+              fillOpacity={0.6}
             />
+            <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
         </ChartContainer>
       </CardContent>

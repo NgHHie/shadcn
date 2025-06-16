@@ -59,12 +59,12 @@ export function AppSidebar({
           },
         ],
       },
-      {
-        title: "History",
-        url: "/history",
-        icon: ListIcon,
-        isActive: location.pathname === "/history",
-      },
+      // {
+      //   title: "History",
+      //   url: "/history",
+      //   icon: ListIcon,
+      //   isActive: location.pathname === "/history",
+      // },
       // {
       //   title: "Rank",
       //   url: "/rank",
