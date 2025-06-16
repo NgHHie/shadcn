@@ -151,7 +151,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
             {/* Row 2: Title only */}
             <h3
-              className="font-medium text-sm sm:text-base line-clamp-1 leading-tight cursor-pointer hover:underline decoration-2 underline-offset-2 transition-all duration-200"
+              className="font-medium text-sm sm:text-base line-clamp-1 leading-tight cursor-pointer hover:underline decoration-1 underline-offset-2 transition-all duration-200"
               onClick={() => onClick(question.id, question.title)}
             >
               {question.title}

@@ -6,6 +6,7 @@ import {
   Boxes,
   BookOpen,
   LayoutDashboardIcon,
+  ListIcon,
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
@@ -58,12 +59,12 @@ export function AppSidebar({
           },
         ],
       },
-      // {
-      //   title: "History",
-      //   url: "/history",
-      //   icon: ListIcon,
-      //   isActive: location.pathname === "/history",
-      // },
+      {
+        title: "History",
+        url: "/history",
+        icon: ListIcon,
+        isActive: location.pathname === "/history",
+      },
       // {
       //   title: "Rank",
       //   url: "/rank",
