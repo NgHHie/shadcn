@@ -74,16 +74,24 @@ export class TokenManager {
   private static readonly COOKIE_ACCESS_TOKEN = "access_token";
   private static readonly COOKIE_REFRESH_TOKEN = "refresh_token";
 
+  static isCurrentlyRefreshing(): boolean {
+    return this.isRefreshing;
+  }
   // Simple validation - just check if tokens exist and not empty
   static hasValidTokens(): boolean {
+    // Nếu đang refresh thì coi như vẫn còn valid để tránh redirect
+    if (this.isRefreshing) {
+      return true;
+    }
+
     const accessToken = this.getAccessToken();
     const refreshToken = this.getRefreshToken();
 
-    return !!(
-      accessToken &&
-      refreshToken &&
-      accessToken.trim() !== "" &&
-      refreshToken.trim() !== ""
+    return !(
+      !accessToken ||
+      !refreshToken ||
+      accessToken.trim() === "" ||
+      refreshToken.trim() === ""
     );
   }
 
@@ -197,8 +205,11 @@ export class TokenManager {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${refreshToken}`,
+            // Không gắn Authorization Bearer header
           },
+          body: JSON.stringify({
+            refreshToken: refreshToken, // Gửi refreshToken trong body
+          }),
         }
       );
 

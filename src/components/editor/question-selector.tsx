@@ -9,14 +9,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Search,
   CircleCheckIcon,
   XCircleIcon,
   CircleIcon,
   TimerIcon,
+  X,
 } from "lucide-react";
 import { useQuestions } from "@/hooks/use-questions";
 
@@ -29,16 +32,19 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
   currentQuestionId,
   onQuestionChange,
 }) => {
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [hasFoundCurrentQuestion, setHasFoundCurrentQuestion] = useState(false);
 
   const pageSize = 10;
 
-  // Fetch questions without search
+  // Fetch questions from API
   const { questions, loading, totalPages } = useQuestions({
     page: currentPage,
     size: pageSize,
+    keyword: searchTerm || undefined,
   });
 
   // Function to find page containing current question
@@ -46,6 +52,30 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
     if (!questionId || hasFoundCurrentQuestion) return;
 
     try {
+      try {
+        // Try to call find-page API if it exists
+        const response = await fetch(
+          `https://api.learnsql.store/api/app/question/find-page?questionId=${questionId}&size=${pageSize}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage
+                .getItem("access_token")
+                ?.replace(/"/g, "")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.ok) {
+          const pageData = await response.json();
+          setCurrentPage(pageData.page);
+          setHasFoundCurrentQuestion(true);
+          return;
+        }
+      } catch (apiError) {
+        console.log("Find-page API not available, using fallback method");
+      }
+
       // Fallback: Search through pages manually
       // This is less efficient but works without additional API
       let found = false;
@@ -96,7 +126,12 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
 
   // When dropdown opens and we have a current question, try to find its page
   useEffect(() => {
-    if (isOpen && currentQuestionId && !hasFoundCurrentQuestion) {
+    if (
+      isOpen &&
+      currentQuestionId &&
+      !hasFoundCurrentQuestion &&
+      !searchTerm
+    ) {
       // Add a small delay to ensure the dropdown is fully opened
       const timeoutId = setTimeout(() => {
         findCurrentQuestionPage(currentQuestionId);
@@ -104,9 +139,9 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
 
       return () => clearTimeout(timeoutId);
     }
-  }, [isOpen, currentQuestionId, hasFoundCurrentQuestion]);
+  }, [isOpen, currentQuestionId, hasFoundCurrentQuestion, searchTerm]);
 
-  // Reset state when dropdown closes
+  // Reset state when search term changes or dropdown closes
   useEffect(() => {
     if (!isOpen) {
       setHasFoundCurrentQuestion(false);
@@ -125,10 +160,28 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
     }
   }, [questions, currentQuestionId, hasFoundCurrentQuestion]);
 
-  // Reset to page 0 when needed
-  useEffect(() => {
+  // Reset to page 0 when search changes
+  const handleSearch = () => {
+    setSearchTerm(searchInput.trim());
+    setCurrentPage(0);
     setHasFoundCurrentQuestion(false);
-  }, [currentPage]);
+  };
+
+  // Handle Enter key press in search input
+  const handleSearchKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch();
+    }
+  };
+
+  // Clear search
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setSearchTerm("");
+    setCurrentPage(0);
+    setHasFoundCurrentQuestion(false);
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -199,19 +252,71 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className="gap-1 p-1 border-2 h-auto hover:bg-muted/50"
+          className="gap-1 p-2 h-auto hover:bg-primary/10 border-primary/30 bg-primary/5 text-primary font-medium shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md transform hover:-translate-y-0.5"
         >
-          <ChevronDown className="h-3 w-3 text-muted-foreground" />
-          Câu hỏi
+          <ChevronDown className="h-4 w-4 text-primary" />
+          <span className="text-xs text-primary font-semibold">
+            Chọn câu hỏi
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="p-0 w-[calc(100vw-2rem)] sm:w-[400px] md:w-[450px] lg:w-[500px]"
+        className="p-0 w-[calc(100vw-2rem)] sm:w-[400px] md:w-[450px] lg:w-[500px] shadow-xl border-2 border-primary/20"
         align="start"
         sideOffset={4}
       >
+        {/* Header with search */}
+        <div className="p-3 border-b bg-primary/5">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-primary/70" />
+              <Input
+                placeholder="Nhập mã hoặc đề bài..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyPress={handleSearchKeyPress}
+                className="pl-9 pr-8 h-8 border-primary/30 focus:border-primary"
+              />
+              {searchInput && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-primary/10"
+                  onClick={handleClearSearch}
+                >
+                  <X className="h-3 w-3 text-muted-foreground" />
+                </Button>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-3 border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary font-medium"
+              onClick={handleSearch}
+              disabled={loading}
+            >
+              Tìm kiếm
+            </Button>
+          </div>
+          {searchTerm && (
+            <div className="mt-2 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">
+                Kết quả tìm kiếm: "{searchTerm}"
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-5 px-2 text-xs text-primary hover:bg-primary/10"
+                onClick={handleClearSearch}
+              >
+                Xóa bộ lọc
+              </Button>
+            </div>
+          )}
+        </div>
+
         {/* Question list */}
         <div className="max-h-[350px] overflow-y-auto">
           {loading ? (
@@ -227,27 +332,41 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
             questions.map((question) => (
               <div
                 key={question.id}
-                className={`p-3 hover:bg-muted/50 cursor-pointer border-b last:border-b-0 transition-colors ${
-                  question.id === currentQuestionId ? "bg-primary/10" : ""
+                className={`p-3 hover:bg-primary/10 cursor-pointer border-b last:border-b-0 transition-all duration-200 hover:shadow-sm ${
+                  question.id === currentQuestionId
+                    ? "bg-primary/15 border-l-4 border-l-primary shadow-inner"
+                    : "hover:border-l-2 hover:border-l-primary/30"
                 }`}
                 onClick={() => handleQuestionSelect(question.id)}
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-sm text-foreground">
+                      <span
+                        className={`font-medium text-sm ${
+                          question.id === currentQuestionId
+                            ? "text-primary font-semibold"
+                            : "text-foreground"
+                        }`}
+                      >
                         {question.questionCode}
                       </span>
                       <Badge
                         variant="outline"
                         className={`text-xs px-1.5 py-0.5 ${getTypeColor(
                           question.type
-                        )} border-0`}
+                        )} border-0 shadow-sm`}
                       >
                         {question.type}
                       </Badge>
                     </div>
-                    <p className="text-sm text-foreground line-clamp-2 leading-relaxed">
+                    <p
+                      className={`text-sm line-clamp-2 leading-relaxed ${
+                        question.id === currentQuestionId
+                          ? "text-primary/90 font-medium"
+                          : "text-foreground"
+                      }`}
+                    >
                       {question.title}
                     </p>
                   </div>
@@ -256,7 +375,7 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
                       variant="outline"
                       className={`flex gap-1 px-1.5 py-0.5 text-xs ${getStatusColor(
                         question.status || "Not Started"
-                      )} border-0`}
+                      )} border-0 shadow-sm`}
                     >
                       {getStatusIcon(question.status || "Not Started")}
                       {question.status || "Not Started"}
@@ -282,7 +401,7 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between p-3 border-t bg-muted/30">
+          <div className="flex items-center justify-between p-3 border-t bg-primary/5">
             <span className="text-xs text-muted-foreground">
               Trang {currentPage + 1} / {totalPages}
             </span>
@@ -290,7 +409,7 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 w-7 p-0"
+                className="h-7 w-7 p-0 border-primary/30 hover:bg-primary/10"
                 onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
                 disabled={currentPage === 0}
               >
@@ -299,7 +418,7 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 w-7 p-0"
+                className="h-7 w-7 p-0 border-primary/30 hover:bg-primary/10"
                 onClick={() =>
                   setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
                 }

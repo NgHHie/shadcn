@@ -129,22 +129,44 @@ class ApiClient {
       ...options,
     };
 
-    // Add auth token if available and endpoint requires it
     if (!isPublicEndpoint(endpoint)) {
       const token = TokenManager.getAccessToken();
+      const refreshToken = TokenManager.getRefreshToken();
 
       if (token) {
         defaultOptions.headers = {
           ...defaultOptions.headers,
           Authorization: `Bearer ${token}`,
         };
+      } else if (refreshToken && retryCount === 0) {
+        console.log(
+          "No access token but refresh token available, refreshing..."
+        );
+
+        try {
+          const newToken = await TokenManager.refreshAccessToken();
+          console.log("Token refreshed successfully");
+
+          defaultOptions.headers = {
+            ...defaultOptions.headers,
+            Authorization: `Bearer ${newToken}`,
+          };
+        } catch (refreshError) {
+          console.error("Token refresh failed:", refreshError);
+          // Delay trước khi redirect để tránh race condition
+          setTimeout(() => {
+            if (typeof window !== "undefined") {
+              window.location.href = "/login";
+            }
+          }, 1000);
+          throw new Error("Authentication failed. Please login again.");
+        }
       }
     }
 
     try {
       const response = await fetch(url, defaultOptions);
 
-      // Handle 401 Unauthorized - try to refresh token
       if (
         response.status === 401 &&
         retryCount === 0 &&
@@ -156,11 +178,13 @@ class ApiClient {
           const newToken = await TokenManager.refreshAccessToken();
           console.log("Token refreshed successfully");
 
-          // Retry the original request with new token
           const newHeaders = {
             ...defaultOptions.headers,
             Authorization: `Bearer ${newToken}`,
           };
+
+          // Đảm bảo token đã được set trước khi retry
+          await new Promise((resolve) => setTimeout(resolve, 100));
 
           return this.request<T>(
             endpoint,
@@ -172,6 +196,14 @@ class ApiClient {
           );
         } catch (refreshError) {
           console.error("Token refresh failed:", refreshError);
+
+          // Delay redirect để tránh conflict với AuthGuard
+          setTimeout(() => {
+            if (typeof window !== "undefined") {
+              window.location.href = "/login";
+            }
+          }, 1000);
+
           throw new Error("Authentication failed. Please login again.");
         }
       }

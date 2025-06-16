@@ -31,9 +31,10 @@ export function SalesAnalyticsDashboard({
 }: SalesAnalyticsDashboardProps) {
   const isMobile = useIsMobile();
   const api = useApi();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenHistory = useCallback(() => {
-    setIsHistoryOpen(true); // ⭐ Mở history panel
+    setIsHistoryOpen(true);
   }, []);
 
   // Use submission history hook for WebSocket integration
@@ -54,6 +55,7 @@ export function SalesAnalyticsDashboard({
   const [selectedDatabase, setSelectedDatabase] = useState(""); // Empty by default
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [queryResult, setQueryResult] = useState<any>(null);
   const [queryError, setQueryError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -80,6 +82,23 @@ export function SalesAnalyticsDashboard({
       name: detail.typeDatabase.name,
     }));
   }, [question?.questionDetails]);
+
+  // Keyboard shortcut for Run Query (Ctrl + Enter)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+        if (!isRunning && question && sqlQuery.trim() && selectedDatabase) {
+          handleRunQuery();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isRunning, question, sqlQuery, selectedDatabase]);
 
   // Execute SQL query via API
   const handleRunQuery = async () => {
@@ -134,6 +153,137 @@ export function SalesAnalyticsDashboard({
       setQueryError(errorMessage);
     } finally {
       setIsRunning(false);
+    }
+  };
+
+  // Handle file upload
+  const handleFileUpload = async (file: File) => {
+    if (!question) {
+      toastError("Chưa có đề bài", {
+        description: "Vui lòng chọn một câu hỏi để upload file",
+      });
+      return;
+    }
+
+    if (!selectedDatabase) {
+      toastWarning("Vui lòng chọn loại database trước khi upload file");
+      return;
+    }
+
+    // Validate file type
+    if (!file.name.toLowerCase().endsWith(".sql")) {
+      toastError("File không hợp lệ", {
+        description: "Chỉ chấp nhận file có đuôi .sql",
+      });
+      return;
+    }
+
+    // Validate file size (max 1MB)
+    if (file.size > 1024 * 1024) {
+      toastError("File quá lớn", {
+        description: "Kích thước file không được vượt quá 1MB",
+      });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+
+      // Read file content
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = reject;
+        reader.readAsText(file);
+      });
+
+      // Find the selected database ID
+      const selectedDbDetail = availableDatabases.find(
+        (db) => db.name === selectedDatabase
+      );
+      if (!selectedDbDetail) {
+        toastError("Database không hợp lệ");
+        return;
+      }
+
+      // Prepare form data
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Call API
+      const response = await fetch(
+        `https://api.learnsql.store/api/app/executor/submit-file?questionId=${question.id}&typeDatabaseId=${selectedDbDetail.id}&isSubmitContest=false`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage
+              .getItem("access_token")
+              ?.replace(/"/g, "")}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      // Update SQL editor with file content
+      setSqlQuery(fileContent);
+
+      toastSuccess("Upload file thành công!", {
+        description: `File ${file.name} đã được upload và nội dung đã được load vào editor`,
+        duration: 3000,
+      });
+
+      // Process the response similar to submit
+      if (result.submitId) {
+        // Add pending submission to history
+        toastInfo("Đang xử lý submission...", {
+          description: "Kết quả sẽ được cập nhật qua WebSocket",
+        });
+      }
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toastError("Lỗi khi upload file", {
+        description: api.utils.formatErrorMessage(error),
+        duration: 6000,
+      });
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  // Handle upload button click
+  const handleUploadClick = () => {
+    if (!question) {
+      toastError("Chưa có đề bài", {
+        description: "Vui lòng chọn một câu hỏi để upload file",
+      });
+      return;
+    }
+
+    if (!selectedDatabase) {
+      toastWarning("Vui lòng chọn loại database trước khi upload file");
+      return;
+    }
+
+    fileInputRef.current?.click();
+  };
+
+  // Handle file input change
+  const handleFileInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
     }
   };
 
@@ -204,12 +354,6 @@ export function SalesAnalyticsDashboard({
   const handleSaveQuery = () => {
     toastWarning("Chưa có chức năng này.");
     return;
-  };
-
-  const handleUploadFile = () => {
-    toastInfo("Tính năng upload file", {
-      description: "Chọn file SQL để import vào editor",
-    });
   };
 
   // Existing drag handling code...
@@ -296,6 +440,15 @@ export function SalesAnalyticsDashboard({
         isMobile ? "min-h-screen" : "h-full overflow-hidden"
       }`}
     >
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept=".sql"
+        style={{ display: "none" }}
+        onChange={handleFileInputChange}
+      />
+
       {/* Header - responsive */}
       <div
         className={`flex items-center gap-2 border-b p-2 bg-muted/30 flex-shrink-0 ${
@@ -351,15 +504,24 @@ export function SalesAnalyticsDashboard({
             variant="ghost"
             size="sm"
             className={`gap-1 ${isMobile ? "text-xs h-7" : ""}`}
-            onClick={handleUploadFile}
+            onClick={handleUploadClick}
+            disabled={isUploading || !question || !selectedDatabase}
           >
-            <Upload className="h-4 w-4" />
+            {isUploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4" />
+            )}
             <span
               className={`${isMobile ? "text-xs" : "text-sm"} ${
                 isMobile ? "" : "hidden sm:inline"
               }`}
             >
-              {isMobile ? "Upload" : "Upload file"}
+              {isUploading
+                ? "Uploading..."
+                : isMobile
+                ? "Upload"
+                : "Upload file"}
             </span>
           </Button>
 
@@ -400,9 +562,9 @@ export function SalesAnalyticsDashboard({
             {/* SQL Editor with resizable height */}
             <SqlEditor
               height={`${editorHeight}px`}
-              initialValue="" // Empty by default
+              initialValue={sqlQuery}
               onChange={setSqlQuery}
-              database={selectedDatabase} // Pass selected database for syntax highlighting
+              database={selectedDatabase}
             />
 
             {/* Resizable divider */}
@@ -461,7 +623,7 @@ export function SalesAnalyticsDashboard({
                 )}
               </Button>
 
-              {/* <Button
+              <Button
                 variant="outline"
                 className={`border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 whitespace-nowrap flex-shrink-0 transition-all duration-200 hover:border-primary/50 font-medium ${
                   isMobile ? "text-xs h-7" : "text-xs h-8"
@@ -469,7 +631,7 @@ export function SalesAnalyticsDashboard({
                 onClick={handleSaveQuery}
               >
                 Save query
-              </Button> */}
+              </Button>
             </div>
 
             {/* Results table */}
