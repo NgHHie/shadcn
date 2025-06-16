@@ -192,7 +192,7 @@ export class TokenManager {
       console.log("🔄 Attempting to refresh access token...");
 
       const response = await fetch(
-        "https://api.learnsql.store/api/app/user/auth/refresh",
+        "https://api.learnsql.store/api/app/user/auth/refresh-token",
         {
           method: "POST",
           headers: {

@@ -9,12 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Search,
   CircleCheckIcon,
   XCircleIcon,
   CircleIcon,
@@ -31,18 +29,16 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
   currentQuestionId,
   onQuestionChange,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [hasFoundCurrentQuestion, setHasFoundCurrentQuestion] = useState(false);
 
   const pageSize = 10;
 
-  // Fetch questions from API
+  // Fetch questions without search
   const { questions, loading, totalPages } = useQuestions({
     page: currentPage,
     size: pageSize,
-    keyword: searchTerm || undefined,
   });
 
   // Function to find page containing current question
@@ -50,30 +46,6 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
     if (!questionId || hasFoundCurrentQuestion) return;
 
     try {
-      try {
-        // Try to call find-page API if it exists
-        const response = await fetch(
-          `https://api.learnsql.store/api/app/question/find-page?questionId=${questionId}&size=${pageSize}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage
-                .getItem("access_token")
-                ?.replace(/"/g, "")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.ok) {
-          const pageData = await response.json();
-          setCurrentPage(pageData.page);
-          setHasFoundCurrentQuestion(true);
-          return;
-        }
-      } catch (apiError) {
-        console.log("Find-page API not available, using fallback method");
-      }
-
       // Fallback: Search through pages manually
       // This is less efficient but works without additional API
       let found = false;
@@ -124,12 +96,7 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
 
   // When dropdown opens and we have a current question, try to find its page
   useEffect(() => {
-    if (
-      isOpen &&
-      currentQuestionId &&
-      !hasFoundCurrentQuestion &&
-      !searchTerm
-    ) {
+    if (isOpen && currentQuestionId && !hasFoundCurrentQuestion) {
       // Add a small delay to ensure the dropdown is fully opened
       const timeoutId = setTimeout(() => {
         findCurrentQuestionPage(currentQuestionId);
@@ -137,9 +104,9 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
 
       return () => clearTimeout(timeoutId);
     }
-  }, [isOpen, currentQuestionId, hasFoundCurrentQuestion, searchTerm]);
+  }, [isOpen, currentQuestionId, hasFoundCurrentQuestion]);
 
-  // Reset state when search term changes or dropdown closes
+  // Reset state when dropdown closes
   useEffect(() => {
     if (!isOpen) {
       setHasFoundCurrentQuestion(false);
@@ -158,12 +125,10 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
     }
   }, [questions, currentQuestionId, hasFoundCurrentQuestion]);
 
-  // Reset to page 0 when search changes
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-    setCurrentPage(0);
-    setHasFoundCurrentQuestion(false); // Reset when searching
-  };
+  // Reset to page 0 when needed
+  useEffect(() => {
+    setHasFoundCurrentQuestion(false);
+  }, [currentPage]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -236,9 +201,10 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          className="gap-1 p-1 h-auto hover:bg-muted/50"
+          className="gap-1 p-1 border-2 h-auto hover:bg-muted/50"
         >
           <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          Câu hỏi
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -246,19 +212,6 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
         align="start"
         sideOffset={4}
       >
-        {/* Header with search */}
-        <div className="p-3 border-b">
-          <div className="relative">
-            <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Tìm kiếm câu hỏi..."
-              value={searchTerm}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-9 h-8"
-            />
-          </div>
-        </div>
-
         {/* Question list */}
         <div className="max-h-[350px] overflow-y-auto">
           {loading ? (

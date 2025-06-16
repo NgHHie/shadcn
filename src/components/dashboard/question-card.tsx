@@ -116,7 +116,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
   return (
     <Card
-      className={`transition-all hover:shadow-md hover:scale-[1.01] border-l-4 ${getStatusBorderColor(
+      className={`transition-all hover:shadow-md hover:scale-[1.01] border-2 border-l-4 ${getStatusBorderColor(
         question.status
       )}`}
     >
@@ -126,7 +126,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           <div className="flex-1 min-w-0">
             {/* Row 1: Badges, Level, Point */}
             <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <Badge variant="outline" className="text-xs font-mono">
+              <Badge variant="outline" className="text-xs font-mono border-2">
                 {question.questionCode}
               </Badge>
               <Badge
