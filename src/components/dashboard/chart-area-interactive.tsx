@@ -227,7 +227,7 @@ export function ChartAreaInteractive() {
   const [chartData, setChartData] = React.useState<ChartData[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [userId, setUserId] = React.useState<string | null>(null);
+  const [, setUserId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (isMobile) {

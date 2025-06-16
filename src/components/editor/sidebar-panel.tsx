@@ -3,14 +3,13 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, BookOpen, Bot } from "lucide-react";
+import { MessageSquare, BookOpen } from "lucide-react";
 import { QuestionDetail } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 
 // Import the new tab components
 import { AssignmentTab } from "./assignment-tab";
 import { DiscussionTab } from "./discussion-tab";
-import { AiAssistantTab } from "./ai-assistant-tab";
 
 interface SidebarPanelProps {
   question?: QuestionDetail | null;
@@ -27,7 +26,7 @@ export function SidebarPanel({
   onRetry,
 }: SidebarPanelProps) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("assignment");
+  const [, setActiveTab] = useState("assignment");
 
   // Handle question selection from dropdown
   const handleQuestionSelect = (questionId: string) => {

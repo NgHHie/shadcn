@@ -3,7 +3,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trophy, Play, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface QuestionCardProps {
   question: {

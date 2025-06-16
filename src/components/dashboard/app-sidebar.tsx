@@ -6,7 +6,6 @@ import {
   Boxes,
   BookOpen,
   LayoutDashboardIcon,
-  ListIcon,
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
