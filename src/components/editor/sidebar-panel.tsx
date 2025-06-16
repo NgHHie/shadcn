@@ -254,13 +254,13 @@ Bạn có thể:
               <MessageSquare className="h-4 w-4 mr-2" />
               Bàn luận
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
               value="assistant"
               className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none px-4 py-2 text-foreground"
             >
               <Bot className="h-4 w-4 mr-2" />
               AI Assistant
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
         </div>
 

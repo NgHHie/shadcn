@@ -209,21 +209,6 @@ export function SalesAnalyticsDashboard({
   const handleUploadFile = () => {
     toastInfo("Tính năng upload file", {
       description: "Chọn file SQL để import vào editor",
-      action: {
-        label: "Chọn file",
-        onClick: () => {
-          // Simulate file upload
-          setTimeout(() => {
-            if (Math.random() > 0.5) {
-              toastSuccess("File đã được upload thành công!");
-            } else {
-              toastError("Lỗi upload file", {
-                description: "File không đúng định dạng hoặc quá lớn",
-              });
-            }
-          }, 1000);
-        },
-      },
     });
   };
 
@@ -476,7 +461,7 @@ export function SalesAnalyticsDashboard({
                 )}
               </Button>
 
-              <Button
+              {/* <Button
                 variant="outline"
                 className={`border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 whitespace-nowrap flex-shrink-0 transition-all duration-200 hover:border-primary/50 font-medium ${
                   isMobile ? "text-xs h-7" : "text-xs h-8"
@@ -484,7 +469,7 @@ export function SalesAnalyticsDashboard({
                 onClick={handleSaveQuery}
               >
                 Save query
-              </Button>
+              </Button> */}
             </div>
 
             {/* Results table */}

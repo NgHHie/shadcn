@@ -238,9 +238,7 @@ export const questionApi = {
   getQuestions: async (params?: {
     page?: number;
     size?: number;
-    type?: string;
-    level?: string;
-    search?: string;
+    keyword?: string; // Đổi từ type, level, search thành keyword
   }): Promise<{
     content: QuestionListItem[];
     totalElements: number;
@@ -250,11 +248,11 @@ export const questionApi = {
   }> => {
     const searchParams = new URLSearchParams();
 
-    if (params?.page) searchParams.append("page", params.page.toString());
-    if (params?.size) searchParams.append("size", params.size.toString());
-    if (params?.type) searchParams.append("type", params.type);
-    if (params?.level) searchParams.append("level", params.level);
-    if (params?.search) searchParams.append("search", params.search);
+    if (params?.page !== undefined)
+      searchParams.append("page", params.page.toString());
+    if (params?.size !== undefined)
+      searchParams.append("size", params.size.toString());
+    if (params?.keyword) searchParams.append("keyword", params.keyword);
 
     const endpoint = `/question${
       searchParams.toString() ? `?${searchParams}` : ""

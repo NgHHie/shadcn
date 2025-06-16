@@ -42,7 +42,7 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
   const { questions, loading, totalPages } = useQuestions({
     page: currentPage,
     size: pageSize,
-    search: searchTerm || undefined,
+    keyword: searchTerm || undefined,
   });
 
   // Function to find page containing current question

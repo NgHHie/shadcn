@@ -1,4 +1,3 @@
-// src/hooks/use-questions.tsx
 import { useState, useEffect } from "react";
 import { QuestionListItem, useApi, QuestionCompletionStatus } from "@/lib/api";
 import { toastError } from "@/lib/toast";
@@ -6,9 +5,7 @@ import { toastError } from "@/lib/toast";
 export const useQuestions = (params?: {
   page?: number;
   size?: number;
-  type?: string;
-  level?: string;
-  search?: string;
+  keyword?: string; // Đổi từ search thành keyword để match với API Spring
 }) => {
   const [questions, setQuestions] = useState<QuestionListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +21,12 @@ export const useQuestions = (params?: {
       setLoading(true);
       setError(null);
 
-      // Fetch questions list
-      const response = await api.question.getQuestions(params);
+      // Fetch questions list với keyword parameter
+      const response = await api.question.getQuestions({
+        page: params?.page,
+        size: params?.size,
+        keyword: params?.keyword, // Dùng keyword thay vì search
+      });
 
       // Get user info to get userId
       let userInfo = null;
@@ -86,7 +87,7 @@ export const useQuestions = (params?: {
 
   useEffect(() => {
     fetchQuestions();
-  }, [params?.page, params?.size, params?.type, params?.level, params?.search]);
+  }, [params?.page, params?.size, params?.keyword]); // Đổi search thành keyword
 
   return {
     questions,
