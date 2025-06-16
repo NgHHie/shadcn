@@ -1,6 +1,12 @@
 // src/components/dashboard/app-sidebar.tsx
 import * as React from "react";
-import { FileCodeIcon, HelpCircleIcon, Boxes, BookOpen } from "lucide-react";
+import {
+  FileCodeIcon,
+  HelpCircleIcon,
+  Boxes,
+  BookOpen,
+  LayoutDashboardIcon,
+} from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
 import { NavMain } from "@/components/dashboard/nav-main";
@@ -24,12 +30,12 @@ export function AppSidebar({
 
   const data = {
     navMain: [
-      // {
-      //   title: "Assignment",
-      //   url: "/dashboard",
-      //   icon: LayoutDashboardIcon,
-      //   isActive: location.pathname === "/dashboard",
-      // },
+      {
+        title: "Assignment",
+        url: "/dashboard",
+        icon: LayoutDashboardIcon,
+        isActive: location.pathname === "/dashboard",
+      },
       {
         title: "Editor",
         url: "/question-detail/",
