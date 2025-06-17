@@ -96,6 +96,23 @@ export interface LoginResponse {
   refreshToken: string;
 }
 
+export interface RegisterRequest {
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  birthDay: string;
+  serviceTypes?: string[];
+}
+
+export interface RegisterResponse {
+  status: number;
+  message: string;
+  data?: any;
+}
+
 export interface QuestionListItem {
   id: string;
   questionCode: string;
@@ -140,6 +157,9 @@ class ApiClient {
           Authorization: `Bearer ${token}`,
         };
       } else if (refreshToken && retryCount === 0) {
+        console.log("🔧 AUTO-REFRESH DISABLED FOR DEBUGGING");
+        // TEMPORARY: Comment out auto-refresh logic
+        /*
         console.log(
           "No access token but refresh token available, refreshing..."
         );
@@ -162,6 +182,7 @@ class ApiClient {
           }, 1000);
           throw new Error("Authentication failed. Please login again.");
         }
+        */
       }
     }
 
@@ -462,22 +483,23 @@ export const contestApi = {
 
 // Auth API
 export const authApi = {
+  // Base URL for auth endpoints
+  baseUrl:
+    import.meta.env.VITE_AUTH_URL || "https://api.learnsql.store/api/auth",
+
   // Login with correct endpoint and payload format
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    const response = await fetch(
-      "https://api.learnsql.store/api/app/user/auth/login",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: credentials.username,
-          password: credentials.password,
-          remember: credentials.remember ?? true,
-        }),
-      }
-    );
+    const response = await fetch(`${authApi.baseUrl}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: credentials.username,
+        password: credentials.password,
+        remember: credentials.remember ?? true,
+      }),
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -519,6 +541,150 @@ export const authApi = {
     });
     console.groupEnd();
 
+    return data;
+  },
+
+  // QLDT/PTIT Login
+  loginWithQLDT: async (credentials: {
+    username: string;
+    password: string;
+  }): Promise<LoginResponse> => {
+    const response = await fetch(`${authApi.baseUrl}/auth/ptit-login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: credentials.username,
+        password: credentials.password,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message ||
+          `QLDT login failed: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data: LoginResponse = await response.json();
+
+    if (data.status !== 1) {
+      throw new Error("QLDT login failed: Invalid response status");
+    }
+
+    if (!data.accessToken || !data.refreshToken) {
+      throw new Error("QLDT login failed: Missing tokens in response");
+    }
+
+    // Store tokens
+    TokenManager.setTokens(data.accessToken, data.refreshToken);
+    console.log("✅ QLDT login successful, tokens stored");
+
+    // Debug token information
+    const tokenInfo = TokenManager.decodeToken(data.accessToken);
+    console.group("🏫 QLDT Token Information");
+    console.log("📝 Raw Token:", data.accessToken);
+    console.log("🔍 Decoded Token:", {
+      userId: tokenInfo?.sub,
+      email: tokenInfo?.email,
+      name: tokenInfo?.name,
+      role: tokenInfo?.role,
+      issuedAt: tokenInfo?.iatDate,
+      expiresAt: tokenInfo?.expDate,
+    });
+    console.groupEnd();
+
+    return data;
+  },
+
+  // Google OAuth Login
+  loginWithGoogle: async (idToken: string): Promise<LoginResponse> => {
+    const response = await fetch(`${authApi.baseUrl}/auth/google`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idToken: idToken,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message ||
+          `Google login failed: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data: LoginResponse = await response.json();
+
+    if (data.status !== 1) {
+      throw new Error("Google login failed: Invalid response status");
+    }
+
+    if (!data.accessToken || !data.refreshToken) {
+      throw new Error("Google login failed: Missing tokens in response");
+    }
+
+    // Store tokens
+    TokenManager.setTokens(data.accessToken, data.refreshToken);
+    console.log("✅ Google login successful, tokens stored");
+
+    // Debug token information
+    const tokenInfo = TokenManager.decodeToken(data.accessToken);
+    console.group("🔍 Google Token Information");
+    console.log("📝 Raw Token:", data.accessToken);
+    console.log("🔍 Decoded Token:", {
+      userId: tokenInfo?.sub,
+      email: tokenInfo?.email,
+      name: tokenInfo?.name,
+      role: tokenInfo?.role,
+      issuedAt: tokenInfo?.iatDate,
+      expiresAt: tokenInfo?.expDate,
+    });
+    console.groupEnd();
+
+    return data;
+  },
+
+  // Register new user
+  register: async (userData: RegisterRequest): Promise<RegisterResponse> => {
+    const response = await fetch(`${authApi.baseUrl}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: userData.username,
+        password: userData.password,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        phone: userData.phone,
+        birthDay: userData.birthDay,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message ||
+          `Registration failed: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data: RegisterResponse = await response.json();
+
+    if (data.status !== 1) {
+      throw new Error(
+        data.message || "Registration failed: Invalid response status"
+      );
+    }
+
+    console.log("✅ Registration successful");
     return data;
   },
 

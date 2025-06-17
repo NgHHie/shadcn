@@ -5,7 +5,6 @@ import { Page } from "./app/dashboard/page";
 import { Editor } from "./app/editor/page";
 import { HistoryPage } from "./app/history/page";
 import { ProfilePage } from "./app/profile/page";
-import { Login } from "./login";
 import { MainLayout } from "./layouts/MainLayout";
 import { RankPage } from "./app/rank/page";
 import { ContestPage } from "./app/contest/page";
@@ -19,157 +18,168 @@ import QuizResultPage from "./app/quiz/quiz-result";
 
 // Context Providers
 import { UserProvider } from "./contexts/UserContext";
+import Login from "./app/auth/login";
+import Register from "./app/auth/register";
 
 function App() {
   return (
     <UserProvider>
-      <Router>
-        <Routes>
-          {/* Public routes */}
-          <Route
-            path="/login"
-            element={
-              <AuthRouteGuard requireAuth={false}>
-                <Login />
-              </AuthRouteGuard>
-            }
-          />
+        <Router>
+          <Routes>
+            {/* Public routes */}
+            <Route
+              path="/login"
+              element={
+                <AuthRouteGuard requireAuth={false}>
+                  <Login />
+                </AuthRouteGuard>
+              }
+            />
 
-          {/* Protected routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <Page />
-                </MainLayout>
-              </AuthRouteGuard>
-            }
-          />
+            <Route
+              path="/register"
+              element={
+                <AuthRouteGuard requireAuth={false}>
+                  <Register />
+                </AuthRouteGuard>
+              }
+            />
 
-          {/* Editor route without question ID - just show empty editor */}
-          <Route
-            path="/question-detail"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <Editor />
-                </MainLayout>
-              </AuthRouteGuard>
-            }
-          />
+            {/* Protected routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <MainLayout>
+                    <Page />
+                  </MainLayout>
+                </AuthRouteGuard>
+              }
+            />
 
-          <Route
-            path="/"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <Editor />
-                </MainLayout>
-              </AuthRouteGuard>
-            }
-          />
+            {/* Editor route without question ID - just show empty editor */}
+            <Route
+              path="/question-detail"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <MainLayout>
+                    <Editor />
+                  </MainLayout>
+                </AuthRouteGuard>
+              }
+            />
 
-          {/* Editor route with question ID - load specific question */}
-          <Route
-            path="/question-detail/:questionId"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <Editor />
-                </MainLayout>
-              </AuthRouteGuard>
-            }
-          />
+            <Route
+              path="/"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <MainLayout>
+                    <Editor />
+                  </MainLayout>
+                </AuthRouteGuard>
+              }
+            />
 
-          <Route
-            path="/history"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <HistoryPage />
-                </MainLayout>
-              </AuthRouteGuard>
-            }
-          />
+            {/* Editor route with question ID - load specific question */}
+            <Route
+              path="/question-detail/:questionId"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <MainLayout>
+                    <Editor />
+                  </MainLayout>
+                </AuthRouteGuard>
+              }
+            />
 
-          <Route
-            path="/rank"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <RankPage />
-                </MainLayout>
-              </AuthRouteGuard>
-            }
-          />
+            <Route
+              path="/history"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <MainLayout>
+                    <HistoryPage />
+                  </MainLayout>
+                </AuthRouteGuard>
+              }
+            />
 
-          <Route
-            path="/contest"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <ContestPage />
-                </MainLayout>
-              </AuthRouteGuard>
-            }
-          />
+            <Route
+              path="/rank"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <MainLayout>
+                    <RankPage />
+                  </MainLayout>
+                </AuthRouteGuard>
+              }
+            />
 
-          <Route
-            path="/profile"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <ProfilePage />
-                </MainLayout>
-              </AuthRouteGuard>
-            }
-          />
+            <Route
+              path="/contest"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <MainLayout>
+                    <ContestPage />
+                  </MainLayout>
+                </AuthRouteGuard>
+              }
+            />
 
-          {/* Quiz routes */}
-          <Route
-            path="/quiz/quiz-list"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <QuizListPage />
-                </MainLayout>
-              </AuthRouteGuard>
-            }
-          />
+            <Route
+              path="/profile"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <MainLayout>
+                    <ProfilePage />
+                  </MainLayout>
+                </AuthRouteGuard>
+              }
+            />
 
-          <Route
-            path="/quiz/quiz-detail/:quizId"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <QuizDetailPage />
-                </MainLayout>
-              </AuthRouteGuard>
-            }
-          />
+            {/* Quiz routes */}
+            <Route
+              path="/quiz/quiz-list"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <MainLayout>
+                    <QuizListPage />
+                  </MainLayout>
+                </AuthRouteGuard>
+              }
+            />
 
-          <Route
-            path="/quiz/take/:quizId"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <QuizTakingPage />
-              </AuthRouteGuard>
-            }
-          />
+            <Route
+              path="/quiz/quiz-detail/:quizId"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <MainLayout>
+                    <QuizDetailPage />
+                  </MainLayout>
+                </AuthRouteGuard>
+              }
+            />
 
-          <Route
-            path="/quiz/quiz-result/:id"
-            element={
-              <AuthRouteGuard requireAuth={true}>
-                <MainLayout>
-                  <QuizResultPage />
-                </MainLayout>
-              </AuthRouteGuard>
-            }
-          />
-        </Routes>
-      </Router>
+            <Route
+              path="/quiz/take/:quizId"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <QuizTakingPage />
+                </AuthRouteGuard>
+              }
+            />
+
+            <Route
+              path="/quiz/quiz-result/:id"
+              element={
+                <AuthRouteGuard requireAuth={true}>
+                  <MainLayout>
+                    <QuizResultPage />
+                  </MainLayout>
+                </AuthRouteGuard>
+              }
+            />
+          </Routes>
+        </Router>
     </UserProvider>
   );
 }

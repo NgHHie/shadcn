@@ -1,5 +1,7 @@
 // src/lib/token-manager.ts
 
+import { authApi } from "./api";
+
 // Cookie utilities
 class CookieUtils {
   static getCookie(name: string): string | null {
@@ -199,19 +201,16 @@ export class TokenManager {
     try {
       console.log("🔄 Attempting to refresh access token...");
 
-      const response = await fetch(
-        "https://api.learnsql.store/api/app/user/auth/refresh-token",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // Không gắn Authorization Bearer header
-          },
-          body: JSON.stringify({
-            refreshToken: refreshToken, // Gửi refreshToken trong body
-          }),
-        }
-      );
+      const response = await fetch(`${authApi.baseUrl}/auth/refresh-token`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Không gắn Authorization Bearer header
+        },
+        body: JSON.stringify({
+          refreshToken: refreshToken, // Gửi refreshToken trong body
+        }),
+      });
 
       if (!response.ok) {
         this.clearTokens();

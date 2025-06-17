@@ -12,9 +12,9 @@ export interface QuizSession {
   endTime?: string;
   status: "active" | "completed" | "expired";
   currentQuestionIndex: number;
-  answers: Record<string, string[]>; // questionId -> selectedAnswerIds
+  answers: Record<string, string[]>;
   flaggedQuestions: string[];
-  timeRemaining: number; // in seconds
+  timeRemaining: number;
 }
 
 export interface QuizSubmission {
@@ -23,7 +23,7 @@ export interface QuizSubmission {
   userId: string;
   answers: Record<string, string[]>;
   submittedAt: string;
-  timeSpent: number; // in seconds
+  timeSpent: number;
 }
 
 export interface QuizResult {
@@ -53,7 +53,7 @@ export interface StartQuizResponse {
   data: {
     sessionId: string;
     quiz: PublicQuiz;
-    timeLimit: number; // in seconds
+    timeLimit: number;
     startTime: string;
   };
   timestamp: string;
