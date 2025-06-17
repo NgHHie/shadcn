@@ -35,13 +35,21 @@ export interface GoogleAuthResponse extends AuthResponse {}
 // User profile information
 export interface UserProfile {
   id: string;
+  createdAt: string;
+  createdBy: string;
+  lastModifiedAt: string;
+  lastModifiedBy: string | null;
   firstName: string;
   lastName: string;
   username: string;
+  avatar: string | null;
   email: string;
-  fullName: string;
-  userCode: string;
+  phone: string;
+  birthDay: string;
   role: string;
+  userCode: string;
+  userPrefix: string;
+  fullName: string;
   isPremium: boolean;
 }
 

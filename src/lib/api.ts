@@ -157,17 +157,8 @@ class ApiClient {
           Authorization: `Bearer ${token}`,
         };
       } else if (refreshToken && retryCount === 0) {
-        console.log("🔧 AUTO-REFRESH DISABLED FOR DEBUGGING");
-        // TEMPORARY: Comment out auto-refresh logic
-        /*
-        console.log(
-          "No access token but refresh token available, refreshing..."
-        );
-
         try {
           const newToken = await TokenManager.refreshAccessToken();
-          console.log("Token refreshed successfully");
-
           defaultOptions.headers = {
             ...defaultOptions.headers,
             Authorization: `Bearer ${newToken}`,
@@ -182,7 +173,6 @@ class ApiClient {
           }, 1000);
           throw new Error("Authentication failed. Please login again.");
         }
-        */
       }
     }
 
@@ -194,11 +184,8 @@ class ApiClient {
         retryCount === 0 &&
         !isPublicEndpoint(endpoint)
       ) {
-        console.log("Access token expired, attempting refresh...");
-
         try {
           const newToken = await TokenManager.refreshAccessToken();
-          console.log("Token refreshed successfully");
 
           const newHeaders = {
             ...defaultOptions.headers,
@@ -521,25 +508,6 @@ export const authApi = {
 
     // Store tokens
     TokenManager.setTokens(data.accessToken, data.refreshToken);
-    console.log("✅ Login successful, tokens stored");
-
-    // Debug token information
-    const tokenInfo = TokenManager.decodeToken(data.accessToken);
-    console.group("🔑 Token Information");
-    console.log("📝 Raw Token:", data.accessToken);
-    console.log("🔍 Decoded Token:", {
-      userId: tokenInfo?.sub,
-      email: tokenInfo?.email,
-      name: tokenInfo?.name,
-      role: tokenInfo?.role,
-      issuedAt: tokenInfo?.iatDate,
-      expiresAt: tokenInfo?.expDate,
-      remainingTime: tokenInfo?.exp
-        ? Math.round((tokenInfo.exp * 1000 - Date.now()) / 1000 / 60) +
-          " minutes"
-        : "unknown",
-    });
-    console.groupEnd();
 
     return data;
   },
@@ -580,21 +548,6 @@ export const authApi = {
 
     // Store tokens
     TokenManager.setTokens(data.accessToken, data.refreshToken);
-    console.log("✅ QLDT login successful, tokens stored");
-
-    // Debug token information
-    const tokenInfo = TokenManager.decodeToken(data.accessToken);
-    console.group("🏫 QLDT Token Information");
-    console.log("📝 Raw Token:", data.accessToken);
-    console.log("🔍 Decoded Token:", {
-      userId: tokenInfo?.sub,
-      email: tokenInfo?.email,
-      name: tokenInfo?.name,
-      role: tokenInfo?.role,
-      issuedAt: tokenInfo?.iatDate,
-      expiresAt: tokenInfo?.expDate,
-    });
-    console.groupEnd();
 
     return data;
   },
@@ -631,21 +584,6 @@ export const authApi = {
 
     // Store tokens
     TokenManager.setTokens(data.accessToken, data.refreshToken);
-    console.log("✅ Google login successful, tokens stored");
-
-    // Debug token information
-    const tokenInfo = TokenManager.decodeToken(data.accessToken);
-    console.group("🔍 Google Token Information");
-    console.log("📝 Raw Token:", data.accessToken);
-    console.log("🔍 Decoded Token:", {
-      userId: tokenInfo?.sub,
-      email: tokenInfo?.email,
-      name: tokenInfo?.name,
-      role: tokenInfo?.role,
-      issuedAt: tokenInfo?.iatDate,
-      expiresAt: tokenInfo?.expDate,
-    });
-    console.groupEnd();
 
     return data;
   },
@@ -684,7 +622,6 @@ export const authApi = {
       );
     }
 
-    console.log("✅ Registration successful");
     return data;
   },
 
@@ -702,7 +639,6 @@ export const authApi = {
               Authorization: `Bearer ${token}`,
             },
           });
-          console.log("✅ Server logout successful");
         } catch (error) {
           console.warn(
             "Server logout failed, but continuing with local logout:",
@@ -713,7 +649,6 @@ export const authApi = {
     } finally {
       // Always clear local tokens
       TokenManager.clearTokens();
-      console.log("✅ Local tokens cleared");
     }
   },
 

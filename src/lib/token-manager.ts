@@ -106,7 +106,6 @@ export class TokenManager {
       token = CookieUtils.getCookie(this.COOKIE_ACCESS_TOKEN);
       if (token) {
         localStorage.setItem(this.ACCESS_TOKEN_KEY, token);
-        console.log("🔄 Retrieved access token from cookie");
       }
     }
 
@@ -127,7 +126,6 @@ export class TokenManager {
       token = CookieUtils.getCookie(this.COOKIE_REFRESH_TOKEN);
       if (token) {
         localStorage.setItem(this.REFRESH_TOKEN_KEY, token);
-        console.log("🔄 Retrieved refresh token from cookie");
       }
     }
 
@@ -151,13 +149,9 @@ export class TokenManager {
     if (refreshToken) {
       this.setCookieToken(this.COOKIE_REFRESH_TOKEN, refreshToken);
     }
-
-    console.log("💾 Tokens saved to both localStorage and cookies");
   }
 
   static clearTokens(): void {
-    console.log("🗑️ Clearing all authentication tokens...");
-
     // Clear localStorage
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
@@ -169,8 +163,6 @@ export class TokenManager {
     // Clear any other auth-related data
     localStorage.removeItem("user_info");
     localStorage.removeItem("user_profile");
-
-    console.log("✅ All tokens and auth data cleared");
   }
 
   static async refreshAccessToken(): Promise<string> {
@@ -199,8 +191,6 @@ export class TokenManager {
     }
 
     try {
-      console.log("🔄 Attempting to refresh access token...");
-
       const response = await fetch(`${authApi.baseUrl}/auth/refresh-token`, {
         method: "POST",
         headers: {
@@ -224,7 +214,6 @@ export class TokenManager {
         const newRefreshToken = data.refreshToken || refreshToken;
 
         this.setTokens(newAccessToken, newRefreshToken);
-        console.log("✅ Access token refreshed successfully");
 
         return newAccessToken;
       } else {
@@ -240,8 +229,6 @@ export class TokenManager {
 
   // Initialize tokens from cookies on app start
   static initializeFromCookies(): void {
-    console.log("🚀 Starting token initialization from cookies...");
-
     try {
       const cookieAccessToken = CookieUtils.getCookie(this.COOKIE_ACCESS_TOKEN);
       const cookieRefreshToken = CookieUtils.getCookie(
@@ -254,23 +241,19 @@ export class TokenManager {
       // Sync from cookies to localStorage if missing
       if (cookieAccessToken && !localAccessToken) {
         localStorage.setItem(this.ACCESS_TOKEN_KEY, cookieAccessToken);
-        console.log("✅ Synced access token: Cookie → localStorage");
       }
 
       if (cookieRefreshToken && !localRefreshToken) {
         localStorage.setItem(this.REFRESH_TOKEN_KEY, cookieRefreshToken);
-        console.log("✅ Synced refresh token: Cookie → localStorage");
       }
 
       // Reverse sync: localStorage to cookies (backup)
       if (localAccessToken && !cookieAccessToken) {
         this.setCookieToken(this.COOKIE_ACCESS_TOKEN, localAccessToken);
-        console.log("✅ Synced access token: localStorage → Cookie");
       }
 
       if (localRefreshToken && !cookieRefreshToken) {
         this.setCookieToken(this.COOKIE_REFRESH_TOKEN, localRefreshToken);
-        console.log("✅ Synced refresh token: localStorage → Cookie");
       }
     } catch (error) {
       console.error("❌ Error initializing tokens from cookies:", error);
