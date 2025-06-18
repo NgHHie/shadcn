@@ -104,9 +104,6 @@ export default function QLDTLoginModal({
                 autoComplete="username"
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              Ví dụ: B21DCCN123 hoặc tên đăng nhập QLDT của bạn
-            </p>
           </div>
 
           <div className="space-y-2">
@@ -127,21 +124,6 @@ export default function QLDTLoginModal({
               />
             </div>
           </div>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="text-xs text-blue-800">
-                <p className="font-medium mb-1">Lưu ý bảo mật:</p>
-                <ul className="space-y-1 text-xs">
-                  <li>• Sử dụng tài khoản QLDT chính thức của PTIT</li>
-                  <li>• Thông tin đăng nhập được mã hóa an toàn</li>
-                  <li>• Không lưu trữ mật khẩu trên hệ thống</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
           <div className="flex gap-3 pt-2">
             <Button
               type="button"

@@ -107,6 +107,13 @@ export interface RegisterRequest {
   serviceTypes?: string[];
 }
 
+// Simplified register interface for new simplified form
+export interface SimpleRegisterRequest {
+  username: string;
+  password: string;
+  fullName?: string; // Optional full name
+}
+
 export interface RegisterResponse {
   status: number;
   message: string;
@@ -379,28 +386,6 @@ export const userApi = {
     return apiClient.get<UserProfile>("/user/profile");
   },
 
-  // Get user info (NEW - specific endpoint)
-  getUserInfo: async (): Promise<{
-    id: string;
-    createdAt: string;
-    createdBy: string;
-    lastModifiedAt: string;
-    firstName: string;
-    lastName: string;
-    username: string;
-    avatar: string;
-    email: string;
-    phone: string;
-    birthDay: string;
-    role: string;
-    userCode: string;
-    userPrefix: string;
-    fullName: string;
-    isPremium: boolean;
-  }> => {
-    return apiClient.get("/user/info");
-  },
-
   // Update user profile
   updateProfile: async (
     profileData: Partial<UserProfile>
@@ -588,7 +573,28 @@ export const authApi = {
     return data;
   },
 
-  // Register new user
+  // Simplified register for new form (auto-generates missing fields)
+  registerSimple: async (
+    userData: SimpleRegisterRequest
+  ): Promise<RegisterResponse> => {
+    // Generate missing required fields
+    const fullName = userData.fullName?.trim() || `User ${userData.username}`;
+    const nameParts = fullName.split(" ");
+
+    const registerData: RegisterRequest = {
+      username: userData.username,
+      password: userData.password,
+      firstName: nameParts[0] || fullName,
+      lastName: nameParts.slice(1).join(" ") || "",
+      email: `${userData.username}@temp.email`, // Temporary email
+      phone: "0000000000", // Default phone
+      birthDay: "2000-01-01", // Default birthday
+    };
+
+    return authApi.register(registerData);
+  },
+
+  // Register new user (original method)
   register: async (userData: RegisterRequest): Promise<RegisterResponse> => {
     const response = await fetch(`${authApi.baseUrl}/auth/register`, {
       method: "POST",
@@ -674,7 +680,51 @@ export const authApi = {
   // Get user info from API (not from token)
   getCurrentUser: async (): Promise<any> => {
     // Call API to get current user info instead of parsing token
-    return apiClient.get("/user/info");
+    return apiClient.get("/users/info");
+  },
+
+  // Get user info (moved from userApi - uses auth domain)
+  getUserInfo: async (): Promise<{
+    id: string;
+    createdAt: string;
+    createdBy: string;
+    lastModifiedAt: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+    avatar: string;
+    email: string;
+    phone: string;
+    birthDay: string;
+    role: string;
+    userCode: string;
+    userPrefix: string;
+    fullName: string;
+    isPremium: boolean;
+  }> => {
+    const token = TokenManager.getAccessToken();
+
+    if (!token) {
+      throw new Error("No access token available");
+    }
+
+    const response = await fetch(`${authApi.baseUrl}/users/info`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message ||
+          `Failed to get user info: ${response.status} ${response.statusText}`
+      );
+    }
+
+    return await response.json();
   },
 };
 
@@ -797,7 +847,10 @@ export const apiUtils = {
 export const useApi = () => {
   return {
     question: questionApi,
-    user: userApi,
+    user: {
+      ...userApi,
+      getUserInfo: authApi.getUserInfo, // Reference to auth getUserInfo
+    },
     ranking: rankingApi,
     contest: contestApi,
     auth: authApi,
