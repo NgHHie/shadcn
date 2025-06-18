@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useApi, type SimpleRegisterRequest } from "@/lib/api";
+import { RegisterRequest, useApi } from "@/lib/api";
 import { handleRegistrationError } from "@/lib/error-handler";
 import ptitLogo from "@/assets/ptit.png";
 
@@ -65,13 +65,13 @@ export function RegisterForm({
       setIsLoading(true);
       
       // Use simplified register API
-      const registerData: SimpleRegisterRequest = {
+      const registerData: RegisterRequest = {
         username: formData.username,
         password: formData.password,
-        fullName: formData.fullName || undefined, // Only include if provided
+        fullName: formData.fullName || '',
       };
 
-      await api.auth.registerSimple(registerData);
+      await api.auth.register(registerData);
       
       setTimeout(() => {
         if (onRegisterSuccess) {
@@ -83,6 +83,7 @@ export function RegisterForm({
       
     } catch (error) {
       console.error("❌ Register failed:", error);
+      console.error("❌ Error details:", JSON.stringify(error, null, 2));
       setError(handleRegistrationError(error));
     } finally {
       setIsLoading(false);

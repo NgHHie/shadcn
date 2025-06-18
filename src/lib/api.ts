@@ -99,19 +99,7 @@ export interface LoginResponse {
 export interface RegisterRequest {
   username: string;
   password: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  birthDay: string;
-  serviceTypes?: string[];
-}
-
-// Simplified register interface for new simplified form
-export interface SimpleRegisterRequest {
-  username: string;
-  password: string;
-  fullName?: string; // Optional full name
+  fullName?: string;
 }
 
 export interface RegisterResponse {
@@ -226,9 +214,26 @@ class ApiClient {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(
+
+        // Create error object that preserves the full response structure
+        const error = new Error(
           errorData.message || `HTTP ${response.status}: ${response.statusText}`
-        );
+        ) as Error & {
+          response?: {
+            status: number;
+            data: any;
+          };
+          status?: number;
+        };
+
+        // Attach response data for error handler to access
+        error.response = {
+          status: response.status,
+          data: errorData,
+        };
+        error.status = response.status;
+
+        throw error;
       }
 
       const data = await response.json();
@@ -573,27 +578,6 @@ export const authApi = {
     return data;
   },
 
-  // Simplified register for new form (auto-generates missing fields)
-  registerSimple: async (
-    userData: SimpleRegisterRequest
-  ): Promise<RegisterResponse> => {
-    // Generate missing required fields
-    const fullName = userData.fullName?.trim() || `User ${userData.username}`;
-    const nameParts = fullName.split(" ");
-
-    const registerData: RegisterRequest = {
-      username: userData.username,
-      password: userData.password,
-      firstName: nameParts[0] || fullName,
-      lastName: nameParts.slice(1).join(" ") || "",
-      email: `${userData.username}@temp.email`, // Temporary email
-      phone: "0000000000", // Default phone
-      birthDay: "2000-01-01", // Default birthday
-    };
-
-    return authApi.register(registerData);
-  },
-
   // Register new user (original method)
   register: async (userData: RegisterRequest): Promise<RegisterResponse> => {
     const response = await fetch(`${authApi.baseUrl}/auth/register`, {
@@ -604,11 +588,7 @@ export const authApi = {
       body: JSON.stringify({
         username: userData.username,
         password: userData.password,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        email: userData.email,
-        phone: userData.phone,
-        birthDay: userData.birthDay,
+        fullName: userData.fullName,
       }),
     });
 

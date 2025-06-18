@@ -9,6 +9,7 @@ interface ApiError {
       message?: string;
       errors?: Array<{ message?: string } | string>;
     };
+    status?: number;
   };
 }
 
@@ -21,32 +22,44 @@ export const parseApiError = (error: unknown): string => {
   // Type guard to check if error has expected properties
   const apiError = error as ApiError;
 
-  // If error has a message property
-  if (apiError?.message) {
-    // Handle HTTP errors with status codes
-    if (apiError.message.includes("400")) {
-      return "Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.";
-    }
-    if (apiError.message.includes("409")) {
+  // First priority: Check actual server response message
+  if (apiError?.response?.data?.message) {
+    const serverMessage = apiError.response.data.message;
+
+    // Check for specific Vietnamese error messages from server
+    if (
+      serverMessage.toLowerCase().includes("tài khoản") &&
+      serverMessage.toLowerCase().includes("tồn tại")
+    ) {
       return "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.";
     }
-    if (apiError.message.includes("422")) {
-      return "Thông tin không đúng định dạng. Vui lòng kiểm tra lại.";
-    }
-    if (apiError.message.includes("500")) {
-      return "Lỗi server. Vui lòng thử lại sau.";
-    }
-    if (apiError.message.includes("Network")) {
-      return "Lỗi kết nối mạng. Vui lòng kiểm tra internet.";
+
+    if (
+      serverMessage.toLowerCase().includes("username") &&
+      (serverMessage.toLowerCase().includes("exist") ||
+        serverMessage.toLowerCase().includes("taken") ||
+        serverMessage.toLowerCase().includes("already"))
+    ) {
+      return "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.";
     }
 
-    // Return the original message if it's user-friendly
-    return apiError.message;
-  }
+    if (
+      serverMessage.toLowerCase().includes("email") &&
+      (serverMessage.toLowerCase().includes("exist") ||
+        serverMessage.toLowerCase().includes("taken") ||
+        serverMessage.toLowerCase().includes("already"))
+    ) {
+      return "Email đã được sử dụng. Vui lòng sử dụng email khác.";
+    }
 
-  // Handle response with error details
-  if (apiError?.response?.data?.message) {
-    return apiError.response.data.message;
+    // Return the actual server message if it's meaningful
+    if (
+      serverMessage.length > 5 &&
+      !serverMessage.includes("500") &&
+      !serverMessage.includes("Error")
+    ) {
+      return serverMessage;
+    }
   }
 
   // Handle validation errors
@@ -57,13 +70,14 @@ export const parseApiError = (error: unknown): string => {
       if (typeof firstError === "string") {
         return firstError;
       }
-      return firstError?.message || "Validation error";
+      return firstError?.message || "Lỗi validation";
     }
   }
 
-  // Handle specific error codes
-  if (apiError?.status || apiError?.code) {
-    const statusCode = apiError.status || apiError.code;
+  // Handle HTTP status codes from response
+  const statusCode =
+    apiError?.response?.status || apiError?.status || apiError?.code;
+  if (statusCode) {
     switch (statusCode) {
       case 400:
         return "Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.";
@@ -90,6 +104,29 @@ export const parseApiError = (error: unknown): string => {
     }
   }
 
+  // If error has a message property (for other types of errors)
+  if (apiError?.message) {
+    // Handle HTTP errors with status codes in message
+    if (apiError.message.includes("400")) {
+      return "Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.";
+    }
+    if (apiError.message.includes("409")) {
+      return "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.";
+    }
+    if (apiError.message.includes("422")) {
+      return "Thông tin không đúng định dạng. Vui lòng kiểm tra lại.";
+    }
+    if (apiError.message.includes("500")) {
+      return "Lỗi server. Vui lòng thử lại sau.";
+    }
+    if (apiError.message.includes("Network")) {
+      return "Lỗi kết nối mạng. Vui lòng kiểm tra internet.";
+    }
+
+    // Return the original message if it's user-friendly
+    return apiError.message;
+  }
+
   // Fallback for unknown errors
   console.error("Unknown error:", error);
   return "Có lỗi không xác định xảy ra. Vui lòng thử lại.";
@@ -99,26 +136,52 @@ export const parseApiError = (error: unknown): string => {
 export const handleRegistrationError = (error: unknown): string => {
   const message = parseApiError(error);
 
-  // Common registration-specific errors
+  // Check for Vietnamese messages first
   if (
-    message.toLowerCase().includes("username") &&
-    message.toLowerCase().includes("exist")
+    message.toLowerCase().includes("tài khoản") &&
+    message.toLowerCase().includes("tồn tại")
+  ) {
+    return "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.";
+  }
+
+  // Common registration-specific errors in English
+  if (
+    (message.toLowerCase().includes("username") ||
+      message.toLowerCase().includes("user")) &&
+    (message.toLowerCase().includes("exist") ||
+      message.toLowerCase().includes("taken") ||
+      message.toLowerCase().includes("already") ||
+      message.toLowerCase().includes("duplicate"))
   ) {
     return "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.";
   }
 
   if (
     message.toLowerCase().includes("email") &&
-    message.toLowerCase().includes("exist")
+    (message.toLowerCase().includes("exist") ||
+      message.toLowerCase().includes("taken") ||
+      message.toLowerCase().includes("already") ||
+      message.toLowerCase().includes("duplicate"))
   ) {
     return "Email đã được sử dụng. Vui lòng sử dụng email khác.";
   }
 
-  if (message.toLowerCase().includes("password")) {
+  if (
+    message.toLowerCase().includes("password") &&
+    message.toLowerCase().includes("weak")
+  ) {
     return "Mật khẩu không đáp ứng yêu cầu bảo mật.";
   }
 
-  if (message.toLowerCase().includes("validation")) {
+  if (
+    message.toLowerCase().includes("validation") ||
+    message.toLowerCase().includes("invalid")
+  ) {
+    return "Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.";
+  }
+
+  // If message is too generic or technical, provide user-friendly message
+  if (message.includes("400") || message.includes("Bad Request")) {
     return "Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.";
   }
 
