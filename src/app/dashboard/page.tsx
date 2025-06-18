@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChartAreaInteractive } from "@/components/dashboard/chart-area-interactive";
+// import { ChartAreaInteractive } from "@/components/dashboard/chart-area-interactive";
 import { QuestionCard } from "@/components/dashboard/question-card";
 import { Pagination } from "@/components/dashboard/pagination";
 import { useQuestions } from "@/hooks/use-questions";
