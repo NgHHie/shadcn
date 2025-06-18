@@ -114,7 +114,7 @@ export function RegisterForm({
                 <Input
                   id="fullName"
                   type="text"
-                  placeholder="Enter your full name (optional)"
+                  placeholder="Enter your full name"
                   value={formData.fullName}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -124,9 +124,6 @@ export function RegisterForm({
                   }
                   disabled={isLoading}
                 />
-                <p className="text-xs text-muted-foreground">
-                  If not provided, we'll generate one for you
-                </p>
               </div>
 
               <div className="grid gap-2">

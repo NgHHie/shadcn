@@ -121,9 +121,6 @@ export function LoginForm({
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center">
                   <h1 className="text-2xl font-bold">Welcome back</h1>
-                  <p className="text-balance text-muted-foreground">
-                    Login to your Acme Inc account
-                  </p>
                 </div>
 
                 {error && (
@@ -147,7 +144,6 @@ export function LoginForm({
                       }))
                     }
                     disabled={isLoading}
-                    required
                   />
                 </div>
                 <div className="grid gap-2">
@@ -163,6 +159,7 @@ export function LoginForm({
                   <div className="relative">
                     <Input
                       id="password"
+                      placeholder="Enter your password"
                       type={showPassword ? "text" : "password"}
                       value={credentials.password}
                       onChange={(e) =>
@@ -173,7 +170,6 @@ export function LoginForm({
                       }
                       disabled={isLoading}
                       className="pr-10"
-                      required
                     />
                     <button
                       type="button"
@@ -210,9 +206,14 @@ export function LoginForm({
                     disabled={isLoading}
                   />
                   <Button
+                    type="button"
                     variant="outline"
                     className="w-full"
-                    onClick={() => setShowQLDTModal(true)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setError(null);
+                      setShowQLDTModal(true);
+                    }}
                     disabled={isLoading}
                   >
                     <School className="mr-2 h-4 w-4" />
