@@ -93,7 +93,7 @@ export function Page() {
     // 2. Error state - hiển thị lỗi
     if (error) {
       return (
-        <Alert>
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             {error}
@@ -121,7 +121,7 @@ export function Page() {
           <p className="text-muted-foreground mb-4">
             {searchKeyword
               ? `Không tìm thấy bài tập nào với từ khóa "${searchKeyword}"`
-              : "Hiện tại chưa có bài tập nào trong hệ thống"}
+              : "Hiện tại chưa có bài tập nào được phân công cho bạn"}
           </p>
           {searchKeyword && (
             <Button variant="outline" onClick={handleClearSearch}>

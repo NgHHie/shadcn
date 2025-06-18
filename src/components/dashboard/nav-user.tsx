@@ -86,7 +86,7 @@ export function NavUser() {
     return () => {
       mounted = false;
     };
-  }, [api.user, hasLoaded]);
+  }, [hasLoaded]);
 
   const handleAccountClick = useCallback(() => {
     navigate("/profile");

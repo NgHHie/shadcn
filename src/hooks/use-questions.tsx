@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { QuestionListItem, useApi, QuestionCompletionStatus } from "@/lib/api";
 import { toastError } from "@/lib/toast";
+import { handleDataFetchError } from "@/lib/error-handler";
 
 export const useQuestions = (params?: {
   page?: number;
@@ -15,8 +16,9 @@ export const useQuestions = (params?: {
   const [currentPage, setCurrentPage] = useState(params?.page || 0);
 
   const api = useApi();
+  const userInfoRef = useRef<{id: string} | null>(null);
 
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -28,12 +30,14 @@ export const useQuestions = (params?: {
         keyword: params?.keyword, // Dùng keyword thay vì search
       });
 
-      // Get user info to get userId
-      let userInfo = null;
-      try {
-        userInfo = await api.user.getUserInfo();
-      } catch (userError) {
-        console.warn("Could not get user info, will use default status");
+      // Get user info to get userId (only once and cache it)
+      if (!userInfoRef.current) {
+        try {
+          const userInfo = await api.user.getUserInfo();
+          userInfoRef.current = { id: userInfo.id };
+        } catch (userError) {
+          console.warn("Could not get user info, will use default status");
+        }
       }
 
       let questionsWithStatus = response.content.map((question) => ({
@@ -42,12 +46,12 @@ export const useQuestions = (params?: {
       }));
 
       // If we have user info, check completion status
-      if (userInfo && response.content.length > 0) {
+      if (userInfoRef.current && response.content.length > 0) {
         try {
           const questionIds = response.content.map((q) => q.id);
           const completionStatuses = await api.question.checkCompletionStatus({
             questionIds,
-            userId: userInfo.id,
+            userId: userInfoRef.current.id,
           });
 
           // Create a map for quick lookup
@@ -74,20 +78,65 @@ export const useQuestions = (params?: {
       setTotalPages(response.totalPages);
       setTotalElements(response.totalElements);
       setCurrentPage(response.number);
-    } catch (err: any) {
-      const errorMessage = api.utils.formatErrorMessage(err);
+    } catch (err: unknown) {
+      console.error("Error fetching questions:", err);
+
+      // Type guard for error with status
+      const isErrorWithStatus = (error: unknown): error is { 
+        response?: { status?: number }; 
+        status?: number; 
+        code?: number 
+      } => {
+        return typeof error === 'object' && error !== null;
+      };
+
+      // Handle specific error cases
+      let errorStatus: number | undefined;
+      if (isErrorWithStatus(err)) {
+        errorStatus = err.response?.status || err.status || err.code;
+      }
+      
+      // Don't show error UI for certain status codes that indicate "no data"
+      if (errorStatus === 400 || errorStatus === 404) {
+        // These typically mean no questions available, not a real error
+        setQuestions([]);
+        setTotalPages(0);
+        setTotalElements(0);
+        setCurrentPage(0);
+        // Don't set error state or show toast for these cases
+        return;
+      }
+
+      // Handle authentication errors
+      if (errorStatus === 401) {
+        const errorMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+        setError(errorMessage);
+        toastError("Lỗi xác thực", {
+          description: errorMessage,
+        });
+        // Optionally redirect to login
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
+        return;
+      }
+
+      // Handle other errors with user-friendly messages
+      const errorMessage = handleDataFetchError(err);
       setError(errorMessage);
+      
+      // Only show toast for real errors (not 400/404)
       toastError("Lỗi khi tải danh sách câu hỏi", {
         description: errorMessage,
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [params?.page, params?.size, params?.keyword]); // Remove api objects from dependencies
 
   useEffect(() => {
     fetchQuestions();
-  }, [params?.page, params?.size, params?.keyword]); // Đổi search thành keyword
+  }, [fetchQuestions]); // Depend on the stable fetchQuestions function
 
   return {
     questions,

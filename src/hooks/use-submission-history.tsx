@@ -4,6 +4,7 @@ import { useApi } from "@/lib/api";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { SocketMessage } from "@/lib/websocket";
 import { toastError, toastSuccess } from "@/lib/toast";
+import { handleDataFetchError } from "@/lib/error-handler";
 
 export interface SubmissionHistoryItem {
   id: string;
@@ -162,34 +163,19 @@ export const useSubmissionHistory = (
   // Fetch user info
   const fetchUserInfo = useCallback(async () => {
     try {
-      const response = await fetch(
-        "https://api.learnsql.store/api/app/user/info",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage
-              .getItem("access_token")
-              ?.replace(/"/g, "")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const userData: UserInfo = await response.json();
+      // Use the API client instead of hard-coded fetch
+      const userData: UserInfo = await api.user.getUserInfo();
       setUserInfo(userData);
       return userData;
-    } catch (err: any) {
-      const errorMessage = api.utils.formatErrorMessage(err);
+    } catch (err: unknown) {
+      const errorMessage = handleDataFetchError(err);
       setError(errorMessage);
       // toastError("Lỗi khi tải thông tin người dùng", {
       //   description: errorMessage,
       // });
       throw err;
     }
-  }, [api.utils]);
+  }, []);
 
   // Fetch submission history
   const fetchSubmissionHistory = useCallback(
@@ -229,8 +215,8 @@ export const useSubmissionHistory = (
         setTotalElements(data.totalElements);
 
         return data;
-      } catch (err: any) {
-        const errorMessage = api.utils.formatErrorMessage(err);
+      } catch (err: unknown) {
+        const errorMessage = handleDataFetchError(err);
         setError(errorMessage);
         toastError("Lỗi khi tải lịch sử submit", {
           description: errorMessage,
@@ -240,7 +226,7 @@ export const useSubmissionHistory = (
         setLoading(false);
       }
     },
-    [api.utils, pageSize]
+    [pageSize]
   );
 
   // Submit solution
@@ -314,15 +300,15 @@ export const useSubmissionHistory = (
         }
 
         return result;
-      } catch (err: any) {
-        const errorMessage = api.utils.formatErrorMessage(err);
+      } catch (err: unknown) {
+        const errorMessage = handleDataFetchError(err);
         toastError("Lỗi khi submit", {
           description: errorMessage,
         });
         throw err;
       }
     },
-    [userInfo, pageSize, api.utils, questionInfo]
+    [userInfo, pageSize, questionInfo]
   );
 
   // Load data on mount

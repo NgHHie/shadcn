@@ -28,6 +28,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
+import { useApi } from "@/lib/api";
 
 // Type definitions cho API response
 interface SubmitHistoryItem {
@@ -142,26 +143,10 @@ const filterDataByTimeRange = (
 };
 
 // API service functions
-const fetchUserInfo = async (): Promise<{ id: string }> => {
+const fetchUserInfo = async (api: ReturnType<typeof useApi>): Promise<{ id: string }> => {
   try {
-    const token = localStorage.getItem("access_token")?.replace(/"/g, "");
-
-    const response = await fetch(
-      "https://api.learnsql.store/api/app/user/info",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch user info: ${response.status}`);
-    }
-
-    return await response.json();
+    const userData = await api.user.getUserInfo();
+    return { id: userData.id };
   } catch (error) {
     console.error("Error fetching user info:", error);
     throw error;
@@ -228,6 +213,7 @@ export function ChartAreaInteractive() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [, setUserId] = React.useState<string | null>(null);
+  const api = useApi();
 
   React.useEffect(() => {
     if (isMobile) {
@@ -243,7 +229,7 @@ export function ChartAreaInteractive() {
         setError(null);
 
         // First get user info to get userId
-        const userInfo = await fetchUserInfo();
+        const userInfo = await fetchUserInfo(api);
         setUserId(userInfo.id);
 
         // Then fetch submit history
@@ -283,7 +269,7 @@ export function ChartAreaInteractive() {
     };
 
     loadData();
-  }, []);
+  }, [api]);
 
   const filteredData = React.useMemo(() => {
     return filterDataByTimeRange(chartData, timeRange);

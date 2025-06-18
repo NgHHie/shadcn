@@ -1,7 +1,7 @@
 // src/components/profile/profile.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Edit3,
   X,
@@ -13,21 +13,92 @@ import {
   Lock,
   Eye,
   EyeOff,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toastSuccess, toastError, toastWarning, toastInfo } from "@/lib/toast";
+import { useApi } from "@/lib/api";
+import { handleDataFetchError } from "@/lib/error-handler";
+
+interface UserData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  phone: string;
+  birthDay: string;
+  fullName: string;
+  avatar: string | null;
+  role: string;
+  isPremium: boolean;
+}
 
 export function Profile() {
   const [isEditing, setIsEditing] = useState<string | null>(null);
-  const [profileData] = useState({
-    firstName: "Nguyễn",
-    lastName: "Hoàng Hiệp",
-    email: "hoang.hiep@email.com",
-    phone: "0123456789",
-    birthday: "1995-03-15",
-  });
+  const [profileData, setProfileData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const api = useApi();
+
+  // Fetch user data from API
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const userData = await api.user.getUserInfo();
+        setProfileData(userData);
+      } catch (err: unknown) {
+        console.error("Error fetching user data:", err);
+        
+        // Type guard for error with status
+        const isErrorWithStatus = (error: unknown): error is { 
+          response?: { status?: number }; 
+          status?: number; 
+          code?: number 
+        } => {
+          return typeof error === 'object' && error !== null;
+        };
+
+        // Handle authentication errors
+        let errorStatus: number | undefined;
+        if (isErrorWithStatus(err)) {
+          errorStatus = err.response?.status || err.status || err.code;
+        }
+
+        if (errorStatus === 401) {
+          const errorMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+          setError(errorMessage);
+          toastError("Lỗi xác thực", {
+            description: errorMessage,
+          });
+          // Redirect to login after showing error
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 2000);
+          return;
+        }
+
+        // Handle other errors
+        const errorMessage = handleDataFetchError(err);
+        setError(errorMessage);
+        toastError("Lỗi khi tải thông tin người dùng", {
+          description: errorMessage,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []); // Empty dependency array - only run once on mount
 
   const handleEdit = (field: string) => {
     setIsEditing(field);
@@ -140,7 +211,7 @@ export function Profile() {
     field: string;
     value: string;
     label: string;
-    icon: any;
+    icon: React.ComponentType<{ className?: string }>;
     type?: string;
   }) => {
     const [tempValue, setTempValue] = useState(value);
@@ -186,120 +257,169 @@ export function Profile() {
   return (
     <div className="min-h-screen p-6">
       <div className="mx-auto">
-        {/* Main Profile Card */}
-        <Card className="px-4 py-6 shadow-lg">
-          <div className="grid lg:grid-cols-3 gap-8 items-start">
-            {/* Avatar Section */}
-            <div className="lg:col-span-1 flex flex-col items-center">
-              <div
-                className="relative group cursor-pointer"
-                onClick={handleChangeAvatar}
-              >
-                <div className="w-64 h-64 rounded-full bg-gradient-to-br from-pink-400 via-red-400 to-orange-400 p-1 shadow-2xl transform transition-all duration-300 group-hover:scale-105">
-                  <div className="w-full h-full rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center overflow-hidden border">
-                    <div className="w-full h-full rounded-full bg-muted flex items-center justify-center text-6xl font-bold text-muted-foreground">
-                      {profileData.firstName.charAt(0)}
-                      {profileData.lastName.charAt(0)}
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute inset-0 rounded-full bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <Camera className="w-8 h-8 text-white" />
+        {/* Loading State */}
+        {loading && (
+          <Card className="px-4 py-6 shadow-lg">
+            <div className="grid lg:grid-cols-3 gap-8 items-start">
+              <div className="lg:col-span-1 flex flex-col items-center">
+                <Skeleton className="w-64 h-64 rounded-full" />
+                <div className="mt-6 text-center space-y-2">
+                  <Skeleton className="h-8 w-48 mx-auto" />
+                  <Skeleton className="h-4 w-32 mx-auto" />
+                  <Skeleton className="h-4 w-24 mx-auto" />
                 </div>
               </div>
-
-              <div className="mt-6 text-center">
-                <h1 className="text-3xl font-bold mb-2">
-                  {profileData.firstName} {profileData.lastName}
-                </h1>
-                <p className="text-muted-foreground mb-1">
-                  {profileData.email}
-                </p>
-                <p className="text-muted-foreground">
-                  {new Date(profileData.birthday).toLocaleDateString("vi-VN")}
-                </p>
+              <div className="lg:col-span-2 space-y-6">
+                <Skeleton className="h-8 w-64" />
+                <div className="grid md:grid-cols-2 gap-6">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div key={index} className="space-y-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-12 w-full" />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
+          </Card>
+        )}
 
-            {/* Information Section */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <User className="w-6 h-6" />
-                  Thông tin cá nhân
-                </h2>
+        {/* Error State */}
+        {error && !loading && (
+          <Card className="px-4 py-6 shadow-lg">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                {error}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-2"
+                  onClick={() => window.location.reload()}
+                >
+                  Thử lại
+                </Button>
+              </AlertDescription>
+            </Alert>
+          </Card>
+        )}
+
+        {/* Main Profile Card - Only show when data is loaded */}
+        {profileData && !loading && !error && (
+          <Card className="px-4 py-6 shadow-lg">
+            <div className="grid lg:grid-cols-3 gap-8 items-start">
+              {/* Avatar Section */}
+              <div className="lg:col-span-1 flex flex-col items-center">
+                <div
+                  className="relative group cursor-pointer"
+                  onClick={handleChangeAvatar}
+                >
+                  <div className="w-64 h-64 rounded-full bg-gradient-to-br from-pink-400 via-red-400 to-orange-400 p-1 shadow-2xl transform transition-all duration-300 group-hover:scale-105">
+                    <div className="w-full h-full rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center overflow-hidden border">
+                      <div className="w-full h-full rounded-full bg-muted flex items-center justify-center text-6xl font-bold text-muted-foreground">
+                        {profileData.firstName?.charAt(0) || 'U'}
+                        {profileData.lastName?.charAt(0) || 'S'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 rounded-full bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <Camera className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+
+                <div className="mt-6 text-center">
+                  <h1 className="text-3xl font-bold mb-2">
+                    {profileData.fullName || `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || 'User'}
+                  </h1>
+                  <p className="text-muted-foreground mb-1">
+                    {profileData.email || 'No email'}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {profileData.birthDay ? new Date(profileData.birthDay).toLocaleDateString("vi-VN") : 'No birthday'}
+                  </p>
+                </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                <EditableField
-                  field="firstName"
-                  value={profileData.firstName}
-                  label="Họ"
-                  icon={User}
-                />
+              {/* Information Section */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <User className="w-6 h-6" />
+                    Thông tin cá nhân
+                  </h2>
+                </div>
 
-                <EditableField
-                  field="lastName"
-                  value={profileData.lastName}
-                  label="Tên"
-                  icon={User}
-                />
-
-                <EditableField
-                  field="email"
-                  value={profileData.email}
-                  label="Email"
-                  icon={Mail}
-                  type="email"
-                />
-
-                <EditableField
-                  field="phone"
-                  value={profileData.phone}
-                  label="Số điện thoại"
-                  icon={Phone}
-                  type="tel"
-                />
-
-                <div className="md:col-span-2">
+                <div className="grid md:grid-cols-2 gap-6">
                   <EditableField
-                    field="birthday"
-                    value={profileData.birthday}
-                    label="Ngày sinh"
-                    icon={Calendar}
-                    type="date"
+                    field="firstName"
+                    value={profileData.firstName || ''}
+                    label="Họ"
+                    icon={User}
+                  />
+
+                  <EditableField
+                    field="lastName"
+                    value={profileData.lastName || ''}
+                    label="Tên"
+                    icon={User}
+                  />
+
+                  <EditableField
+                    field="email"
+                    value={profileData.email || ''}
+                    label="Email"
+                    icon={Mail}
+                    type="email"
+                  />
+
+                  <EditableField
+                    field="phone"
+                    value={profileData.phone || ''}
+                    label="Số điện thoại"
+                    icon={Phone}
+                    type="tel"
+                  />
+
+                  <div className="md:col-span-2">
+                    <EditableField
+                      field="birthDay"
+                      value={profileData.birthDay || ''}
+                      label="Ngày sinh"
+                      icon={Calendar}
+                      type="date"
+                    />
+                  </div>
+
+                  <PasswordField
+                    field="password"
+                    label="Mật khẩu mới"
+                    placeholder="Nhập mật khẩu mới"
+                  />
+
+                  <PasswordField
+                    field="confirmPassword"
+                    label="Xác nhận mật khẩu"
+                    placeholder="Nhập lại mật khẩu"
                   />
                 </div>
 
-                <PasswordField
-                  field="password"
-                  label="Mật khẩu mới"
-                  placeholder="Nhập mật khẩu mới"
-                />
-
-                <PasswordField
-                  field="confirmPassword"
-                  label="Xác nhận mật khẩu"
-                  placeholder="Nhập lại mật khẩu"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-4 mt-8 pt-6 border-t">
-                <Button className="px-6 py-2" onClick={handleSaveAllChanges}>
-                  Lưu thay đổi
-                </Button>
-                <Button
-                  variant="outline"
-                  className="px-6 py-2"
-                  onClick={handleCancelAllChanges}
-                >
-                  Hủy bỏ
-                </Button>
+                {/* Action Buttons */}
+                <div className="flex gap-4 mt-8 pt-6 border-t">
+                  <Button className="px-6 py-2" onClick={handleSaveAllChanges}>
+                    Lưu thay đổi
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="px-6 py-2"
+                    onClick={handleCancelAllChanges}
+                  >
+                    Hủy bỏ
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )}
       </div>
     </div>
   );

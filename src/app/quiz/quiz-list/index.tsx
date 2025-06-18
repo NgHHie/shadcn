@@ -12,8 +12,6 @@ import {
   Users,
   Calendar,
   User,
-  Grid3X3,
-  List,
   Eye,
   ChevronLeft,
   ChevronRight
@@ -27,9 +25,6 @@ import "./style.css";
 const ITEMS_PER_PAGE = 9;
 
 export default function QuizListPage() {
-  // View mode state
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  
   // Search and filter state
   const [searchParams, setSearchParams] = useState({
     query: "",
@@ -166,7 +161,7 @@ export default function QuizListPage() {
     );
   }
 
-  // Error state
+  // Error state (only show real errors, not empty data)
   if (error) {
     return (
       <div className="container mx-auto p-6">
@@ -184,22 +179,6 @@ export default function QuizListPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Danh sách bài thi</h1>
-        <div className="flex gap-2">
-          <Button
-            variant={viewMode === "grid" ? "default" : "outline"}
-            size="icon"
-            onClick={() => setViewMode("grid")}
-          >
-            <Grid3X3 className="w-4 h-4" />
-          </Button>
-          <Button
-            variant={viewMode === "list" ? "default" : "outline"}
-            size="icon"
-            onClick={() => setViewMode("list")}
-          >
-            <List className="w-4 h-4" />
-          </Button>
-        </div>
       </div>
 
       {/* Search and Filters */}
@@ -298,7 +277,7 @@ export default function QuizListPage() {
       </div>
 
       {/* Quiz List */}
-      <div className={`gap-6 ${viewMode === "grid" ? "grid md:grid-cols-2 lg:grid-cols-3" : "flex flex-col"}`}>
+      <div className={`gap-6 grid md:grid-cols-2 lg:grid-cols-3`}>
         {paginatedQuizzes.map((quiz) => (
           <Card key={quiz.examQuizzesId} className="hover:shadow-lg transition-shadow">
             <CardHeader>
@@ -378,13 +357,28 @@ export default function QuizListPage() {
       )}
 
       {/* Empty state */}
-      {paginatedQuizzes.length === 0 && (
+      {!quizLoading && !error && paginatedQuizzes.length === 0 && (
         <div className="text-center py-12">
           <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">Không tìm thấy bài thi nào</h3>
-          <p className="text-muted-foreground">
-            Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
-          </p>
+          {quizzes.length === 0 ? (
+            // No quizzes at all
+            <>
+              <h3 className="text-lg font-medium mb-2">Không có bài thi nào</h3>
+              <p className="text-muted-foreground">
+                Hiện tại chưa có bài thi nào được phân công cho bạn.{" "}
+                <br />
+                Vui lòng liên hệ giảng viên hoặc kiểm tra lại sau.
+              </p>
+            </>
+          ) : (
+            // Has quizzes but filtered out
+            <>
+              <h3 className="text-lg font-medium mb-2">Không tìm thấy bài thi nào</h3>
+              <p className="text-muted-foreground">
+                Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>

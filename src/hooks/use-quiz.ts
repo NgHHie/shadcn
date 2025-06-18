@@ -21,17 +21,38 @@ export const useQuiz = () => {
       setLoading(true);
       setError(null);
       const response = await quizService.getExamQuizzesByUserId(userId);
-      if (
-        (response.status === 1 || response.status === 200) &&
-        Array.isArray(response.data)
-      ) {
-        setQuizzes(response.data);
+
+      if (response.status === 1 || response.status === 200) {
+        if (Array.isArray(response.data)) {
+          setQuizzes(response.data);
+        } else {
+          // API trả về success nhưng data không phải array - có thể là empty
+          setQuizzes([]);
+        }
       } else {
         setError("Failed to fetch quizzes");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Error fetching quizzes:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch quizzes");
+
+      // Handle specific error cases
+      const error = err as { response?: { status?: number } };
+      if (error?.response?.status === 400) {
+        // 400 error might mean no quizzes available - not a real error
+        console.log("No quizzes available for user:", userId);
+        setQuizzes([]);
+        setError(null); // Don't treat this as an error
+      } else if (error?.response?.status === 404) {
+        // 404 might also mean no quizzes found
+        console.log("No quizzes found for user:", userId);
+        setQuizzes([]);
+        setError(null);
+      } else {
+        // Real errors (network, auth, server errors)
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch quizzes"
+        );
+      }
     } finally {
       setLoading(false);
     }
