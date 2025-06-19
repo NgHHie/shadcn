@@ -1,12 +1,10 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-// import { ChartAreaInteractive } from "@/components/dashboard/chart-area-interactive";
 import { QuestionCard } from "@/components/dashboard/question-card";
 import { Pagination } from "@/components/dashboard/pagination";
 import { useQuestions } from "@/hooks/use-questions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Loader2, AlertCircle, BookOpen, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -17,14 +15,14 @@ export function Page() {
   const [inputKeyword, setInputKeyword] = useState(""); // Input state
   const [searchKeyword, setSearchKeyword] = useState(""); // Actual search keyword
   const [currentPage, setCurrentPage] = useState(0);
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(10);
 
   // Sử dụng keyword parameter thay vì search
   const { questions, loading, error, totalPages, totalElements, refetch } =
     useQuestions({
       page: currentPage,
       size: pageSize,
-      keyword: searchKeyword || undefined, // Dùng keyword parameter
+      keyword: searchKeyword || undefined,
     });
 
   const handleSearch = useCallback(() => {
@@ -55,6 +53,11 @@ export function Page() {
     setCurrentPage(page);
   }, []);
 
+  const handlePageSizeChange = useCallback((newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(0); // Reset về trang đầu khi thay đổi page size
+  }, []);
+
   const handleClearSearch = useCallback(() => {
     setInputKeyword("");
     setSearchKeyword("");
@@ -66,24 +69,19 @@ export function Page() {
     // 1. Loading state - hiển thị skeleton
     if (loading) {
       return (
-        <div className="grid gap-4">
-          {Array.from({ length: 5 }).map((_, index) => (
+        <div className="grid gap-1">
+          {Array.from({ length: pageSize }).map((_, index) => (
             <div
               key={index}
               className="flex items-center justify-between p-4 border rounded-lg"
             >
               <div className="flex-1 space-y-2">
                 <div className="flex items-center gap-3">
-                  <Skeleton className="h-6 w-16" />
-                  <Skeleton className="h-6 w-64" />
-                </div>
-                <div className="flex gap-2">
-                  <Skeleton className="h-5 w-20" />
-                  <Skeleton className="h-5 w-16" />
-                  <Skeleton className="h-5 w-12" />
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-4 w-64" />
                 </div>
               </div>
-              <Skeleton className="h-9 w-24" />
+              <Skeleton className="h-4 w-24" />
             </div>
           ))}
         </div>
@@ -135,7 +133,7 @@ export function Page() {
     // 4. Success state - hiển thị danh sách câu hỏi
     return (
       <>
-        <div className="grid gap-2">
+        <div className="grid gap-1">
           {questions.map((question) => (
             <QuestionCard
               key={question.id}
@@ -151,8 +149,10 @@ export function Page() {
             currentPage={currentPage}
             totalPages={totalPages}
             totalElements={totalElements}
+            pageSize={pageSize}
             loading={loading}
             onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
           />
         )}
       </>
@@ -160,84 +160,64 @@ export function Page() {
   };
 
   return (
-    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-      {/* Stats Chart */}
-      {/* <div className="px-4 lg:px-6">
-        <ChartAreaInteractive />
-      </div> */}
-
-      {/* Header */}
-      {/* <div className="px-4 lg:px-6">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Danh sách bài tập SQL
-          </h1>
-          <p className="text-muted-foreground">
-            Luyện tập hằng ngày với nhiều dạng truy vấn SQL
-          </p>
-        </div>
-      </div> */}
-
-      {/* Questions List */}
+    <div className="flex flex-col gap-2 py-2 md:gap-3 md:py-3">
+      {/* Questions List - Bỏ Card wrapper */}
       <div className="px-4 lg:px-6">
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              {/* Bên trái: Tiêu đề */}
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-lg">
-                  DANH SÁCH BÀI TẬP {!loading && `(${totalElements} bài)`}
-                </CardTitle>
-                {loading && (
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                )}
-              </div>
+        {/* Header section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+          {/* Bên trái: Tiêu đề */}
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-semibold">
+              DANH SÁCH BÀI TẬP {!loading && `(${totalElements} bài)`}
+            </h1>
+            {loading && (
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            )}
+          </div>
 
-              {/* Bên phải: Search + Button */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
-                {/* Input có độ rộng hợp lý ở laptop */}
-                <div className="relative w-full sm:w-[320px]">
-                  {/* Icon Search bên trái */}
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {/* Bên phải: Search + Button */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+            {/* Input có độ rộng hợp lý ở laptop */}
+            <div className="relative w-full sm:w-[320px]">
+              {/* Icon Search bên trái */}
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 
-                  {/* Input */}
-                  <Input
-                    placeholder="Tìm kiếm theo mã hoặc tên câu hỏi..."
-                    value={inputKeyword}
-                    onChange={(e) => setInputKeyword(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    className="pl-10 pr-10 w-full"
-                  />
+              {/* Input */}
+              <Input
+                placeholder="Tìm kiếm theo mã hoặc tên câu hỏi..."
+                value={inputKeyword}
+                onChange={(e) => setInputKeyword(e.target.value)}
+                onKeyDown={handleKeyPress}
+                className="pl-10 pr-10"
+                disabled={loading}
+              />
 
-                  {/* Nút X xoá từ khoá */}
-                  {searchKeyword && (
-                    <button
-                      type="button"
-                      onClick={handleClearSearch}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      aria-label="Xoá bộ lọc"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Nút tìm kiếm và xóa */}
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <Button
-                    onClick={handleSearch}
-                    disabled={loading}
-                    className="w-full sm:w-auto"
-                  >
-                    Tìm kiếm
-                  </Button>
-                </div>
-              </div>
+              {/* Clear button - chỉ hiển thị khi có text */}
+              {inputKeyword && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
+                  onClick={() => setInputKeyword("")}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
-          </CardHeader>
 
-          <CardContent>{renderQuestionsContent()}</CardContent>
-        </Card>
+            {/* Search Button */}
+            <Button
+              onClick={handleSearch}
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
+              Tìm kiếm
+            </Button>
+          </div>
+        </div>
+
+        {/* Content */}
+        {renderQuestionsContent()}
       </div>
     </div>
   );

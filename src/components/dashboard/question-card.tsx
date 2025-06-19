@@ -153,14 +153,14 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             {question.status && (
               <Badge
                 variant="outline"
-                className={`text-xs border-0 px-2 py-1 h-fit ${getStatusColor(
+                className={`text-[10px] border-0 px-2 py-1 h-fit max-w-[80px] whitespace-nowrap overflow-hidden text-ellipsis ${getStatusColor(
                   question.status
                 )}`}
               >
-                <span className="hidden sm:inline">
+                <span className="hidden sm:inline truncate">
                   {getStatusText(question.status)}
                 </span>
-                <span className="sm:hidden">
+                <span className="sm:hidden truncate">
                   {question.status === "Not Started" ? "New" : question.status}
                 </span>
               </Badge>

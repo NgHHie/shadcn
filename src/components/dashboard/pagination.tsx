@@ -1,21 +1,32 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
   totalElements: number;
+  pageSize: number;
   loading: boolean;
   onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }
 
 export const Pagination: React.FC<PaginationProps> = ({
   currentPage,
   totalPages,
   totalElements,
+  pageSize,
   loading,
   onPageChange,
+  onPageSizeChange,
 }) => {
   // Tính toán các trang hiển thị
   const getVisiblePages = () => {
@@ -67,58 +78,83 @@ export const Pagination: React.FC<PaginationProps> = ({
         Trang {currentPage + 1} / {totalPages} ({totalElements} bài tập)
       </div>
 
-      <div className="flex items-center gap-1">
-        {/* Previous button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 0 || loading}
-          className="h-9 w-9 p-0"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
+      <div className="flex items-center gap-4">
+        {/* Phần chọn số phần tử */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Hiển thị:</span>
+          <Select
+            value={pageSize.toString()}
+            onValueChange={(value) => onPageSizeChange(Number(value))}
+            disabled={loading}
+          >
+            <SelectTrigger className="w-16 h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="15">15</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="30">30</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-muted-foreground">/ trang</span>
+        </div>
 
-        {/* Page numbers */}
-        {visiblePages.map((page, index) => {
-          if (page === "...") {
+        {/* Navigation controls */}
+        <div className="flex items-center gap-1">
+          {/* Previous button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 0 || loading}
+            className="h-9 w-9 p-0"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+
+          {/* Page numbers */}
+          {visiblePages.map((page, index) => {
+            if (page === "...") {
+              return (
+                <span
+                  key={`dots-${index}`}
+                  className="h-9 w-9 flex items-center justify-center text-muted-foreground"
+                >
+                  ...
+                </span>
+              );
+            }
+
+            const pageNum = page as number;
+            const isCurrentPage = pageNum === currentPage + 1;
+
             return (
-              <span
-                key={`dots-${index}`}
-                className="h-9 w-9 flex items-center justify-center text-muted-foreground"
+              <Button
+                key={pageNum}
+                variant={isCurrentPage ? "default" : "outline"}
+                size="sm"
+                onClick={() => onPageChange(pageNum - 1)}
+                disabled={loading}
+                className="h-9 w-9 p-0"
               >
-                ...
-              </span>
+                {pageNum}
+              </Button>
             );
-          }
+          })}
 
-          const pageNum = page as number;
-          const isCurrentPage = pageNum === currentPage + 1;
-
-          return (
-            <Button
-              key={pageNum}
-              variant={isCurrentPage ? "default" : "outline"}
-              size="sm"
-              onClick={() => onPageChange(pageNum - 1)}
-              disabled={loading}
-              className="h-9 w-9 p-0"
-            >
-              {pageNum}
-            </Button>
-          );
-        })}
-
-        {/* Next button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage >= totalPages - 1 || loading}
-          className="h-9 w-9 p-0"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
+          {/* Next button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage >= totalPages - 1 || loading}
+            className="h-9 w-9 p-0"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
