@@ -1,3 +1,4 @@
+// src/app/dashboard/page.tsx - Mobile optimized version
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { QuestionCard } from "@/components/dashboard/question-card";
@@ -73,7 +74,7 @@ export function Page() {
           {Array.from({ length: pageSize }).map((_, index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-4 border rounded-lg"
+              className="flex items-center justify-between p-3 border rounded-lg"
             >
               <div className="flex-1 space-y-2">
                 <div className="flex items-center gap-3">
@@ -164,7 +165,7 @@ export function Page() {
       {/* Questions List - Bỏ Card wrapper */}
       <div className="px-4 lg:px-6">
         {/* Header section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           {/* Bên trái: Tiêu đề */}
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-semibold">
@@ -175,10 +176,10 @@ export function Page() {
             )}
           </div>
 
-          {/* Bên phải: Search + Button */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
-            {/* Input có độ rộng hợp lý ở laptop */}
-            <div className="relative w-full sm:w-[320px]">
+          {/* Bên phải: Search + Button - Mobile optimized */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {/* Input container với button bên cạnh */}
+            <div className="relative flex-1 sm:flex-none sm:w-[280px]">
               {/* Icon Search bên trái */}
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 
@@ -188,7 +189,7 @@ export function Page() {
                 value={inputKeyword}
                 onChange={(e) => setInputKeyword(e.target.value)}
                 onKeyDown={handleKeyPress}
-                className="pl-10 pr-10"
+                className="pl-10 pr-10 h-9" // Giảm chiều cao cho mobile
                 disabled={loading}
               />
 
@@ -197,19 +198,20 @@ export function Page() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0 hover:bg-transparent"
                   onClick={() => setInputKeyword("")}
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3 w-3" />
                 </Button>
               )}
             </div>
 
-            {/* Search Button */}
+            {/* Search Button - cùng hàng với input */}
             <Button
               onClick={handleSearch}
               disabled={loading}
-              className="w-full sm:w-auto"
+              size="sm"
+              className="h-9 px-3" // Khớp chiều cao với input
             >
               Tìm kiếm
             </Button>

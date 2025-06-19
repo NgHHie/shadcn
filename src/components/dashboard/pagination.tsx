@@ -1,3 +1,4 @@
+// src/components/dashboard/pagination.tsx - Mobile optimized version
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,57 +29,100 @@ export const Pagination: React.FC<PaginationProps> = ({
   onPageChange,
   onPageSizeChange,
 }) => {
-  // Tính toán các trang hiển thị
+  // Tính toán các trang hiển thị cho desktop
   const getVisiblePages = () => {
-    const delta = 2; // Số trang hiển thị mỗi bên
-    const range = [];
-    const rangeWithDots = [];
+    const current = currentPage + 1; // Convert to 1-based
+    const result = [];
 
-    // Luôn hiển thị trang đầu
-    range.push(1);
+    if (totalPages <= 5) {
+      // Nếu ít trang, hiển thị tất cả
+      for (let i = 1; i <= totalPages; i++) {
+        result.push(i);
+      }
+    } else {
+      // Luôn có trang đầu
+      result.push(1);
 
-    // Tính toán vùng xung quanh trang hiện tại
-    for (
-      let i = Math.max(2, currentPage + 1 - delta);
-      i <= Math.min(totalPages - 1, currentPage + 1 + delta);
-      i++
-    ) {
-      range.push(i);
-    }
+      // Nếu trang hiện tại > 3, thêm dấu ...
+      if (current > 3) {
+        result.push("...");
+      }
 
-    // Luôn hiển thị trang cuối nếu totalPages > 1
-    if (totalPages > 1) {
-      range.push(totalPages);
-    }
+      // Hiển thị trang hiện tại và 1 trang trước/sau
+      const start = Math.max(2, current - 1);
+      const end = Math.min(totalPages - 1, current + 1);
 
-    // Thêm dấu ... nếu cần
-    let l = 0;
-    for (const i of range) {
-      if (l) {
-        if (i - l === 2) {
-          rangeWithDots.push(l + 1);
-        } else if (i - l !== 1) {
-          rangeWithDots.push("...");
+      for (let i = start; i <= end; i++) {
+        if (!result.includes(i)) {
+          result.push(i);
         }
       }
-      rangeWithDots.push(i);
-      l = i;
+
+      // Nếu trang hiện tại < totalPages - 2, thêm dấu ...
+      if (current < totalPages - 2) {
+        result.push("...");
+      }
+
+      // Luôn có trang cuối
+      if (!result.includes(totalPages)) {
+        result.push(totalPages);
+      }
     }
 
-    return rangeWithDots;
+    return result;
+  };
+
+  // Tính toán các trang hiển thị cho mobile - compact hơn
+  const getMobileVisiblePages = () => {
+    const current = currentPage + 1; // Convert to 1-based
+    const result = [];
+
+    if (totalPages <= 4) {
+      // Nếu ít trang, hiển thị tất cả
+      for (let i = 1; i <= totalPages; i++) {
+        result.push(i);
+      }
+    } else {
+      // Luôn có trang đầu
+      result.push(1);
+
+      // Nếu trang hiện tại > 2, thêm dấu ...
+      if (current > 2) {
+        result.push("...");
+      }
+
+      // Hiển thị trang hiện tại
+      if (current > 1 && current < totalPages && !result.includes(current)) {
+        result.push(current);
+      }
+
+      // Nếu trang hiện tại < totalPages - 1, thêm dấu ...
+      if (current < totalPages - 1) {
+        result.push("...");
+      }
+
+      // Luôn có trang cuối
+      if (!result.includes(totalPages)) {
+        result.push(totalPages);
+      }
+    }
+
+    return result;
   };
 
   const visiblePages = getVisiblePages();
+  const mobileVisiblePages = getMobileVisiblePages();
 
   if (totalPages <= 1) return null;
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-      <div className="text-sm text-muted-foreground">
+      {/* Desktop layout - giữ nguyên như cũ */}
+      <div className="hidden sm:block text-sm text-muted-foreground">
         Trang {currentPage + 1} / {totalPages} ({totalElements} bài tập)
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="hidden sm:flex items-center gap-4">
         {/* Phần chọn số phần tử */}
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Hiển thị:</span>
@@ -101,7 +145,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           <span className="text-sm text-muted-foreground">/ trang</span>
         </div>
 
-        {/* Navigation controls */}
+        {/* Navigation controls cho desktop */}
         <div className="flex items-center gap-1">
           {/* Previous button */}
           <Button
@@ -155,6 +199,79 @@ export const Pagination: React.FC<PaginationProps> = ({
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
+      </div>
+
+      {/* Mobile layout - navigation controls + page size selector */}
+      <div className="flex sm:hidden items-center justify-center gap-2 w-full">
+        {/* Previous button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 0 || loading}
+          className="h-8 w-8 p-0"
+        >
+          <ChevronLeft className="h-3 w-3" />
+        </Button>
+
+        {/* Page numbers cho mobile */}
+        {mobileVisiblePages.map((page, index) => {
+          if (page === "...") {
+            return (
+              <span
+                key={`dots-${index}`}
+                className="h-8 w-8 flex items-center justify-center text-muted-foreground text-xs"
+              >
+                ...
+              </span>
+            );
+          }
+
+          const pageNum = page as number;
+          const isCurrentPage = pageNum === currentPage + 1;
+
+          return (
+            <Button
+              key={pageNum}
+              variant={isCurrentPage ? "default" : "outline"}
+              size="sm"
+              onClick={() => onPageChange(pageNum - 1)}
+              disabled={loading}
+              className="h-8 w-8 p-0 text-xs"
+            >
+              {pageNum}
+            </Button>
+          );
+        })}
+
+        {/* Next button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage >= totalPages - 1 || loading}
+          className="h-8 w-8 p-0"
+        >
+          <ChevronRight className="h-3 w-3" />
+        </Button>
+
+        {/* Page size selector ngay bên cạnh */}
+        <Select
+          value={pageSize.toString()}
+          onValueChange={(value) => onPageSizeChange(Number(value))}
+          disabled={loading}
+        >
+          <SelectTrigger className="w-16 h-8 text-xs ml-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="10">10</SelectItem>
+            <SelectItem value="15">15</SelectItem>
+            <SelectItem value="20">20</SelectItem>
+            <SelectItem value="25">25</SelectItem>
+            <SelectItem value="30">30</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

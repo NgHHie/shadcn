@@ -32,15 +32,9 @@ export function AppSidebar({
     navMain: [
       {
         title: "Assignment",
-        url: "/dashboard",
+        url: "/",
         icon: LayoutDashboardIcon,
-        isActive: location.pathname === "/dashboard",
-      },
-      {
-        title: "Editor",
-        url: "/question-detail/",
-        icon: FileCodeIcon,
-        isActive: location.pathname.startsWith("/question-detail/"),
+        isActive: location.pathname === "/",
       },
       {
         title: "Quiz",

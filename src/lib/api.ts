@@ -3,6 +3,7 @@ import { toastError } from "@/lib/toast";
 import { TokenManager } from "./token-manager";
 
 const API_BASE_URL = "https://api.learnsql.store/api/app";
+const API_AUTH_URL = "https://api.learnsql.store/api/auth";
 
 const PUBLIC_ENDPOINTS = [
   "/question", // GET /question (list questions)
@@ -269,6 +270,7 @@ class ApiClient {
 
 // Initialize API client
 const apiClient = new ApiClient(API_BASE_URL);
+const apiAuth = new ApiClient(API_AUTH_URL);
 
 // API Service Functions
 export const questionApi = {
@@ -682,29 +684,7 @@ export const authApi = {
     fullName: string;
     isPremium: boolean;
   }> => {
-    const token = TokenManager.getAccessToken();
-
-    if (!token) {
-      throw new Error("No access token available");
-    }
-
-    const response = await fetch(`${authApi.baseUrl}/users/info`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.message ||
-          `Failed to get user info: ${response.status} ${response.statusText}`
-      );
-    }
-
-    return await response.json();
+    return apiAuth.get("/users/info");
   },
 };
 
@@ -830,6 +810,7 @@ export const useApi = () => {
     user: {
       ...userApi,
       getUserInfo: authApi.getUserInfo, // Reference to auth getUserInfo
+      getUserInfo2: authApi.getCurrentUser,
     },
     ranking: rankingApi,
     contest: contestApi,

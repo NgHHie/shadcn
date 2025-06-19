@@ -1,4 +1,4 @@
-// src/components/dashboard/question-card.tsx - Single line layout
+// src/components/dashboard/question-card.tsx - Mobile optimized version
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -103,15 +103,16 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       )}`}
     >
       <CardContent className="p-1.5 sm:p-2">
-        <div className="grid grid-cols-12 gap-2 items-center">
-          {/* Cột 1: Mã câu hỏi - hẹp hơn nữa */}
+        {/* Desktop layout */}
+        <div className="hidden sm:grid sm:grid-cols-12 gap-2 items-center">
+          {/* Cột 1: Mã câu hỏi */}
           <div className="col-span-1 flex-shrink-0 min-w-0">
             <div className="text-xs font-mono font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-center border border-gray-200 dark:border-gray-700">
               {question.questionCode}
             </div>
           </div>
 
-          {/* Cột 2: Tên đề bài + Loại ở cuối dòng - rộng hơn */}
+          {/* Cột 2: Tên đề bài + Loại ở cuối dòng */}
           <div className="col-span-7 min-w-0">
             <div className="flex items-center justify-between gap-2">
               <h3
@@ -134,7 +135,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             </div>
           </div>
 
-          {/* Cột 3: Mức độ + Điểm - rộng ra chút */}
+          {/* Cột 3: Mức độ + Điểm */}
           <div className="col-span-2 text-xs">
             <div className="flex items-center gap-1.5">
               <span className={`font-medium ${getLevelColor(question.level)}`}>
@@ -148,7 +149,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             </div>
           </div>
 
-          {/* Cột 4: Status - hẹp lại */}
+          {/* Cột 4: Status */}
           <div className="col-span-1 flex justify-center">
             {question.status && (
               <Badge
@@ -167,11 +168,43 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             )}
           </div>
 
-          {/* Cột 5: Số submits với text */}
+          {/* Cột 5: Số submits */}
           <div className="col-span-1 text-right">
             <span className="text-[11px] text-muted-foreground">
               <span className="hidden sm:inline">{question.totalSub} lượt</span>
               <span className="sm:hidden">{question.totalSub}</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Mobile layout - chỉ hiển thị: mã (span 2), đề bài, mức độ */}
+        <div className="sm:hidden grid grid-cols-12 gap-2 items-center">
+          {/* Mã câu hỏi - span 2, cỡ chữ nhỏ hơn */}
+          <div className="col-span-2 flex-shrink-0">
+            <div className="text-[10px] font-mono font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-center border border-gray-200 dark:border-gray-700">
+              {question.questionCode}
+            </div>
+          </div>
+
+          {/* Đề bài - 1 dòng với ... */}
+          <div className="col-span-8 min-w-0">
+            <h3
+              className="font-medium text-sm line-clamp-1 leading-tight hover:underline decoration-1 underline-offset-2 transition-all duration-200 cursor-pointer text-foreground hover:text-primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick(question.id, question.title);
+              }}
+            >
+              {question.title}
+            </h3>
+          </div>
+
+          {/* Chỉ mức độ */}
+          <div className="col-span-2 flex justify-end">
+            <span
+              className={`text-xs font-medium ${getLevelColor(question.level)}`}
+            >
+              {question.level.charAt(0) + question.level.slice(1).toLowerCase()}
             </span>
           </div>
         </div>
