@@ -1,9 +1,7 @@
-// src/components/dashboard/question-card.tsx - Mobile optimized with icon button
+// src/components/dashboard/question-card.tsx - Single line layout
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 
 interface QuestionCardProps {
   question: {
@@ -26,13 +24,13 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   const getStatusBorderColor = (status?: string) => {
     switch (status) {
       case "AC":
-        return "border-l-green-500"; // Màu xanh cho AC
+        return "border-l-green-500";
       case "WA":
       case "TLE":
       case "CE":
-        return "border-l-red-500"; // Màu đỏ cho các lỗi
+        return "border-l-red-500";
       default:
-        return "border-l-primary"; // Màu mặc định cho Not Started
+        return "border-l-primary";
     }
   };
 
@@ -83,8 +81,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
     }
   };
 
-  // Desktop: Full text
-  const getStatusTextDesktop = (status?: string) => {
+  const getStatusText = (status?: string) => {
     switch (status) {
       case "AC":
         return "Accepted";
@@ -99,98 +96,83 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
     }
   };
 
-  // Mobile: Short text
-  const getStatusTextMobile = (status?: string) => {
-    switch (status) {
-      case "AC":
-        return "AC";
-      case "WA":
-        return "WA";
-      case "TLE":
-        return "TLE";
-      case "CE":
-        return "CE";
-      default:
-        return "New";
-    }
-  };
-
   return (
     <Card
       className={`transition-all hover:shadow-md hover:scale-[1.01] border-2 border-l-4 ${getStatusBorderColor(
         question.status
       )}`}
     >
-      <CardContent className="p-3 sm:p-4">
-        <div className="flex items-start justify-between gap-4">
-          {/* Left side - Content */}
-          <div className="flex-1 min-w-0">
-            {/* Row 1: Badges, Level, Point */}
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <Badge variant="outline" className="text-xs font-mono border-2">
-                {question.questionCode}
-              </Badge>
-              <Badge
-                variant="outline"
-                className={`text-xs ${getTypeColor(question.type)} border-0`}
-              >
-                {question.type}
-              </Badge>
-              <span
-                className={`text-xs font-medium ${getLevelColor(
-                  question.level
-                )}`}
-              >
-                {question.level}
-              </span>
-              {/* Point */}
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <span className="hidden sm:inline">{question.point} điểm</span>
-                <span className="sm:hidden">{question.point}</span>
-              </div>
-            </div>
-
-            {/* Row 2: Title only */}
-            <h3
-              className="font-medium text-sm sm:text-base line-clamp-1 leading-tight cursor-pointer hover:underline decoration-1 underline-offset-2 transition-all duration-200"
-              onClick={() => onClick(question.id, question.title)}
-            >
-              {question.title}
-            </h3>
-            <div className="text-[11px] sm:text-xs text-muted-foreground">
-              Đã có {question.totalSub} lượt sub
+      <CardContent className="p-1.5 sm:p-2">
+        <div className="grid grid-cols-12 gap-2 items-center">
+          {/* Cột 1: Mã câu hỏi - hẹp hơn nữa */}
+          <div className="col-span-1 flex-shrink-0 min-w-0">
+            <div className="text-xs font-mono font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-center border border-gray-200 dark:border-gray-700">
+              {question.questionCode}
             </div>
           </div>
 
-          {/* Right side - Button + lượt sub */}
-          <div className="flex flex-col items-end gap-1 flex-shrink-0">
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-xs sm:px-3 sm:py-1 px-2 py-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                onClick(question.id, question.title);
-              }}
-            >
-              <ArrowRight className="h-3 w-3 sm:mr-1" />
-              <span className="hidden sm:inline">Editor</span>
-            </Button>
+          {/* Cột 2: Tên đề bài + Loại ở cuối dòng - rộng hơn */}
+          <div className="col-span-7 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <h3
+                className="font-medium text-sm line-clamp-1 leading-tight hover:underline decoration-1 underline-offset-2 transition-all duration-200 flex-1 min-w-0 cursor-pointer text-foreground hover:text-primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick(question.id, question.title);
+                }}
+              >
+                {question.title}
+              </h3>
+              <Badge
+                variant="outline"
+                className={`text-[10px] border-0 px-1 py-0 h-4 flex-shrink-0 ${getTypeColor(
+                  question.type
+                )}`}
+              >
+                {question.type}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Cột 3: Mức độ + Điểm - rộng ra chút */}
+          <div className="col-span-2 text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className={`font-medium ${getLevelColor(question.level)}`}>
+                {question.level.charAt(0) +
+                  question.level.slice(1).toLowerCase()}
+              </span>
+              <span className="text-muted-foreground">
+                <span className="hidden sm:inline">{question.point} điểm</span>
+                <span className="sm:hidden">{question.point}đ</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Cột 4: Status - hẹp lại */}
+          <div className="col-span-1 flex justify-center">
             {question.status && (
               <Badge
                 variant="outline"
-                className={`mt-1 text-xs ${getStatusColor(
+                className={`text-xs border-0 px-2 py-1 h-fit ${getStatusColor(
                   question.status
-                )} border-0`}
+                )}`}
               >
                 <span className="hidden sm:inline">
-                  {getStatusTextDesktop(question.status)}
+                  {getStatusText(question.status)}
                 </span>
                 <span className="sm:hidden">
-                  {getStatusTextMobile(question.status)}
+                  {question.status === "Not Started" ? "New" : question.status}
                 </span>
               </Badge>
             )}
+          </div>
+
+          {/* Cột 5: Số submits với text */}
+          <div className="col-span-1 text-right">
+            <span className="text-[11px] text-muted-foreground">
+              <span className="hidden sm:inline">{question.totalSub} lượt</span>
+              <span className="sm:hidden">{question.totalSub}</span>
+            </span>
           </div>
         </div>
       </CardContent>

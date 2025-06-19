@@ -135,7 +135,7 @@ export function Page() {
     // 4. Success state - hiển thị danh sách câu hỏi
     return (
       <>
-        <div className="grid gap-4">
+        <div className="grid gap-2">
           {questions.map((question) => (
             <QuestionCard
               key={question.id}
@@ -167,7 +167,7 @@ export function Page() {
       </div> */}
 
       {/* Header */}
-      <div className="px-4 lg:px-6">
+      {/* <div className="px-4 lg:px-6">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">
             Danh sách bài tập SQL
@@ -176,7 +176,7 @@ export function Page() {
             Luyện tập hằng ngày với nhiều dạng truy vấn SQL
           </p>
         </div>
-      </div>
+      </div> */}
 
       {/* Questions List */}
       <div className="px-4 lg:px-6">
@@ -186,7 +186,7 @@ export function Page() {
               {/* Bên trái: Tiêu đề */}
               <div className="flex items-center gap-2">
                 <CardTitle className="text-lg">
-                  Bài tập {!loading && `(${totalElements} bài)`}
+                  DANH SÁCH BÀI TẬP {!loading && `(${totalElements} bài)`}
                 </CardTitle>
                 {loading && (
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
