@@ -1,6 +1,15 @@
 // src/lib/api.ts
 import { toastError } from "@/lib/toast";
 import { TokenManager } from "./token-manager";
+import {
+  Contest,
+  ContestListResponse,
+  ContestJoinStatus,
+  CheckJoinRequest,
+  JoinContestRequest,
+} from "@/types/contest";
+
+import { ContestWaitingData } from "@/types/contest-waiting";
 
 const API_BASE_URL = "https://api.learnsql.store/api/app";
 const API_AUTH_URL = "https://api.learnsql.store/api/auth";
@@ -315,6 +324,57 @@ export const questionApi = {
     return apiClient.get(endpoint);
   },
 
+  // NEW API - Search questions with filter criteria
+  searchQuestions: async (
+    pageable: {
+      page: number;
+      size: number;
+      sort?: string[];
+    },
+    criteria: {
+      keyword?: string;
+      questionCode?: string;
+      title?: string;
+      type?:
+        | "SELECT"
+        | "INSERT"
+        | "UPDATE"
+        | "DELETE"
+        | "DROP"
+        | "CREATE"
+        | "ALTER"
+        | "PROCEDURE"
+        | "TRIGGER"
+        | "TRUNCATE";
+      level?: "EASY" | "MEDIUM" | "HARD";
+    }
+  ): Promise<{
+    content: QuestionListItem[];
+    totalElements: number;
+    totalPages: number;
+    number: number;
+    size: number;
+    first: boolean;
+    last: boolean;
+    numberOfElements: number;
+    empty: boolean;
+  }> => {
+    // Build pageable params
+    const searchParams = new URLSearchParams();
+    searchParams.append("page", pageable.page.toString());
+    searchParams.append("size", pageable.size.toString());
+
+    if (pageable.sort && pageable.sort.length > 0) {
+      pageable.sort.forEach((sortParam) => {
+        searchParams.append("sort", sortParam);
+      });
+    }
+
+    const endpoint = `/question/search?${searchParams.toString()}`;
+
+    return apiClient.post(endpoint, criteria);
+  },
+
   // Execute SQL query (for Run button)
   executeSql: async (payload: {
     questionId: string;
@@ -437,26 +497,52 @@ export const rankingApi = {
     return apiClient.get(endpoint);
   },
 };
-
 export const contestApi = {
-  // Get active contests
-  getActiveContests: async (): Promise<
-    Array<{
-      id: string;
-      title: string;
-      description: string;
-      startTime: string;
-      endTime: string;
-      participants: number;
-      questions: QuestionListItem[];
-    }>
-  > => {
-    return apiClient.get("/contest/active");
+  // Get list of contests with pagination
+  getContests: async (params?: {
+    page?: number;
+    size?: number;
+  }): Promise<ContestListResponse> => {
+    const searchParams = new URLSearchParams();
+
+    if (params?.page !== undefined) {
+      searchParams.append("page", params.page.toString());
+    }
+    if (params?.size !== undefined) {
+      searchParams.append("size", params.size.toString());
+    }
+
+    const endpoint = `/contest${
+      searchParams.toString() ? `?${searchParams}` : ""
+    }`;
+    return apiClient.get<ContestListResponse>(endpoint);
   },
 
-  // Join contest
-  joinContest: async (contestId: string): Promise<{ success: boolean }> => {
-    return apiClient.post(`/contest/${contestId}/join`);
+  // Get contests that user has joined
+  getJoinedContests: async (): Promise<Contest[]> => {
+    return apiClient.get<Contest[]>("/contest/user/joined");
+  },
+
+  // Check join status for multiple contests
+  checkJoinStatus: async (
+    payload: CheckJoinRequest
+  ): Promise<ContestJoinStatus[]> => {
+    return apiClient.post<ContestJoinStatus[]>(
+      "/user-contest/check-join",
+      payload
+    );
+  },
+
+  // Join contest (NEW API endpoint)
+  joinContest: async (
+    payload: JoinContestRequest
+  ): Promise<{ success: boolean; message?: string }> => {
+    return apiClient.post("/user-contest/join", payload);
+  },
+
+  // Get contest details (you might need this later)
+  getContestDetail: async (contestId: string): Promise<Contest> => {
+    return apiClient.get<Contest>(`/contest/${contestId}`);
   },
 };
 

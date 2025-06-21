@@ -1,3 +1,4 @@
+// src/components/contest/contest-calendar.tsx
 import { useState } from "react";
 import {
   ChevronLeft,
@@ -7,20 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-
-interface Contest {
-  id: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-  displayStartDate: string;
-  displayEndDate: string;
-  participants: number;
-  status: string;
-  progress: number;
-  description: string;
-  tags?: string[]; // Thêm trường tags cho các loại status phụ
-}
+import { Contest } from "@/types/contest";
 
 interface ContestCalendarProps {
   contests: Contest[];
@@ -33,8 +21,8 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
   // Helper function để lấy contest theo ngày
   const getContestsForDate = (date: Date) => {
     return contests.filter((contest) => {
-      const contestStart = new Date(contest.startDate);
-      const contestEnd = new Date(contest.endDate);
+      const contestStart = new Date(contest.startDatetime);
+      const contestEnd = new Date(contest.endDatetime);
 
       return (
         (date >= new Date(contestStart.toDateString()) &&
@@ -48,8 +36,8 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
   const getContestDates = () => {
     const dates: Date[] = [];
     contests.forEach((contest) => {
-      const startDate = new Date(contest.startDate);
-      const endDate = new Date(contest.endDate);
+      const startDate = new Date(contest.startDatetime);
+      const endDate = new Date(contest.endDatetime);
 
       dates.push(new Date(startDate.toDateString()));
 
@@ -124,30 +112,24 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
     ? getContestsForDate(selectedDate)
     : [];
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "ongoing":
-        return "Đang diễn ra";
-      case "upcoming":
-        return "Sắp tới";
-      case "finished":
-        return "Đã kết thúc";
-      default:
-        return "Không xác định";
-    }
+  const getStatusText = (contest: Contest) => {
+    const now = new Date();
+    const startDate = new Date(contest.startDatetime);
+    const endDate = new Date(contest.endDatetime);
+
+    if (now < startDate) return "Sắp tới";
+    if (now > endDate) return "Đã kết thúc";
+    return "Đang diễn ra";
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "ongoing":
-        return "text-green-600 bg-green-50 border-green-200";
-      case "upcoming":
-        return "text-blue-600 bg-blue-50 border-blue-200";
-      case "finished":
-        return "text-gray-600 bg-gray-50 border-gray-200";
-      default:
-        return "text-gray-600 bg-gray-50 border-gray-200";
-    }
+  const getStatusColor = (contest: Contest) => {
+    const now = new Date();
+    const startDate = new Date(contest.startDatetime);
+    const endDate = new Date(contest.endDatetime);
+
+    if (now < startDate) return "text-blue-600 bg-blue-50 border-blue-200";
+    if (now > endDate) return "text-gray-600 bg-gray-50 border-gray-200";
+    return "text-green-600 bg-green-50 border-green-200";
   };
 
   return (
@@ -255,7 +237,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
         {/* Selected Date Info */}
         {selectedDate && (
           <div className="space-y-2">
-            <div className=" rounded-lg ">
+            <div className="rounded-lg">
               <div className="flex items-center justify-between">
                 <CalendarIcon className="w-4 h-4 text-blue-500" />
                 <p className="text-sm font-medium text-foreground">
@@ -277,20 +259,20 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
                   <p className="text-sm text-foreground font-medium flex items-center gap-1">
                     {selectedDateContests.length} cuộc thi:
                   </p>
-                  <div className="space-y-2">
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
                     {selectedDateContests.map((contest) => (
                       <div
                         key={contest.id}
                         className={`p-2 rounded-lg border ${getStatusColor(
-                          contest.status
+                          contest
                         )}`}
                       >
-                        <h4 className="text-xs font-medium leading-tight">
+                        <h4 className="text-xs font-medium leading-tight mb-1">
                           {contest.name}
                         </h4>
-                        <div className="flex items-center justify-between mt-1 text-xs">
+                        <div className="flex items-center justify-between text-xs mb-1">
                           <span>
-                            {new Date(contest.startDate).toLocaleTimeString(
+                            {new Date(contest.startDatetime).toLocaleTimeString(
                               "vi-VN",
                               {
                                 hour: "2-digit",
@@ -298,7 +280,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
                               }
                             )}{" "}
                             -{" "}
-                            {new Date(contest.endDate).toLocaleTimeString(
+                            {new Date(contest.endDatetime).toLocaleTimeString(
                               "vi-VN",
                               {
                                 hour: "2-digit",
@@ -306,8 +288,13 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
                               }
                             )}
                           </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
                           <span className="font-medium">
-                            {getStatusText(contest.status)}
+                            {getStatusText(contest)}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {contest.mode === "EXAM" ? "Kiểm tra" : "Thực hành"}
                           </span>
                         </div>
                       </div>

@@ -6,6 +6,7 @@ import {
   Boxes,
   BookOpen,
   LayoutDashboardIcon,
+  FolderIcon,
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
@@ -64,12 +65,12 @@ export function AppSidebar({
       //   icon: BarChartIcon,
       //   isActive: location.pathname === "/rank",
       // },
-      // {
-      //   title: "Contest",
-      //   url: "/contest",
-      //   icon: FolderIcon,
-      //   isActive: location.pathname === "/contest",
-      // },
+      {
+        title: "Contest",
+        url: "/contest",
+        icon: FolderIcon,
+        isActive: location.pathname === "/contest",
+      },
     ],
     navSecondary: [
       {

@@ -1,45 +1,58 @@
-// src/app/dashboard/page.tsx - Mobile optimized version
-import { useState, useCallback } from "react";
+// src/app/dashboard/page.tsx - Updated with new filter component
+import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { QuestionCard } from "@/components/dashboard/question-card";
 import { Pagination } from "@/components/dashboard/pagination";
+import {
+  QuestionFilter,
+  QuestionFilterCriteria,
+} from "@/components/dashboard/question-filter";
 import { useQuestions } from "@/hooks/use-questions";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Loader2, AlertCircle, BookOpen, X } from "lucide-react";
+import { Loader2, AlertCircle, BookOpen } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toastSuccess } from "@/lib/toast";
 
 export function Page() {
   const navigate = useNavigate();
-  const [inputKeyword, setInputKeyword] = useState(""); // Input state
-  const [searchKeyword, setSearchKeyword] = useState(""); // Actual search keyword
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-
-  // Sử dụng keyword parameter thay vì search
-  const { questions, loading, error, totalPages, totalElements, refetch } =
-    useQuestions({
-      page: currentPage,
-      size: pageSize,
-      keyword: searchKeyword || undefined,
-    });
-
-  const handleSearch = useCallback(() => {
-    setSearchKeyword(inputKeyword.trim());
-    setCurrentPage(0);
-  }, [inputKeyword]);
-
-  const handleKeyPress = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") {
-        handleSearch();
-      }
-    },
-    [handleSearch]
+  const [filterCriteria, setFilterCriteria] = useState<QuestionFilterCriteria>(
+    {}
   );
 
+  // Use new hook with filter support
+  const {
+    questions,
+    loading,
+    error,
+    totalPages,
+    totalElements,
+    searchWithFilter,
+    changePage,
+    changePageSize,
+  } = useQuestions({
+    pagination: {
+      page: currentPage,
+      size: pageSize,
+      sort: ["createdAt,desc"], // Sort by creation date, newest first
+    },
+    criteria: filterCriteria,
+    autoFetch: true,
+  });
+
+  // Handle filter changes
+  const handleFilter = useCallback(
+    (criteria: QuestionFilterCriteria) => {
+      setFilterCriteria(criteria);
+      setCurrentPage(0); // Reset to first page when filtering
+      searchWithFilter(criteria, { page: 0, size: pageSize });
+    },
+    [searchWithFilter, pageSize]
+  );
+
+  // Handle question click
   const handleQuestionClick = useCallback(
     (questionId: string, questionTitle: string) => {
       toastSuccess("Chuyển đến đề bài", {
@@ -50,57 +63,75 @@ export function Page() {
     [navigate]
   );
 
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
+  // Handle page changes
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCurrentPage(page);
+      changePage(page);
+    },
+    [changePage]
+  );
 
-  const handlePageSizeChange = useCallback((newPageSize: number) => {
-    setPageSize(newPageSize);
-    setCurrentPage(0); // Reset về trang đầu khi thay đổi page size
-  }, []);
+  const handlePageSizeChange = useCallback(
+    (newPageSize: number) => {
+      setPageSize(newPageSize);
+      setCurrentPage(0);
+      changePageSize(newPageSize);
+    },
+    [changePageSize]
+  );
 
-  const handleClearSearch = useCallback(() => {
-    setInputKeyword("");
-    setSearchKeyword("");
+  // Clear all filters
+  const handleClearAllFilters = useCallback(() => {
+    const emptyCriteria: QuestionFilterCriteria = {};
+    setFilterCriteria(emptyCriteria);
     setCurrentPage(0);
-  }, []);
+    searchWithFilter(emptyCriteria, { page: 0, size: pageSize });
+  }, [searchWithFilter, pageSize]);
 
-  // Render questions content với logic loading state đúng
-  const renderQuestionsContent = () => {
-    // 1. Loading state - hiển thị skeleton
-    if (loading) {
-      return (
-        <div className="grid gap-1">
-          {Array.from({ length: pageSize }).map((_, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-3 border rounded-lg"
-            >
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-3">
-                  <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-4 w-64" />
-                </div>
-              </div>
-              <Skeleton className="h-4 w-24" />
-            </div>
-          ))}
+  // Check if any filters are active
+  const hasActiveFilters = Object.values(filterCriteria).some(
+    (value) => value !== undefined && value !== ""
+  );
+
+  // Render loading skeletons
+  const renderLoadingSkeletons = () => (
+    <div className="grid gap-3">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <div key={index} className="border rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-6 w-16" />
+          </div>
+          <Skeleton className="h-4 w-3/4" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-4 w-20" />
+          </div>
         </div>
-      );
+      ))}
+    </div>
+  );
+
+  // Render questions content
+  const renderQuestionsContent = () => {
+    // 1. Loading state
+    if (loading) {
+      return renderLoadingSkeletons();
     }
 
-    // 2. Error state - hiển thị lỗi
+    // 2. Error state
     if (error) {
       return (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            {error}
+          <AlertDescription className="flex items-center justify-between">
+            <span>{error}</span>
             <Button
               variant="outline"
               size="sm"
-              className="ml-2"
-              onClick={refetch}
+              onClick={() => searchWithFilter(filterCriteria)}
             >
               Thử lại
             </Button>
@@ -109,21 +140,23 @@ export function Page() {
       );
     }
 
-    // 3. Empty state - chỉ hiển thị khi !loading && questions.length === 0
-    if (!loading && questions.length === 0) {
+    // 3. Empty state
+    if (!questions || questions.length === 0) {
       return (
         <div className="text-center py-12">
-          <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+          <BookOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium mb-2">
-            {searchKeyword ? "Không tìm thấy kết quả" : "Không có bài tập nào"}
+            {hasActiveFilters
+              ? "Không tìm thấy kết quả"
+              : "Không có bài tập nào"}
           </h3>
           <p className="text-muted-foreground mb-4">
-            {searchKeyword
-              ? `Không tìm thấy bài tập nào với từ khóa "${searchKeyword}"`
+            {hasActiveFilters
+              ? "Không tìm thấy câu hỏi nào phù hợp với bộ lọc hiện tại"
               : "Hiện tại chưa có bài tập nào được phân công cho bạn"}
           </p>
-          {searchKeyword && (
-            <Button variant="outline" onClick={handleClearSearch}>
+          {hasActiveFilters && (
+            <Button variant="outline" onClick={handleClearAllFilters}>
               Xóa bộ lọc
             </Button>
           )}
@@ -131,7 +164,7 @@ export function Page() {
       );
     }
 
-    // 4. Success state - hiển thị danh sách câu hỏi
+    // 4. Success state - display questions list
     return (
       <>
         <div className="grid gap-1">
@@ -144,7 +177,7 @@ export function Page() {
           ))}
         </div>
 
-        {/* Pagination - chỉ hiển thị khi có dữ liệu */}
+        {/* Pagination - only show when there's data */}
         {totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
@@ -162,11 +195,11 @@ export function Page() {
 
   return (
     <div className="flex flex-col gap-2 py-2 md:gap-3 md:py-3">
-      {/* Questions List - Bỏ Card wrapper */}
+      {/* Questions List */}
       <div className="px-4 lg:px-6">
         {/* Header section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          {/* Bên trái: Tiêu đề */}
+        <div className="flex flex-col gap-4 mb-4">
+          {/* Title */}
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-semibold">
               DANH SÁCH BÀI TẬP {!loading && `(${totalElements} bài)`}
@@ -176,49 +209,60 @@ export function Page() {
             )}
           </div>
 
-          {/* Bên phải: Search + Button - Mobile optimized */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            {/* Input container với button bên cạnh */}
-            <div className="relative flex-1 sm:flex-none sm:w-[280px]">
-              {/* Icon Search bên trái */}
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {/* Filter Component */}
+          <QuestionFilter
+            onFilter={handleFilter}
+            loading={loading}
+            className="w-full"
+          />
 
-              {/* Input */}
-              <Input
-                placeholder="Tìm kiếm theo mã hoặc tên câu hỏi..."
-                value={inputKeyword}
-                onChange={(e) => setInputKeyword(e.target.value)}
-                onKeyDown={handleKeyPress}
-                className="pl-10 pr-10 h-9" // Giảm chiều cao cho mobile
-                disabled={loading}
-              />
-
-              {/* Clear button - chỉ hiển thị khi có text */}
-              {inputKeyword && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0 hover:bg-transparent"
-                  onClick={() => setInputKeyword("")}
+          {/* Active Filters Summary */}
+          {hasActiveFilters && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Bộ lọc đang áp dụng:</span>
+              {filterCriteria.keyword && (
+                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md">
+                  Từ khóa: "{filterCriteria.keyword}"
+                </span>
+              )}
+              {filterCriteria.questionCode && (
+                <span className="px-2 py-1 bg-green-100 text-green-800 rounded-md">
+                  Mã: {filterCriteria.questionCode}
+                </span>
+              )}
+              {filterCriteria.title && (
+                <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-md">
+                  Tiêu đề: "{filterCriteria.title}"
+                </span>
+              )}
+              {filterCriteria.type && (
+                <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded-md">
+                  Loại: {filterCriteria.type}
+                </span>
+              )}
+              {filterCriteria.level && (
+                <span
+                  className={`px-2 py-1 rounded-md ${
+                    filterCriteria.level === "EASY"
+                      ? "bg-green-100 text-green-800"
+                      : filterCriteria.level === "MEDIUM"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
                 >
-                  <X className="h-3 w-3" />
-                </Button>
+                  Độ khó:{" "}
+                  {filterCriteria.level === "EASY"
+                    ? "Dễ"
+                    : filterCriteria.level === "MEDIUM"
+                    ? "Trung bình"
+                    : "Khó"}
+                </span>
               )}
             </div>
-
-            {/* Search Button - cùng hàng với input */}
-            <Button
-              onClick={handleSearch}
-              disabled={loading}
-              size="sm"
-              className="h-9 px-3" // Khớp chiều cao với input
-            >
-              Tìm kiếm
-            </Button>
-          </div>
+          )}
         </div>
 
-        {/* Content */}
+        {/* Questions Content */}
         {renderQuestionsContent()}
       </div>
     </div>

@@ -15,6 +15,7 @@ import QuizListPage from "./app/quiz/quiz-list";
 import QuizDetailPage from "./app/quiz/quiz-detail";
 import QuizTakingPage from "./app/quiz/quiz-taking";
 import QuizResultPage from "./app/quiz/quiz-result";
+import { ContestWaitingPage } from "./app/contest-waiting/page";
 
 // Context Providers
 import { UserProvider } from "./contexts/UserContext";
@@ -110,6 +111,14 @@ function App() {
                 <MainLayout>
                   <ContestPage />
                 </MainLayout>
+              </AuthRouteGuard>
+            }
+          />
+          <Route
+            path="/contest-waiting/:contestId"
+            element={
+              <AuthRouteGuard requireAuth={true}>
+                <ContestWaitingPage />
               </AuthRouteGuard>
             }
           />
