@@ -1,4 +1,4 @@
-// src/components/contest/contest-questions-list.tsx
+// src/components/contest/contest-questions-list-fixed.tsx
 import { BookOpen, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Pagination } from "@/components/dashboard/pagination";
@@ -45,17 +45,40 @@ export function ContestQuestionsList({
   return (
     <div className="space-y-4">
       {/* Section Header */}
-      <div className="flex items-center gap-2">
-        <BookOpen className="h-5 w-5" />
-        <h2 className="text-lg font-semibold">
-          Danh sách câu hỏi
-          {!loading && (
-            <span className="text-muted-foreground font-normal">
-              ({totalElements} câu)
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <BookOpen className="h-5 w-5" />
+          <h2 className="text-lg font-semibold">
+            Danh sách câu hỏi
+            {!loading && (
+              <span className="text-muted-foreground font-normal">
+                ({totalElements} câu)
+              </span>
+            )}
+          </h2>
+          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+        </div>
+
+        {/* Question status summary */}
+        {!loading && totalElements > 0 && (
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              {
+                questions.filter((q) => getQuestionStatus(q.id) === "AC").length
+              }{" "}
+              đã hoàn thành
             </span>
-          )}
-        </h2>
-        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+            <span className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+              {
+                questions.filter((q) => getQuestionStatus(q.id) === "PENDING")
+                  .length
+              }{" "}
+              chưa làm
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Questions List */}

@@ -42,8 +42,10 @@ export function ContestJoinedPage() {
 
   // Effects
   useEffect(() => {
-    if (contestId) loadData();
-  }, [contestId]);
+    if (contestId && userId) {
+      loadData();
+    }
+  }, [contestId, userId]); // Thêm userId vào dependency
 
   useEffect(() => {
     if (!contestData) return;
@@ -74,18 +76,29 @@ export function ContestJoinedPage() {
     }
   };
 
-  // Data loading
+  // Data loading - FIX: Đảm bảo API complete được gọi
   const loadData = async () => {
-    await Promise.all([loadContestData(), loadQuestionStatuses()]);
-  };
-
-  const loadContestData = async () => {
-    if (!contestId) return;
+    if (!contestId || !userId) return;
 
     try {
       setLoading(true);
-      const data = await contestJoinedApi.getContestDetail(contestId);
-      setContestData(data);
+
+      // Load contest data trước
+      const contestResponse = await contestJoinedApi.getContestDetail(
+        contestId
+      );
+      setContestData(contestResponse);
+
+      // Sau đó load question statuses với data từ contest
+      if (contestResponse.questions.length > 0) {
+        const questionIds = contestResponse.questions.map((q) => q.id);
+        const statusesResponse = await contestJoinedApi.checkQuestionStatus({
+          questionIds,
+          userId,
+        });
+        setQuestionStatuses(statusesResponse);
+        console.log("Question statuses loaded:", statusesResponse); // Debug log
+      }
     } catch (error) {
       console.error("Failed to load contest data:", error);
       toastError("Không thể tải thông tin cuộc thi");
@@ -95,20 +108,9 @@ export function ContestJoinedPage() {
     }
   };
 
-  const loadQuestionStatuses = async () => {
-    if (!contestId || !userId) return;
-
-    try {
-      const contestData = await contestJoinedApi.getContestDetail(contestId);
-      const questionIds = contestData.questions.map((q) => q.id);
-      const statuses = await contestJoinedApi.checkQuestionStatus({
-        questionIds,
-        userId,
-      });
-      setQuestionStatuses(statuses);
-    } catch (error) {
-      console.error("Failed to load question statuses:", error);
-    }
+  // Hàm refresh để test
+  const handleRefresh = async () => {
+    await loadData();
   };
 
   // Helper functions
@@ -132,131 +134,96 @@ export function ContestJoinedPage() {
     return status?.status === "AC" ? "AC" : "PENDING";
   };
 
-  const getPaginatedQuestions = () => {
-    if (!contestData) return [];
-    const startIndex = currentPage * pageSize;
-    const endIndex = startIndex + pageSize;
-    return contestData.questions.slice(startIndex, endIndex);
-  };
-
-  const getStats = () => {
-    if (!contestData)
-      return { completed: 0, total: 0, points: 0, totalPoints: 0 };
-
-    const completed = questionStatuses.filter((s) => s.status === "AC").length;
-    const total = contestData.questions.length;
-    const totalPoints = contestData.questions.reduce(
-      (sum, q) => sum + q.point,
-      0
-    );
-    const points = questionStatuses
-      .filter((s) => s.status === "AC")
-      .reduce((sum, s) => {
-        const question = contestData.questions.find(
-          (q) => q.id === s.questionId
-        );
-        return sum + (question?.point || 0);
-      }, 0);
-
-    return { completed, total, points, totalPoints };
-  };
-
-  // Event handlers
+  // Handle question click
   const handleQuestionClick = (questionId: string, questionCode: string) => {
     if (!isContestActive) {
-      toastError("Không thể làm bài", {
-        description: "Cuộc thi chưa bắt đầu hoặc đã kết thúc",
-      });
+      toastError("Cuộc thi chưa bắt đầu hoặc đã kết thúc");
       return;
     }
-
-    navigate(`/question-detail/${questionId}`, {
-      state: { contestMode: true, contestId, questionCode },
-    });
+    navigate(`/question-detail/${questionId}?contest=${contestId}`);
   };
 
-  const handlePageChange = (page: number) => setCurrentPage(page);
+  // Pagination logic
+  const totalQuestions = contestData?.questions.length || 0;
+  const totalPages = Math.ceil(totalQuestions / pageSize);
+  const startIndex = currentPage * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalQuestions);
+  const currentQuestions =
+    contestData?.questions.slice(startIndex, endIndex) || [];
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
-    setCurrentPage(0);
+    setCurrentPage(0); // Reset về trang đầu
   };
-  const handleBack = () => navigate("/contest");
 
-  // Render states
+  // Loading state
   if (loading) {
     return (
-      <div className="flex flex-col gap-2 py-2 md:gap-3 md:py-3">
-        <div className="px-4 lg:px-6">
-          <div className="space-y-6">
-            <Skeleton className="h-8 w-64" />
-            <div className="grid gap-4 md:grid-cols-3">
-              <Skeleton className="h-24" />
-              <Skeleton className="h-24" />
-              <Skeleton className="h-24" />
-            </div>
-            <div className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="space-y-6">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 w-full" />
+            ))}
           </div>
         </div>
       </div>
     );
   }
 
+  // Error state
   if (!contestData) {
     return (
-      <div className="flex flex-col gap-2 py-2 md:gap-3 md:py-3">
-        <div className="px-4 lg:px-6">
-          <Alert>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              Không tìm thấy thông tin cuộc thi. Vui lòng quay lại danh sách
-              cuộc thi.
-            </AlertDescription>
-          </Alert>
-        </div>
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Không thể tải thông tin cuộc thi. Vui lòng thử lại sau.
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
 
-  // Main render
-  const stats = getStats();
-  const totalElements = contestData.questions.length;
-  const totalPages = Math.ceil(totalElements / pageSize);
-
   return (
-    <div className="flex flex-col gap-2 py-2 md:gap-3 md:py-3">
-      <div className="px-4 lg:px-6">
-        <ContestJoinedHeader
-          contestName={contestData.name}
-          contestCode={contestData.contestCode}
-          onBack={handleBack}
-          onRefresh={loadData}
-        />
+    <div className="container mx-auto px-4 py-8 space-y-6">
+      {/* Contest Header */}
+      <ContestJoinedHeader
+        contest={contestData}
+        timeRemaining={timeRemaining}
+        isActive={isContestActive}
+        onRefresh={handleRefresh}
+      />
 
-        <ContestStats
-          timeRemaining={timeRemaining}
-          completed={stats.completed}
-          total={stats.total}
-          points={stats.points}
-          totalPoints={stats.totalPoints}
-        />
+      {/* Contest Stats */}
+      <ContestStats
+        totalQuestions={totalQuestions}
+        completedQuestions={
+          questionStatuses.filter((s) => s.status === "AC").length
+        }
+        timeRemaining={timeRemaining}
+        isActive={isContestActive}
+      />
 
-        <ContestQuestionsList
-          questions={getPaginatedQuestions()}
-          getQuestionStatus={getQuestionStatus}
-          onQuestionClick={handleQuestionClick}
-          loading={loading}
-          totalElements={totalElements}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-        />
-      </div>
+      {/* Questions List with Pagination */}
+      <ContestQuestionsList
+        questions={currentQuestions}
+        getQuestionStatus={getQuestionStatus}
+        onQuestionClick={handleQuestionClick}
+        loading={loading}
+        totalElements={totalQuestions}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
     </div>
   );
 }
