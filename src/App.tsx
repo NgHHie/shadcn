@@ -22,6 +22,7 @@ import { UserProvider } from "./contexts/UserContext";
 import Login from "./app/auth/login";
 import Register from "./app/auth/register";
 import { Dashboard } from "./dashboard";
+import { ContestJoinedPage } from "./app/contest-joined/page";
 
 function App() {
   return (
@@ -119,6 +120,15 @@ function App() {
             element={
               <AuthRouteGuard requireAuth={true}>
                 <ContestWaitingPage />
+              </AuthRouteGuard>
+            }
+          />
+
+          <Route
+            path="/contest-joined/:contestId"
+            element={
+              <AuthRouteGuard requireAuth={true}>
+                <ContestJoinedPage />
               </AuthRouteGuard>
             }
           />

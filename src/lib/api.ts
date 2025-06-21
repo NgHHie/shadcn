@@ -8,6 +8,11 @@ import {
   CheckJoinRequest,
   JoinContestRequest,
 } from "@/types/contest";
+import {
+  ContestJoinedDetail,
+  ContestQuestionStatus,
+  CheckQuestionStatusRequest,
+} from "@/types/contest-joined";
 
 import { ContestWaitingData } from "@/types/contest-waiting";
 
@@ -547,6 +552,23 @@ export const contestApi = {
 
   getContestWaiting: async (contestId: string): Promise<ContestWaitingData> => {
     return apiClient.get<ContestWaitingData>(`/contest/waiting/${contestId}`);
+  },
+};
+
+export const contestJoinedApi = {
+  // Get contest details for joined page
+  getContestDetail: async (contestId: string): Promise<ContestJoinedDetail> => {
+    return apiClient.get<ContestJoinedDetail>(`/contest/${contestId}`);
+  },
+
+  // Check question completion status
+  checkQuestionStatus: async (
+    payload: CheckQuestionStatusRequest
+  ): Promise<ContestQuestionStatus[]> => {
+    return apiClient.post<ContestQuestionStatus[]>(
+      "/submit-contest/check/complete",
+      payload
+    );
   },
 };
 

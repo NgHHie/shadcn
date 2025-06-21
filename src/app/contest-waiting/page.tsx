@@ -120,7 +120,7 @@ export function ContestWaitingPage() {
     try {
       setStarting(true);
       // Navigate to contest start page
-      navigate(`/contest/${contestData.id}/start`);
+      navigate(`/contest-joined/${contestData.id}`);
       toastSuccess("Đang chuyển đến cuộc thi...");
     } catch (error) {
       console.error("Failed to start contest:", error);
@@ -283,7 +283,7 @@ export function ContestWaitingPage() {
             {/* Instructions */}
             <Card>
               <CardHeader>
-                <h3 className="text-lg font-semibold">Hướng dẫn</h3>
+                <h3 className="text-lg font-semibold">Quy định</h3>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div className="space-y-2">
