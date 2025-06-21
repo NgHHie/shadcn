@@ -544,6 +544,10 @@ export const contestApi = {
   getContestDetail: async (contestId: string): Promise<Contest> => {
     return apiClient.get<Contest>(`/contest/${contestId}`);
   },
+
+  getContestWaiting: async (contestId: string): Promise<ContestWaitingData> => {
+    return apiClient.get<ContestWaitingData>(`/contest/waiting/${contestId}`);
+  },
 };
 
 // Auth API
