@@ -76,6 +76,12 @@ export default function QuizTakingPage() {
   // Handle answer selection
   const handleAnswerSelect = async (questionId: string, answerId: string, isMultipleChoice: boolean) => {
     try {
+      // Update current question index when user interacts with a question
+      const questionIndex = state.questions.findIndex(q => q.id === questionId);
+      if (questionIndex !== -1) {
+        setCurrentQuestionIndex(questionIndex);
+      }
+
       const actualSubmissionId = state.submissionId.submissionId
       if (isMultipleChoice) {
         setSelectedAnswers((prev) => {
