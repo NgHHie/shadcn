@@ -9,6 +9,8 @@ import { MainLayout } from "./layouts/MainLayout";
 import { RankPage } from "./app/rank/page";
 import { ContestPage } from "./app/contest/page";
 import { AuthRouteGuard } from "./components/auth/auth-route-guard";
+import { HomePage } from "./app/home";
+import { SchedulePage } from "./app/schedule/page";
 
 // Quiz components
 import QuizListPage from "./app/quiz/quiz-list";
@@ -20,7 +22,6 @@ import QuizResultPage from "./app/quiz/quiz-result";
 import { UserProvider } from "./contexts/UserContext";
 import Login from "./app/auth/login";
 import Register from "./app/auth/register";
-import { Dashboard } from "./dashboard";
 
 function App() {
   return (
@@ -48,11 +49,11 @@ function App() {
 
           {/* Protected routes */}
           <Route
-            path="/dashboard"
+            path="/home"
             element={
               <AuthRouteGuard requireAuth={true}>
                 <MainLayout>
-                  <Page />
+                  <HomePage />
                 </MainLayout>
               </AuthRouteGuard>
             }
@@ -60,6 +61,17 @@ function App() {
 
           <Route
             path="/"
+            element={
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <HomePage />
+                </MainLayout>
+              </AuthRouteGuard>
+            }
+          />
+
+          <Route
+            path="/dashboard"
             element={
               <AuthRouteGuard requireAuth={true}>
                 <MainLayout>
@@ -163,6 +175,30 @@ function App() {
               <AuthRouteGuard requireAuth={true}>
                 <MainLayout>
                   <QuizResultPage />
+                </MainLayout>
+              </AuthRouteGuard>
+            }
+          />
+
+          {/* Schedule route */}
+          <Route
+            path="/schedule"
+            element={
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <SchedulePage />
+                </MainLayout>
+              </AuthRouteGuard>
+            }
+          />
+
+          {/* Demo route cho home page */}
+          <Route
+            path="/home-demo"
+            element={
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <HomePage />
                 </MainLayout>
               </AuthRouteGuard>
             }

@@ -1,0 +1,79 @@
+{
+  "overview": {
+    "totalQuiz": "Total Quiz",
+    "completedSQL": "SQL Completed",
+    "averageScore": "Average Score", 
+    "currentRank": "Current Rank",
+    "comparedToLastWeek": "compared to last week",
+    "improvement": "improvement",
+    "rankUp": "ranks up in class"
+  },
+  "activity": {
+    "title": "Learning Activity",
+    "description": "Quiz and SQL activity chart for selected time period",
+    "quiz": "Quiz",
+    "sql": "SQL",
+    "timeRanges": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "3m": "3 months",
+      "1y": "1 year"
+    }
+  },
+  "schedule": {
+    "title": "Today's Schedule",
+    "description": "Class schedule for",
+    "lecture": "lecture",
+    "lab": "lab",
+    "practice": "practice"
+  },
+  "exams": {
+    "title": "Upcoming Exams",
+    "description": "Exams and tests in the coming week",
+    "noExams": "No upcoming exams"
+  },
+  "performance": {
+    "title": "Performance & Recent Activities",
+    "sqlResults": "SQL Results Ratio",
+    "recentActivities": "Recent Activities",
+    "accepted": "Accepted",
+    "wrongAnswer": "Wrong Answer",
+    "compileError": "Compile Error", 
+    "timeLimit": "Time Limit"
+  },
+  "progress": {
+    "title": "Learning Progress",
+    "description": "Goals and current progress",
+    "quizProgress": "Quiz Progress",
+    "sqlProgress": "SQL Progress",
+    "weeklyGoal": "Weekly Goal",
+    "monthlyGoalComplete": "of monthly goal completed",
+    "weeklyGoalComplete": "of this week's goal"
+  },
+  "quickActions": {
+    "title": "Quick Actions",
+    "description": "Quick access to main features",
+    "takeQuiz": "Take Quiz",
+    "practiceSQL": "Practice SQL",
+    "viewRanking": "View Ranking",
+    "detailedAnalytics": "Detailed Analytics",
+    "createQuiz": "Create Quiz",
+    "importQuestions": "Import Questions"
+  },
+  "recentActivities": {
+    "title": "Recent Activities",
+    "description": "Learning history and recent achievements",
+    "completedQuiz": "Completed Quiz",
+    "submittedSQL": "Submitted SQL",
+    "achievementUnlocked": "Achievement Unlocked",
+    "studyStreak": "Study Streak",
+    "joinedContest": "Joined Contest",
+    "viewAll": "View All"
+  },
+  "timeAgo": {
+    "hoursAgo": "hours ago",
+    "dayAgo": "day ago", 
+    "minutesAgo": "minutes ago",
+    "justNow": "just now"
+  }
+} 

@@ -1,10 +1,12 @@
 {
   "navigation": {
+    "home": "Home",
     "assignment": "Assignment",
     "quiz": "Quiz", 
     "history": "History",
     "rank": "Rank",
     "contest": "Contest",
+    "schedule": "Schedule",
     "profile": "Profile",
     "feedback": "Feedback"
   },

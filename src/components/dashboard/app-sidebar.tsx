@@ -5,6 +5,8 @@ import {
   Boxes,
   BookOpen,
   LayoutDashboardIcon,
+  Home,
+  CalendarDays,
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -32,26 +34,28 @@ export function AppSidebar({
   const data = {
     navMain: [
       {
-        title: t("navigation.assignment"),
+        title: t("navigation.home"),
         url: "/",
+        icon: Home,
+        isActive: location.pathname === "/" || location.pathname === "/home",
+      },
+      {
+        title: t("navigation.assignment"),
+        url: "/dashboard",
         icon: LayoutDashboardIcon,
-        isActive: location.pathname === "/",
+        isActive: location.pathname === "/dashboard",
       },
       {
         title: t("navigation.quiz"),
         url: "/quiz/quiz-list",
         icon: BookOpen,
         isActive: location.pathname.startsWith("/quiz/"),
-        items: [
-          {
-            title: "Danh sách bài thi",
-            url: "/quiz/quiz-list",
-          },
-          {
-            title: "Demo Quiz",
-            url: "/quiz/quiz-demo",
-          },
-        ],
+      },
+      {
+        title: t("navigation.schedule"),
+        url: "/schedule",
+        icon: CalendarDays,
+        isActive: location.pathname === "/schedule",
       },
       // {
       //   title: t("navigation.history"),

@@ -1,10 +1,12 @@
 {
   "navigation": {
+    "home": "Trang chủ",
     "assignment": "Bài tập",
     "quiz": "Trắc nghiệm", 
     "history": "Lịch sử",
     "rank": "Xếp hạng",
     "contest": "Cuộc thi",
+    "schedule": "Thời khóa biểu",
     "profile": "Hồ sơ",
     "feedback": "Phản hồi"
   },
