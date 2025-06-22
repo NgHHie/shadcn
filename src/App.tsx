@@ -9,6 +9,8 @@ import { MainLayout } from "./layouts/MainLayout";
 import { RankPage } from "./app/rank/page";
 import { ContestPage } from "./app/contest/page";
 import { AuthRouteGuard } from "./components/auth/auth-route-guard";
+import { HomePage } from "./app/home";
+import { SchedulePage } from "./app/schedule/page";
 
 // Quiz components
 import QuizListPage from "./app/quiz/quiz-list";
@@ -49,11 +51,11 @@ function App() {
 
           {/* Protected routes */}
           <Route
-            path="/dashboard"
+            path="/home"
             element={
               <AuthRouteGuard requireAuth={true}>
                 <MainLayout>
-                  <Page />
+                  <HomePage />
                 </MainLayout>
               </AuthRouteGuard>
             }
@@ -61,6 +63,17 @@ function App() {
 
           <Route
             path="/"
+            element={
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <HomePage />
+                </MainLayout>
+              </AuthRouteGuard>
+            }
+          />
+
+          <Route
+            path="/exercise"
             element={
               <AuthRouteGuard requireAuth={true}>
                 <MainLayout>
@@ -181,6 +194,30 @@ function App() {
               <AuthRouteGuard requireAuth={true}>
                 <MainLayout>
                   <QuizResultPage />
+                </MainLayout>
+              </AuthRouteGuard>
+            }
+          />
+
+          {/* Schedule route */}
+          <Route
+            path="/schedule"
+            element={
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <SchedulePage />
+                </MainLayout>
+              </AuthRouteGuard>
+            }
+          />
+
+          {/* Demo route cho home page */}
+          <Route
+            path="/home-demo"
+            element={
+              <AuthRouteGuard requireAuth={true}>
+                <MainLayout>
+                  <HomePage />
                 </MainLayout>
               </AuthRouteGuard>
             }
