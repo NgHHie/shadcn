@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import "./style.css";
 
 interface FlagButtonProps {
@@ -10,6 +11,8 @@ interface FlagButtonProps {
 }
 
 export function FlagButton({ isFlagged, onToggle, className }: FlagButtonProps) {
+  const { t } = useTranslation('quiz');
+  
   return (
     <Button
       variant="ghost"
@@ -20,7 +23,7 @@ export function FlagButton({ isFlagged, onToggle, className }: FlagButtonProps) 
         isFlagged && "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400",
         className
       )}
-      title={isFlagged ? "Bỏ đánh dấu cờ" : "Đánh dấu cờ để xem lại"}
+      title={isFlagged ? t("taking.removeFlagTooltip") : t("taking.addFlagTooltip")}
     >
       <Flag 
         className={cn(

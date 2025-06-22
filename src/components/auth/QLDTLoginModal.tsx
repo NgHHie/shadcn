@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ export default function QLDTLoginModal({
   onLogin,
   isLoading
 }: QLDTLoginModalProps) {
+  const { t } = useTranslation('auth');
   const [credentials, setCredentials] = useState<QLDTCredentials>({
     username: '',
     password: ''
@@ -36,7 +38,7 @@ export default function QLDTLoginModal({
     e.preventDefault();
     
     if (!credentials.username || !credentials.password) {
-      setError('Vui lòng nhập đầy đủ thông tin');
+      setError(t('qldt.validationRequired'));
       return;
     }
 
@@ -48,7 +50,7 @@ export default function QLDTLoginModal({
       setCredentials({ username: '', password: '' });
       onClose();
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Đăng nhập thất bại');
+      setError(error instanceof Error ? error.message : t('qldt.loginFailed'));
     }
   };
 
@@ -70,10 +72,10 @@ export default function QLDTLoginModal({
             </div>
             <div>
               <DialogTitle className="text-xl font-semibold">
-                Đăng nhập QLDT PTIT
+                {t('qldt.title')}
               </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
-                Sử dụng tài khoản Quản lý Đào tạo PTIT của bạn
+                {t('qldt.description')}
               </DialogDescription>
             </div>
           </div>
@@ -89,14 +91,14 @@ export default function QLDTLoginModal({
 
           <div className="space-y-2">
             <Label htmlFor="qldt-username" className="text-sm font-medium">
-              Tên đăng nhập
+              {t('qldt.username')}
             </Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="qldt-username"
                 type="text"
-                placeholder="Nhập tên đăng nhập QLDT"
+                placeholder={t('qldt.usernamePlaceholder')}
                 value={credentials.username}
                 onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
                 disabled={isLoading}
@@ -108,14 +110,14 @@ export default function QLDTLoginModal({
 
           <div className="space-y-2">
             <Label htmlFor="qldt-password" className="text-sm font-medium">
-              Mật khẩu
+              {t('qldt.password')}
             </Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="qldt-password"
                 type="password"
-                placeholder="Nhập mật khẩu QLDT"
+                placeholder={t('qldt.passwordPlaceholder')}
                 value={credentials.password}
                 onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
                 disabled={isLoading}
@@ -132,7 +134,7 @@ export default function QLDTLoginModal({
               disabled={isLoading}
               className="flex-1"
             >
-              Hủy
+              {t('qldt.cancel')}
             </Button>
             <Button
               type="submit"
@@ -142,30 +144,17 @@ export default function QLDTLoginModal({
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Đang đăng nhập...
+                  {t('qldt.loggingIn')}
                 </>
               ) : (
                 <>
                   <School className="w-4 h-4 mr-2" />
-                  Đăng nhập
+                  {t('qldt.login')}
                 </>
               )}
             </Button>
           </div>
         </form>
-
-        <div className="border-t pt-4">
-          <p className="text-xs text-center text-muted-foreground">
-            Bằng việc đăng nhập, bạn đồng ý với{' '}
-            <a href="#" className="text-primary hover:underline">
-              Điều khoản sử dụng
-            </a>{' '}
-            và{' '}
-            <a href="#" className="text-primary hover:underline">
-              Chính sách bảo mật
-            </a>
-          </p>
-        </div>
       </DialogContent>
     </Dialog>
   );

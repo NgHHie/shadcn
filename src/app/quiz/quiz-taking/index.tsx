@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { useQuiz } from "@/hooks/use-quiz";
 import type { PublicQuiz, Question } from "@/services/quizService";
 import { quizService } from "@/services/quizService";
+import { useTranslation } from "react-i18next";
 import "@/styles/quiz-shared.css";
 import "./style.css";
 import { QuestionMap } from "@/components/quiz/QuestionMap/QuestionMap";
@@ -49,6 +50,7 @@ export default function QuizTakingPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { loading } = useQuiz();
+  const { t } = useTranslation('quiz');
   const state = location.state as LocationState;
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -96,7 +98,7 @@ export default function QuizTakingPage() {
         selectedAnswerId: answerId
       });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Không thể lưu câu trả lời");
+      toast.error(err instanceof Error ? err.message : t("taking.errorSaving"));
     }
   };
 
@@ -154,16 +156,14 @@ export default function QuizTakingPage() {
   const handleFinishQuiz = async () => {
     if (isSubmitting) return;
 
-    const confirmed = window.confirm(
-      'Bạn có chắc chắn muốn nộp bài? Sau khi nộp bài, bạn không thể thay đổi câu trả lời.'
-    );
+    const confirmed = window.confirm(t("taking.confirmSubmit"));
 
     if (!confirmed) return;
 
     try {
       
       if (!state?.submissionId) {
-        throw new Error('Không tìm thấy ID bài thi');
+        throw new Error(t("taking.submissionNotFound"));
       }
 
       // Extract the actual submissionId value
@@ -180,7 +180,7 @@ export default function QuizTakingPage() {
         state: { result: result.data }
       });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Không thể nộp bài thi");
+      toast.error(err instanceof Error ? err.message : t("taking.errorSubmitting"));
       setIsSubmitting(false);
     }
   };
@@ -192,8 +192,8 @@ export default function QuizTakingPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <Clock className="w-12 h-12 mx-auto mb-4 animate-spin text-primary" />
-            <h2 className="text-xl font-semibold mb-2">Đang chuẩn bị bài thi...</h2>
-            <p className="text-muted-foreground">Vui lòng đợi trong giây lát</p>
+            <h2 className="text-xl font-semibold mb-2">{t("taking.preparing")}</h2>
+            <p className="text-muted-foreground">{t("taking.pleaseWait")}</p>
           </div>
         </div>
       </div>

@@ -11,6 +11,7 @@ import {
 import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -45,6 +46,7 @@ interface UserInfo {
 }
 
 export function NavUser() {
+  const { t } = useTranslation('common');
   const { isMobile } = useSidebar();
   const { setTheme } = useTheme();
   const navigate = useNavigate();
@@ -102,7 +104,7 @@ export function NavUser() {
   const handleLogout = useCallback(async () => {
     try {
       // Show loading toast
-      const loadingToast = toastInfo("Đang đăng xuất...", {
+      const loadingToast = toastInfo(t('sidebar.loggingOut'), {
         duration: Infinity, // Keep until we dismiss it
       });
 
@@ -117,8 +119,8 @@ export function NavUser() {
       }
 
       // Show success toast
-      toastSuccess("Đăng xuất thành công!", {
-        description: "Hẹn gặp lại bạn!",
+      toastSuccess(t('sidebar.logoutSuccess'), {
+        description: t('sidebar.seeYouSoon'),
         duration: 3000,
       });
 
@@ -132,8 +134,8 @@ export function NavUser() {
       // Even if API call fails, still clear local tokens and redirect
       api.utils.clearAuthData();
 
-      toastSuccess("Đăng xuất thành công!", {
-        description: "Đã xóa phiên đăng nhập cục bộ",
+      toastSuccess(t('sidebar.logoutSuccess'), {
+        description: t('sidebar.localSessionCleared'),
         duration: 3000,
       });
 
@@ -141,7 +143,7 @@ export function NavUser() {
         navigate("/login", { replace: true });
       }, 1000);
     }
-  }, [api, navigate]);
+  }, [api, navigate, t]);
 
   // Helper functions - safe versions
   const getInitials = (user: UserInfo | null): string => {
@@ -249,12 +251,12 @@ export function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={handleAccountClick}>
                 <UserCircleIcon />
-                Tài khoản
+                {t('sidebar.account')}
               </DropdownMenuItem>
               {isPremium && (
                 <DropdownMenuItem>
                   <span className="text-yellow-600 font-medium">
-                    ✨ Premium Account
+                    ✨ {t('sidebar.premiumAccount')}
                   </span>
                 </DropdownMenuItem>
               )}
@@ -264,27 +266,27 @@ export function NavUser() {
               <DropdownMenuSubTrigger>
                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span>Giao diện</span>
+                <span>{t('sidebar.interface')}</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
                 <DropdownMenuItem onClick={() => handleThemeChange("light")}>
                   <Sun className="h-4 w-4" />
-                  <span>Sáng</span>
+                  <span>{t('sidebar.light')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
                   <Moon className="h-4 w-4" />
-                  <span>Tối</span>
+                  <span>{t('sidebar.dark')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleThemeChange("system")}>
                   <Monitor className="h-4 w-4" />
-                  <span>Hệ thống</span>
+                  <span>{t('sidebar.system')}</span>
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOutIcon />
-              Đăng xuất
+              {t('sidebar.logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

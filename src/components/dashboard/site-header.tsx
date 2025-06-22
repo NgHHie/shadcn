@@ -2,6 +2,7 @@
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export function SiteHeader() {
   return (
@@ -14,8 +15,9 @@ export function SiteHeader() {
         />
         <h1 className="text-base font-medium"></h1>
 
-        {/* Theme toggle button - positioned at the right */}
-        <div className="ml-auto">
+        {/* Theme toggle button and language switcher - positioned at the right */}
+        <div className="ml-auto flex items-center gap-2">
+          <LanguageSwitcher variant="compact" />
           <ThemeToggle />
         </div>
       </div>

@@ -1,5 +1,6 @@
 // src/app/exercise/page.tsx - Updated with new filter component
 import React, { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { QuestionCard } from "@/components/exercise/question-card";
 import { Pagination } from "@/components/exercise/pagination";
@@ -15,6 +16,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toastSuccess } from "@/lib/toast";
 
 export function Page() {
+  const { t } = useTranslation("exercise");
+
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -55,7 +58,7 @@ export function Page() {
   // Handle question click
   const handleQuestionClick = useCallback(
     (questionId: string, questionTitle: string) => {
-      toastSuccess("Chuyển đến đề bài", {
+      toastSuccess(t("redirectingToAssignment"), {
         description: `Đang mở: ${questionTitle}`,
       });
       navigate(`/question-detail/${questionId}`);
@@ -196,7 +199,9 @@ export function Page() {
           {/* Title */}
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-semibold">
-              DANH SÁCH BÀI TẬP {!loading && `(${totalElements} bài)`}
+              {t("title")}
+              {!loading &&
+                " (" + totalElements + " " + t("totalAssignments") + ")"}
             </h1>
             {loading && (
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />

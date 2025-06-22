@@ -2,6 +2,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 interface QuestionCardProps {
   question: {
@@ -21,6 +22,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   question,
   onClick,
 }) => {
+  const { t } = useTranslation('dashboard');
   const getStatusBorderColor = (status?: string) => {
     switch (status) {
       case "AC":
@@ -85,15 +87,15 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   const getStatusText = (status?: string) => {
     switch (status) {
       case "AC":
-        return "Accepted";
+        return t("questionCard.accepted");
       case "WA":
-        return "Wrong Answer";
+        return t("questionCard.wrongAnswer");
       case "TLE":
-        return "Time Limit";
+        return t("questionCard.timeLimit");
       case "CE":
-        return "Compile Error";
+        return t("questionCard.compileError");
       default:
-        return "Not Started";
+        return t("questionCard.notStarted");
     }
   };
 
@@ -144,7 +146,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                   question.level.slice(1).toLowerCase()}
               </span>
               <span className="text-muted-foreground">
-                <span className="hidden sm:inline">{question.point} điểm</span>
+                <span className="hidden sm:inline">{question.point} {t("questionCard.points")}</span>
                 <span className="sm:hidden">{question.point}đ</span>
               </span>
             </div>
@@ -172,7 +174,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           {/* Cột 5: Số submits */}
           <div className="col-span-1 text-right">
             <span className="text-[11px] text-muted-foreground">
-              <span className="hidden sm:inline">{question.totalSub} lượt</span>
+              <span className="hidden sm:inline">{question.totalSub} {t("questionCard.submissions")}</span>
               <span className="sm:hidden">{question.totalSub}</span>
             </span>
           </div>

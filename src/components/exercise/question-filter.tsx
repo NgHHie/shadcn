@@ -1,5 +1,6 @@
 // src/components/exercise/question-filter.tsx
 import React, { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,6 +72,7 @@ export function QuestionFilter({
   loading,
   className,
 }: QuestionFilterProps) {
+  const { t } = useTranslation("exercise");
   const [searchInput, setSearchInput] = useState("");
   const [selectedType, setSelectedType] = useState<TypeQuestion | "ALL">("ALL");
   const [selectedLevel, setSelectedLevel] = useState<LevelQuestion | "ALL">(
@@ -128,7 +130,7 @@ export function QuestionFilter({
         <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Nhập mã hoặc tiêu đề câu hỏi..."
+            placeholder={t("searchPlaceholder")}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -156,10 +158,10 @@ export function QuestionFilter({
             disabled={loading}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Loại câu hỏi" />
+              <SelectValue placeholder={t("questionCard.category")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Tất cả loại</SelectItem>
+              <SelectItem value="ALL">{t("filter.category")}</SelectItem>
               {TYPE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -179,10 +181,10 @@ export function QuestionFilter({
             disabled={loading}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Độ khó" />
+              <SelectValue placeholder={t("questionCard.difficulty")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Tất cả độ khó</SelectItem>
+              <SelectItem value="ALL">{t("filter.difficulty")}</SelectItem>
               {LEVEL_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   <div className="flex items-center gap-2">{option.label}</div>
@@ -194,7 +196,7 @@ export function QuestionFilter({
 
         {/* Search Button */}
         <Button onClick={handleSearch} disabled={loading} className="shrink-0">
-          Tìm kiếm
+          {t("filter.search")}
         </Button>
 
         {/* Clear Button - chỉ hiển thị khi có filter */}
@@ -205,7 +207,7 @@ export function QuestionFilter({
             disabled={loading}
             className="shrink-0"
           >
-            Xóa bộ lọc
+            {t("filter.clearFilter")}
           </Button>
         )}
       </div>

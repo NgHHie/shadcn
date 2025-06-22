@@ -1,7 +1,6 @@
 // src/components/dashboard/app-sidebar.tsx
 import * as React from "react";
 import {
-  FileCodeIcon,
   HelpCircleIcon,
   Boxes,
   BookOpen,
@@ -9,6 +8,7 @@ import {
   FolderIcon,
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { NavMain } from "@/components/dashboard/nav-main";
 import { NavSecondary } from "@/components/dashboard/nav-secondary";
@@ -28,23 +28,24 @@ export function AppSidebar({
   ...props
 }: { variant?: string } & React.ComponentProps<typeof Sidebar>) {
   const location = useLocation();
+  const { t } = useTranslation();
 
   const data = {
     navMain: [
       {
-        title: "Bài tập",
+        title: t("navigation.assignment"),
         url: "/",
         icon: LayoutDashboardIcon,
         isActive: location.pathname === "/",
       },
       {
-        title: "Các cuộc thi",
+        title: t("navigation.contest"),
         url: "/contest",
         icon: FolderIcon,
         isActive: location.pathname === "/contest",
       },
       {
-        title: "Trắc nghiệm",
+        title: t("navigation.quiz"),
         url: "/quiz/quiz-list",
         icon: BookOpen,
         isActive: location.pathname.startsWith("/quiz/"),
@@ -60,13 +61,13 @@ export function AppSidebar({
         ],
       },
       // {
-      //   title: "History",
+      //   title: t("navigation.history"),
       //   url: "/history",
       //   icon: ListIcon,
       //   isActive: location.pathname === "/history",
       // },
       // {
-      //   title: "Rank",
+      //   title: t("navigation.rank"),
       //   url: "/rank",
       //   icon: BarChartIcon,
       //   isActive: location.pathname === "/rank",
@@ -74,7 +75,7 @@ export function AppSidebar({
     ],
     navSecondary: [
       {
-        title: "Feedback",
+        title: t("navigation.feedback"),
         url: "#",
         icon: HelpCircleIcon,
       },

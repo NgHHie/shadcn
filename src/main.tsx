@@ -12,6 +12,7 @@ import "./styles/quiz-shared.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { TokenManager } from "@/lib/token-manager";
+import "./i18n";
 
 // Initialize tokens from cookies
 TokenManager.initializeFromCookies();

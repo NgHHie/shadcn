@@ -12,6 +12,7 @@ import GoogleSignIn from "@/components/auth/GoogleSignIn";
 import type { QLDTCredentials, LoginRequest } from "@/types/auth";
 import { handleLoginError } from "@/lib/error-handler";
 import ptitLogo from "@/assets/ptit.png";
+import { useTranslation } from "react-i18next";
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
   onLoginSuccess?: () => void;
@@ -23,6 +24,7 @@ export function LoginForm({
   ...props
 }: LoginFormProps) {
   const api = useApi();
+  const { t } = useTranslation('auth');
   const [isLoading, setIsLoading] = useState(false);
 
   // Login credentials
@@ -41,7 +43,7 @@ export function LoginForm({
     e.preventDefault();
 
     if (!credentials.username || !credentials.password) {
-      setError("Please enter both username and password");
+      setError(t("login.enterBothCredentials"));
       return;
     }
 
@@ -120,7 +122,7 @@ export function LoginForm({
             <form className="p-6 md:p-8" onSubmit={handleUsernameLogin}>
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center">
-                  <h1 className="text-2xl font-bold">Welcome back</h1>
+                  <h1 className="text-2xl font-bold">{t("login.title")}</h1>
                 </div>
 
                 {error && (
@@ -131,11 +133,11 @@ export function LoginForm({
                 )}
 
                 <div className="grid gap-2">
-                  <Label htmlFor="username">Username</Label>
+                  <Label htmlFor="username">{t("login.username")}</Label>
                   <Input
                     id="username"
                     type="text"
-                    placeholder="Enter your username"
+                    placeholder={t("login.usernamePlaceholder")}
                     value={credentials.username}
                     onChange={(e) =>
                       setCredentials((prev) => ({
@@ -148,18 +150,18 @@ export function LoginForm({
                 </div>
                 <div className="grid gap-2">
                   <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t("login.password")}</Label>
                     <a
                       href="#"
                       className="ml-auto text-sm underline-offset-2 hover:underline"
                     >
-                      Forgot your password?
+                      {t("login.forgotPassword")}
                     </a>
                   </div>
                   <div className="relative">
                     <Input
                       id="password"
-                      placeholder="Enter your password"
+                      placeholder={t("login.passwordPlaceholder")}
                       type={showPassword ? "text" : "password"}
                       value={credentials.password}
                       onChange={(e) =>
@@ -188,15 +190,15 @@ export function LoginForm({
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
+                      {t("login.signingIn")}
                     </>
                   ) : (
-                    "Login"
+                    t("login.loginButton")
                   )}
                 </Button>
                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                   <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                    Or continue with
+                    {t("login.orContinueWith")}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -221,9 +223,9 @@ export function LoginForm({
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Don&apos;t have an account?{" "}
+                  {t("login.noAccount")}{" "}
                   <a href="/register" className="underline underline-offset-4">
-                    Sign up
+                    {t("login.signUp")}
                   </a>
                 </div>
               </div>
@@ -239,10 +241,6 @@ export function LoginForm({
             </div>
           </CardContent>
         </Card>
-        <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-          By clicking continue, you agree to our{" "}
-          <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-        </div>
       </div>
 
       {/* QLDT Login Modal */}
