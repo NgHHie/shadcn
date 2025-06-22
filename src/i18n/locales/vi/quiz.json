@@ -105,7 +105,9 @@
     "previousPage": "Trang trước",
     "nextPage": "Trang sau",
     "page": "Trang",
-    "questionsCount": "câu"
+    "questionsCount": "câu",
+    "questionMap": "Bản đồ câu hỏi",
+    "answered": "Đã làm"
   },
   "result": {
     "title": "Kết quả bài thi",

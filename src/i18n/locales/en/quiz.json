@@ -105,7 +105,9 @@
     "previousPage": "Previous Page",
     "nextPage": "Next Page",
     "page": "Page",
-    "questionsCount": "questions"
+    "questionsCount": "questions",
+    "questionMap": "Question Map",
+    "answered": "Answered"
   },
   "result": {
     "title": "Quiz Result",
