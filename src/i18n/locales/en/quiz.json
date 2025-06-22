@@ -2,6 +2,9 @@
   "list": {
     "title": "Quiz List",
     "noQuizzes": "No quizzes available",
+    "noQuizzesDescription": "There are currently no quizzes created.",
+    "noQuizzesFound": "No quizzes found",
+    "noQuizzesFoundDescription": "Try changing the filters or search keywords.",
     "loading": "Loading quiz list...",
     "startQuiz": "Start Quiz",
     "viewDetail": "View Details",
@@ -13,7 +16,8 @@
       "notStarted": "Not Started",
       "inProgress": "In Progress",
       "completed": "Completed",
-      "expired": "Expired"
+      "expired": "Expired",
+      "upcoming": "Upcoming"
     },
     "search": {
       "placeholder": "Search by title or code",
@@ -54,6 +58,10 @@
     "name": "Name",
     "notFound": "Quiz not found",
     "errorStarting": "Cannot start quiz. Please try again!",
+    "waitingToStart": "Waiting to Start",
+    "ended": "Ended",
+    "notYetTime": "Not yet time for quiz",
+    "timeExpired": "Quiz time has expired",
     "examRules": "Exam Rules",
     "rule1": "No use of materials or support devices during the exam.",
     "rule2": "No exchanging or copying work with others.",
@@ -83,7 +91,21 @@
     "preparing": "Preparing quiz...",
     "pleaseWait": "Please wait a moment",
     "addFlagTooltip": "Flag for review",
-    "removeFlagTooltip": "Remove flag"
+    "removeFlagTooltip": "Remove flag",
+    "noQuestions": "No questions available",
+    "noQuestionsDescription": "This quiz currently has no questions.",
+    "backToQuizList": "Back to quiz list",
+    "progress": "Progress",
+    "submitting": "Submitting...",
+    "submitQuiz": "Submit Quiz",
+    "singleChoice": "Single Choice",
+    "multipleChoice": "Multiple Choice",
+    "questionImage": "Question image",
+    "noAnswersAvailable": "No answers available for this question",
+    "previousPage": "Previous Page",
+    "nextPage": "Next Page",
+    "page": "Page",
+    "questionsCount": "questions"
   },
   "result": {
     "title": "Quiz Result",
