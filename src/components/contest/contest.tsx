@@ -6,7 +6,6 @@ import {
   Trophy,
   CalendarDays,
   Loader2,
-  RefreshCw,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -26,7 +25,6 @@ export function ContestPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
 
   const api = useApi();
   const { userId } = useUserContext();
@@ -79,12 +77,12 @@ export function ContestPage() {
     }
   };
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await loadContestData();
-    setRefreshing(false);
-    toastSuccess("Đã cập nhật danh sách cuộc thi");
-  };
+  // const handleRefresh = async () => {
+  //   setRefreshing(true);
+  //   await loadContestData();
+  //   setRefreshing(false);
+  //   toastSuccess("Đã cập nhật danh sách cuộc thi");
+  // };
 
   const handleJoinContest = async (contestId: string) => {
     if (!userId) return;

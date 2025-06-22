@@ -1,5 +1,6 @@
 // src/components/exercise/question-card.tsx - Mobile optimized version
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -21,6 +22,8 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   question,
   onClick,
 }) => {
+  const { t } = useTranslation("exercise");
+
   const getStatusBorderColor = (status?: string) => {
     switch (status) {
       case "AC":
@@ -85,15 +88,28 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   const getStatusText = (status?: string) => {
     switch (status) {
       case "AC":
-        return "Accepted";
+        return t("questionCard.accepted");
       case "WA":
-        return "Wrong Answer";
+        return t("questionCard.wrongAnswer");
       case "TLE":
-        return "Time Limit";
+        return t("questionCard.timeLimit");
       case "CE":
-        return "Compile Error";
+        return t("questionCard.compileError");
       default:
-        return "Not Started";
+        return t("questionCard.notStarted");
+    }
+  };
+
+  const getLevelText = (level: string) => {
+    switch (level) {
+      case "EASY":
+        return t("questionCard.easy");
+      case "MEDIUM":
+        return t("questionCard.medium");
+      case "HARD":
+        return t("questionCard.hard");
+      default:
+        return level.charAt(0) + level.slice(1).toLowerCase();
     }
   };
 
@@ -140,12 +156,16 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           <div className="col-span-2 text-xs">
             <div className="flex items-center gap-1.5">
               <span className={`font-medium ${getLevelColor(question.level)}`}>
-                {question.level.charAt(0) +
-                  question.level.slice(1).toLowerCase()}
+                {getLevelText(question.level)}
               </span>
               <span className="text-muted-foreground">
-                <span className="hidden sm:inline">{question.point} điểm</span>
-                <span className="sm:hidden">{question.point}đ</span>
+                <span className="hidden sm:inline">
+                  {question.point} {t("questionCard.points")}
+                </span>
+                <span className="sm:hidden">
+                  {question.point}
+                  {t("questionCard.shortPoints")}
+                </span>
               </span>
             </div>
           </div>
@@ -163,7 +183,9 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                   {getStatusText(question.status)}
                 </span>
                 <span className="sm:hidden truncate">
-                  {question.status === "Not Started" ? "New" : question.status}
+                  {question.status === "Not Started"
+                    ? t("questionCard.new")
+                    : question.status}
                 </span>
               </Badge>
             )}
@@ -172,7 +194,9 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           {/* Cột 5: Số submits */}
           <div className="col-span-1 text-right">
             <span className="text-[11px] text-muted-foreground">
-              <span className="hidden sm:inline">{question.totalSub} lượt</span>
+              <span className="hidden sm:inline">
+                {question.totalSub} {t("questionCard.submissions")}
+              </span>
               <span className="sm:hidden">{question.totalSub}</span>
             </span>
           </div>
@@ -205,7 +229,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             <span
               className={`text-xs font-medium ${getLevelColor(question.level)}`}
             >
-              {question.level.charAt(0) + question.level.slice(1).toLowerCase()}
+              {getLevelText(question.level)}
             </span>
           </div>
         </div>

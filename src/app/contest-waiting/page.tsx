@@ -3,20 +3,12 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Clock,
-  Users,
-  FileText,
-  ArrowLeft,
-  AlertCircle,
-  Loader2,
-} from "lucide-react";
+import { Clock, ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { useApi } from "@/lib/api";
-import { toastError, toastSuccess } from "@/lib/toast";
+import { toastError } from "@/lib/toast";
 import { ContestWaitingData } from "@/types/contest-waiting";
 
 export function ContestWaitingPage() {

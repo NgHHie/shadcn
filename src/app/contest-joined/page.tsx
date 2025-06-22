@@ -2,12 +2,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserContext } from "@/contexts/UserContext";
-import { toastError } from "@/lib/toast";
+import { toastError, toastWarning } from "@/lib/toast";
 import { contestJoinedApi } from "@/lib/api";
 
 import {
@@ -21,7 +21,6 @@ import { ContestQuestionsList } from "@/components/contest/contest-questions-lis
 
 export function ContestJoinedPage() {
   const { contestId } = useParams<{ contestId: string }>();
-  const navigate = useNavigate();
   const { userId } = useUserContext();
 
   // Main states
@@ -144,12 +143,13 @@ export function ContestJoinedPage() {
   };
 
   // Handle question click
-  const handleQuestionClick = (questionId: string, questionCode: string) => {
-    if (!isContestActive) {
-      toastError("Cuộc thi chưa bắt đầu hoặc đã kết thúc");
-      return;
-    }
-    navigate(`/question-detail/${questionId}?contest=${contestId}`);
+  const handleQuestionClick = () => {
+    toastWarning("Chưa hoàn thiện chức năng");
+    // if (!isContestActive) {
+    //   toastError("Cuộc thi chưa bắt đầu hoặc đã kết thúc");
+    //   return;
+    // }
+    // navigate(`/question-detail/${questionId}?contest=${contestId}`);
   };
 
   // Pagination logic

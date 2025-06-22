@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 
 // Types từ backend
 export type TypeQuestion =
@@ -161,7 +160,9 @@ export function QuestionFilter({
               <SelectValue placeholder={t("questionCard.category")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">{t("filter.category")}</SelectItem>
+              <SelectItem value="ALL">
+                {t("questionCard.allCategories")}
+              </SelectItem>
               {TYPE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -184,7 +185,9 @@ export function QuestionFilter({
               <SelectValue placeholder={t("questionCard.difficulty")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">{t("filter.difficulty")}</SelectItem>
+              <SelectItem value="ALL">
+                {t("questionCard.allDifficulties")}
+              </SelectItem>
               {LEVEL_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   <div className="flex items-center gap-2">{option.label}</div>

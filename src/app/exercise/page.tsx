@@ -1,5 +1,5 @@
 // src/app/exercise/page.tsx - Updated with new filter component
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { QuestionCard } from "@/components/exercise/question-card";
@@ -59,11 +59,11 @@ export function Page() {
   const handleQuestionClick = useCallback(
     (questionId: string, questionTitle: string) => {
       toastSuccess(t("redirectingToAssignment"), {
-        description: `Đang mở: ${questionTitle}`,
+        description: t("openingAssignment", { title: questionTitle }),
       });
       navigate(`/question-detail/${questionId}`);
     },
-    [navigate]
+    [navigate, t]
   );
 
   // Handle page changes
@@ -130,7 +130,7 @@ export function Page() {
               size="sm"
               onClick={() => searchWithFilter(filterCriteria)}
             >
-              Thử lại
+              {t("common.retry")}
             </Button>
           </AlertDescription>
         </Alert>
@@ -143,18 +143,16 @@ export function Page() {
         <div className="text-center py-12">
           <BookOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium mb-2">
-            {hasActiveFilters
-              ? "Không tìm thấy kết quả"
-              : "Không có bài tập nào"}
+            {hasActiveFilters ? t("noResults") : t("noAssignments")}
           </h3>
           <p className="text-muted-foreground mb-4">
             {hasActiveFilters
-              ? "Không tìm thấy câu hỏi nào phù hợp với bộ lọc hiện tại"
-              : "Hiện tại chưa có bài tập nào được phân công cho bạn"}
+              ? t("noResultsDescription")
+              : t("noAssignmentsDescription")}
           </p>
           {hasActiveFilters && (
             <Button variant="outline" onClick={handleClearAllFilters}>
-              Xóa bộ lọc
+              {t("filter.clearFilter")}
             </Button>
           )}
         </div>
@@ -218,37 +216,37 @@ export function Page() {
           {/* Active Filters Summary */}
           {hasActiveFilters && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Bộ lọc đang áp dụng:</span>
+              <span>{t("filter.activeFilters")}:</span>
               {filterCriteria.keyword && (
                 <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md">
-                  Từ khóa: "{filterCriteria.keyword}"
+                  {t("filter.keyword")}: "{filterCriteria.keyword}"
                 </span>
               )}
               {filterCriteria.questionCode && (
                 <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md">
-                  Mã: {filterCriteria.questionCode}
+                  {t("filter.code")}: {filterCriteria.questionCode}
                 </span>
               )}
               {filterCriteria.title && (
                 <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md">
-                  Tiêu đề: "{filterCriteria.title}"
+                  {t("filter.title")}: "{filterCriteria.title}"
                 </span>
               )}
               {filterCriteria.type && (
                 <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md">
-                  Loại: {filterCriteria.type}
+                  {t("filter.type")}: {filterCriteria.type}
                 </span>
               )}
               {filterCriteria.level && (
                 <span
                   className={`px-2 py-1 bg-gray-100 text-gray-800 rounded-md`}
                 >
-                  Độ khó:{" "}
+                  {t("questionCard.difficulty")}:{" "}
                   {filterCriteria.level === "EASY"
-                    ? "Easy"
+                    ? t("questionCard.easy")
                     : filterCriteria.level === "MEDIUM"
-                    ? "Medium"
-                    : "Hard"}
+                    ? t("questionCard.medium")
+                    : t("questionCard.hard")}
                 </span>
               )}
             </div>

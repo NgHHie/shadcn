@@ -27,8 +27,6 @@ interface ContestJoinedHeaderProps {
 export function ContestJoinedHeader({
   contest,
   timeRemaining,
-  isActive,
-  onRefresh,
 }: ContestJoinedHeaderProps) {
   const navigate = useNavigate();
 

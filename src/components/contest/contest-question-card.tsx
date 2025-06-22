@@ -51,25 +51,6 @@ export const ContestQuestionCard: React.FC<QuestionCardProps> = ({
     }
   };
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "SELECT":
-
-      case "INSERT":
-
-      case "UPDATE":
-
-      case "DELETE":
-
-      case "CREATE":
-
-      case "PROCEDURE":
-
-      default:
-        return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200";
-    }
-  };
-
   const getStatusText = (status?: string) => {
     switch (status) {
       case "AC":

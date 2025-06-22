@@ -21,7 +21,6 @@ import { ContestWaitingPage } from "./app/contest-waiting/page";
 import { UserProvider } from "./contexts/UserContext";
 import Login from "./app/auth/login";
 import Register from "./app/auth/register";
-import { Dashboard } from "./dashboard";
 import { ContestJoinedPage } from "./app/contest-joined/page";
 
 function App() {

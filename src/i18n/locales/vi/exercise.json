@@ -15,7 +15,8 @@
     "rowsPerPage": "Số hàng mỗi trang",
     "showing": "Hiển thị",
     "to": "đến",
-    "entries": "mục"
+    "entries": "mục",
+    "shortPoints": "đ"
   },
   "questionCard": {
     "difficulty": "Độ khó",
@@ -25,14 +26,27 @@
     "wrongAnswer": "Wrong Answer",
     "timeLimit": "Time Limit",
     "compileError": "Compile Error",
-    "notStarted": "Not Started",
+    "notStarted": "Chưa làm",
+    "new": "Mới",
     "tags": "Thẻ",
-    "points": "điểm"
+    "points": "điểm",
+    "shortPoints": "đ",
+    "easy": "Dễ",
+    "medium": "Trung bình",
+    "hard": "Khó",
+    "allCategories": "Tất cả loại",
+    "allDifficulties": "Tất cả độ khó"
   },
   "filter": {
-    "difficulty": "Tất cả độ khó",
-    "category": "Tất cả loại",
     "search": "Tìm kiếm",
-    "clearFilter": "Xóa bộ lọc"
+    "clearFilter": "Xóa bộ lọc",
+    "activeFilters": "Bộ lọc đang áp dụng",
+    "keyword": "Từ khóa",
+    "code": "Mã",
+    "title": "Tiêu đề",
+    "type": "Loại"
+  },
+  "common": {
+    "retry": "Thử lại"
   }
 }

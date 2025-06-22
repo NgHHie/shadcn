@@ -8,7 +8,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   ChevronDown,
@@ -22,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { useQuestions } from "@/hooks/use-questions";
+import type { QuestionFilterCriteria } from "@/hooks/use-questions";
 
 interface QuestionSelectorProps {
   currentQuestionId?: string;
@@ -33,18 +33,31 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
   onQuestionChange,
 }) => {
   const [searchInput, setSearchInput] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [filterCriteria, setFilterCriteria] = useState<QuestionFilterCriteria>(
+    {}
+  );
   const [hasFoundCurrentQuestion, setHasFoundCurrentQuestion] = useState(false);
 
   const pageSize = 10;
 
-  // Fetch questions from API
-  const { questions, loading, totalPages } = useQuestions({
-    page: currentPage,
-    size: pageSize,
-    keyword: searchTerm || undefined,
+  // Use the real useQuestions hook like in exercise page
+  const {
+    questions,
+    loading,
+    totalPages,
+    error,
+    searchWithFilter,
+    changePage,
+  } = useQuestions({
+    pagination: {
+      page: currentPage,
+      size: pageSize,
+      sort: ["createdAt,desc"],
+    },
+    criteria: filterCriteria,
+    autoFetch: true,
   });
 
   // Function to find page containing current question
@@ -52,35 +65,9 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
     if (!questionId || hasFoundCurrentQuestion) return;
 
     try {
-      try {
-        // Try to call find-page API if it exists
-        const response = await fetch(
-          `https://api.learnsql.store/api/app/question/find-page?questionId=${questionId}&size=${pageSize}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage
-                .getItem("access_token")
-                ?.replace(/"/g, "")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.ok) {
-          const pageData = await response.json();
-          setCurrentPage(pageData.page);
-          setHasFoundCurrentQuestion(true);
-          return;
-        }
-      } catch (apiError) {
-        console.log("Find-page API not available, using fallback method");
-      }
-
       // Fallback: Search through pages manually
-      // This is less efficient but works without additional API
       let found = false;
-      for (let page = 0; page < Math.min(totalPages, 10); page++) {
-        // Limit search to first 10 pages for performance
+      for (let page = 0; page < totalPages; page++) {
         try {
           const response = await fetch(
             `https://api.learnsql.store/api/app/question?page=${page}&size=${pageSize}`,
@@ -103,6 +90,7 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
             if (foundQuestion) {
               setCurrentPage(page);
               setHasFoundCurrentQuestion(true);
+              changePage(page);
               found = true;
               break;
             }
@@ -113,7 +101,6 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
       }
 
       if (!found) {
-        // If not found in first 10 pages, default to page 0
         setCurrentPage(0);
         setHasFoundCurrentQuestion(true);
       }
@@ -130,16 +117,20 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
       isOpen &&
       currentQuestionId &&
       !hasFoundCurrentQuestion &&
-      !searchTerm
+      !filterCriteria.keyword
     ) {
-      // Add a small delay to ensure the dropdown is fully opened
       const timeoutId = setTimeout(() => {
         findCurrentQuestionPage(currentQuestionId);
       }, 100);
 
       return () => clearTimeout(timeoutId);
     }
-  }, [isOpen, currentQuestionId, hasFoundCurrentQuestion, searchTerm]);
+  }, [
+    isOpen,
+    currentQuestionId,
+    hasFoundCurrentQuestion,
+    filterCriteria.keyword,
+  ]);
 
   // Reset state when search term changes or dropdown closes
   useEffect(() => {
@@ -160,11 +151,13 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
     }
   }, [questions, currentQuestionId, hasFoundCurrentQuestion]);
 
-  // Reset to page 0 when search changes
+  // Handle search
   const handleSearch = () => {
-    setSearchTerm(searchInput.trim());
+    const keyword = searchInput.trim();
+    const newCriteria: QuestionFilterCriteria = keyword ? { keyword } : {};
+    setFilterCriteria(newCriteria);
     setCurrentPage(0);
-    setHasFoundCurrentQuestion(false);
+    searchWithFilter(newCriteria, { page: 0, size: pageSize });
   };
 
   // Handle Enter key press in search input
@@ -178,12 +171,31 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
   // Clear search
   const handleClearSearch = () => {
     setSearchInput("");
-    setSearchTerm("");
+    setFilterCriteria({});
     setCurrentPage(0);
     setHasFoundCurrentQuestion(false);
+    searchWithFilter({}, { page: 0, size: pageSize });
   };
 
-  const getStatusIcon = (status: string) => {
+  // Navigation handlers
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      changePage(newPage);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      changePage(newPage);
+    }
+  };
+
+  // Status helpers
+  const getStatusIcon = (status?: string) => {
     switch (status) {
       case "AC":
         return <CircleCheckIcon className="h-3 w-3" />;
@@ -191,55 +203,41 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
         return <XCircleIcon className="h-3 w-3" />;
       case "TLE":
         return <TimerIcon className="h-3 w-3" />;
+      case "RTE":
+      case "CE":
+        return <XCircleIcon className="h-3 w-3" />;
       default:
         return <CircleIcon className="h-3 w-3" />;
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status?: string) => {
     switch (status) {
       case "AC":
-        return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200";
+        return "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-950 dark:border-green-800";
       case "WA":
-        return "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200";
       case "TLE":
-        return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200";
+      case "RTE":
+      case "CE":
+        return "text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-950 dark:border-red-800";
       default:
-        return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200";
+        return "text-gray-500 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-gray-950 dark:border-gray-800";
     }
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
+  const getLevelDisplay = (level: string) => {
+    switch (level) {
       case "EASY":
-        return "text-green-600 dark:text-green-400";
+        return { text: "Easy", color: "text-green-600 dark:text-green-400" };
       case "MEDIUM":
-        return "text-yellow-600 dark:text-yellow-400";
+        return {
+          text: "Medium",
+          color: "text-yellow-600 dark:text-yellow-400",
+        };
       case "HARD":
-        return "text-red-600 dark:text-red-400";
+        return { text: "Hard", color: "text-red-600 dark:text-red-400" };
       default:
-        return "text-gray-600 dark:text-gray-400";
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "SELECT":
-        return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200";
-      case "INSERT":
-        return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200";
-      case "UPDATE":
-        return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200";
-      case "DELETE":
-        return "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200";
-      case "CREATE":
-        return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200";
-      case "PROCEDURE":
-        return "bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200";
-      case "INDEX":
-        return "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-200";
-      default:
-        return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200";
+        return { text: level, color: "text-gray-600 dark:text-gray-400" };
     }
   };
 
@@ -254,7 +252,7 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
         <Button
           variant="outline"
           size="sm"
-          className="gap-1 p-2 h-auto hover:bg-primary/10 border-primary/30 bg-primary/5 text-primary font-medium shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md transform hover:-translate-y-0.5"
+          className="gap-1 p-2 h-auto hover:bg-primary/10 border-primary/30 bg-primary/5 text-primary font-medium shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md"
         >
           <ChevronDown className="h-4 w-4 text-primary" />
           <span className="text-xs text-primary font-semibold">
@@ -263,7 +261,7 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="p-0 w-[calc(100vw-2rem)] sm:w-[400px] md:w-[450px] lg:w-[500px] shadow-xl border-2 border-primary/20"
+        className="p-0 w-[calc(100vw-2rem)] sm:w-[500px] md:w-[600px] lg:w-[700px] shadow-xl border-2 border-primary/20"
         align="start"
         sideOffset={4}
       >
@@ -271,161 +269,139 @@ export const QuestionSelector: React.FC<QuestionSelectorProps> = ({
         <div className="p-3 border-b bg-primary/5">
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-primary/70" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Nhập mã hoặc đề bài..."
+                placeholder="Nhập mã hoặc tiêu đề câu hỏi..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyPress={handleSearchKeyPress}
-                className="pl-9 pr-8 h-8 border-primary/30 focus:border-primary"
+                className="pl-8 pr-8 h-8 text-sm border-primary/30 focus:border-primary"
               />
               {searchInput && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-primary/10"
                   onClick={handleClearSearch}
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-destructive/10"
                 >
-                  <X className="h-3 w-3 text-muted-foreground" />
+                  <X className="h-3 w-3" />
                 </Button>
               )}
             </div>
             <Button
-              variant="outline"
               size="sm"
-              className="h-8 px-3 border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary font-medium"
               onClick={handleSearch}
-              disabled={loading}
+              className="h-8 px-3 bg-primary hover:bg-primary/90"
             >
-              Tìm kiếm
+              <Search className="h-4 w-4" />
             </Button>
           </div>
-          {searchTerm && (
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                Kết quả tìm kiếm: "{searchTerm}"
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-5 px-2 text-xs text-primary hover:bg-primary/10"
-                onClick={handleClearSearch}
-              >
-                Xóa bộ lọc
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* Question list */}
-        <div className="max-h-[350px] overflow-y-auto">
+        <div className="max-h-[400px] overflow-y-auto">
           {loading ? (
-            <div className="p-4 text-center text-muted-foreground text-sm">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mx-auto mb-2"></div>
-              Đang tải...
+            <div className="flex items-center justify-center py-8">
+              <div className="flex flex-col items-center gap-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                <span className="text-sm text-muted-foreground">
+                  Đang tải...
+                </span>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <p className="text-sm text-destructive mb-2">Có lỗi xảy ra</p>
+                <p className="text-xs text-muted-foreground">{error}</p>
+              </div>
             </div>
           ) : questions.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground text-sm">
-              Không tìm thấy câu hỏi nào
+            <div className="flex items-center justify-center py-8">
+              <p className="text-sm text-muted-foreground">
+                Không tìm thấy câu hỏi nào
+              </p>
             </div>
           ) : (
-            questions.map((question) => (
-              <div
-                key={question.id}
-                className={`p-3 hover:bg-primary/10 cursor-pointer border-b last:border-b-0 transition-all duration-200 hover:shadow-sm ${
-                  question.id === currentQuestionId
-                    ? "bg-primary/15 border-l-4 border-l-primary shadow-inner"
-                    : "hover:border-l-2 hover:border-l-primary/30"
-                }`}
-                onClick={() => handleQuestionSelect(question.id)}
-              >
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span
-                        className={`font-medium text-sm ${
-                          question.id === currentQuestionId
-                            ? "text-primary font-semibold"
-                            : "text-foreground"
-                        }`}
-                      >
-                        {question.questionCode}
-                      </span>
-                      <Badge
-                        variant="outline"
-                        className={`text-xs px-1.5 py-0.5 ${getTypeColor(
-                          question.type
-                        )} border-0 shadow-sm`}
-                      >
-                        {question.type}
-                      </Badge>
-                    </div>
-                    <p
-                      className={`text-sm line-clamp-2 leading-relaxed ${
-                        question.id === currentQuestionId
-                          ? "text-primary/90 font-medium"
-                          : "text-foreground"
-                      }`}
-                    >
-                      {question.title}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <Badge
-                      variant="outline"
-                      className={`flex gap-1 px-1.5 py-0.5 text-xs ${getStatusColor(
-                        question.status || "Not Started"
-                      )} border-0 shadow-sm`}
-                    >
-                      {getStatusIcon(question.status || "Not Started")}
-                      {question.status || "Not Started"}
-                    </Badge>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-xs font-medium ${getDifficultyColor(
-                          question.level
+            <div className="py-2">
+              {questions.map((question) => {
+                const levelDisplay = getLevelDisplay(question.level);
+                const isSelected = currentQuestionId === question.id;
+
+                return (
+                  <div
+                    key={question.id}
+                    onClick={() => handleQuestionSelect(question.id)}
+                    className={`px-3 py-2 cursor-pointer transition-colors hover:bg-primary/5 border-l-2 ${
+                      isSelected
+                        ? "bg-primary/10 border-l-primary"
+                        : "border-l-transparent"
+                    }`}
+                  >
+                    {/* Single line layout with all info */}
+                    <div className="flex items-center gap-2 w-full">
+                      {/* Status icon */}
+                      <div
+                        className={`flex items-center justify-center w-5 h-5 rounded-full border ${getStatusColor(
+                          question.status
                         )}`}
                       >
-                        {question.level}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {question.point} điểm
-                      </span>
+                        {getStatusIcon(question.status)}
+                      </div>
+
+                      {/* Question code */}
+                      <div className="text-xs font-mono text-muted-foreground min-w-0 flex-shrink-0">
+                        {question.questionCode}
+                      </div>
+
+                      {/* Title - truncated */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {question.title}
+                        </p>
+                      </div>
+
+                      {/* Level badge */}
+                      <div
+                        className={`text-xs font-medium px-2 py-0.5 rounded ${levelDisplay.color} bg-current/10 border border-current/20 flex-shrink-0`}
+                      >
+                        {levelDisplay.text}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))
+                );
+              })}
+            </div>
           )}
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between p-3 border-t bg-primary/5">
-            <span className="text-xs text-muted-foreground">
-              Trang {currentPage + 1} / {totalPages}
-            </span>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 w-7 p-0 border-primary/30 hover:bg-primary/10"
-                onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
-                disabled={currentPage === 0}
-              >
-                <ChevronLeft className="h-3 w-3" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 w-7 p-0 border-primary/30 hover:bg-primary/10"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
-                }
-                disabled={currentPage === totalPages - 1}
-              >
-                <ChevronRight className="h-3 w-3" />
-              </Button>
+        {/* Pagination footer */}
+        {!loading && questions.length > 0 && (
+          <div className="border-t bg-muted/30 px-3 py-2">
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-muted-foreground">
+                Trang {currentPage + 1} / {totalPages}
+              </div>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 0}
+                  className="h-7 px-2"
+                >
+                  <ChevronLeft className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleNextPage}
+                  disabled={currentPage >= totalPages - 1}
+                  className="h-7 px-2"
+                >
+                  <ChevronRight className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
           </div>
         )}

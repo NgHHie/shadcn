@@ -15,7 +15,8 @@
     "rowsPerPage": "Rows per page",
     "showing": "Showing",
     "to": "to",
-    "entries": "entries"
+    "entries": "entries",
+    "shortPoints": "pts"
   },
   "questionCard": {
     "difficulty": "Difficulty",
@@ -26,13 +27,26 @@
     "timeLimit": "Time Limit",
     "compileError": "Compile Error",
     "notStarted": "Not Started",
+    "new": "New",
     "tags": "Tags",
-    "points": "points"
+    "points": "points",
+    "shortPoints": "pts",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "allCategories": "All categories",
+    "allDifficulties": "All difficulties"
   },
   "filter": {
-    "difficulty": "All difficulties",
-    "category": "All categories",
     "search": "Search",
-    "clearFilter": "Clear filter"
+    "clearFilter": "Clear filter",
+    "activeFilters": "Active filters",
+    "keyword": "Keyword",
+    "code": "Code",
+    "title": "Title",
+    "type": "Type"
+  },
+  "common": {
+    "retry": "Retry"
   }
 }
