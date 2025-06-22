@@ -1,4 +1,4 @@
-// src/components/exercise/nav-secondary.tsx
+// src/components/dashboard/nav-secondary.tsx
 "use client";
 
 import * as React from "react";

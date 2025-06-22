@@ -1,4 +1,4 @@
-// src/components/exercise/pagination.tsx - Mobile optimized version
+// src/components/dashboard/pagination.tsx - Mobile optimized version
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {

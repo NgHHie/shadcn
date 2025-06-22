@@ -1,4 +1,4 @@
-// src/components/exercise/app-sidebar.tsx
+// src/components/dashboard/app-sidebar.tsx
 import * as React from "react";
 import {
   FileCodeIcon,
@@ -10,9 +10,9 @@ import {
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
-import { NavMain } from "@/components/exercise/nav-main";
-import { NavSecondary } from "@/components/exercise/nav-secondary";
-import { NavUser } from "@/components/exercise/nav-user";
+import { NavMain } from "@/components/dashboard/nav-main";
+import { NavSecondary } from "@/components/dashboard/nav-secondary";
+import { NavUser } from "@/components/dashboard/nav-user";
 import {
   Sidebar,
   SidebarContent,

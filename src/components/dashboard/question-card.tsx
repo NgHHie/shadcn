@@ -1,4 +1,4 @@
-// src/components/exercise/question-card.tsx - Mobile optimized version
+// src/components/dashboard/question-card.tsx - Mobile optimized version
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";

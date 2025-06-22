@@ -1,4 +1,4 @@
-// src/components/exercise/question-filter.tsx
+// src/components/dashboard/question-filter.tsx
 import React, { useState, useCallback } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
