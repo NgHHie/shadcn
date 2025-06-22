@@ -44,7 +44,7 @@ export function AppSidebar({
         isActive: location.pathname === "/contest",
       },
       {
-        title: "Quiz",
+        title: "Trắc nghiệm",
         url: "/quiz/quiz-list",
         icon: BookOpen,
         isActive: location.pathname.startsWith("/quiz/"),
