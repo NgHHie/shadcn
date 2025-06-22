@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, User, ListChecks, ArrowLeft, Play } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Clock, User, ListChecks, ArrowLeft, Play, AlertCircle, Timer } from "lucide-react";
 import { quizService, PublicQuiz } from "@/services/quizService";
 import { useTranslation } from "react-i18next";
 import "@/styles/quiz-shared.css";
@@ -20,6 +21,7 @@ export default function QuizDetailPage() {
   const [quiz, setQuiz] = useState<PublicQuiz | null>(null);
   const [loadingQuiz, setLoadingQuiz] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<string>("");
 
   useEffect(() => {
     async function fetchQuiz() {
@@ -41,6 +43,46 @@ export default function QuizDetailPage() {
     fetchQuiz();
   }, [quizId]);
 
+  // Tính thời gian còn lại đến khi có thể làm bài
+  const calculateTimeLeft = (startTime: string) => {
+    const now = new Date().getTime();
+    const start = new Date(startTime).getTime();
+    const difference = start - now;
+
+    if (difference <= 0) return "";
+
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+    if (days > 0) {
+      return `${days} ngày ${hours} giờ ${minutes} phút`;
+    } else if (hours > 0) {
+      return `${hours} giờ ${minutes} phút ${seconds} giây`;
+    } else if (minutes > 0) {
+      return `${minutes} phút ${seconds} giây`;
+    } else {
+      return `${seconds} giây`;
+    }
+  };
+
+  // Update countdown timer
+  useEffect(() => {
+    if (!quiz) return;
+
+    const timer = setInterval(() => {
+      const status = getQuizStatus(quiz);
+      if (status === "upcoming") {
+        setTimeLeft(calculateTimeLeft(quiz.startTime));
+      } else {
+        setTimeLeft("");
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [quiz]);
+
   // Tính trạng thái bài thi
   const getQuizStatus = (quiz: PublicQuiz) => {
     const now = new Date();
@@ -57,16 +99,48 @@ export default function QuizDetailPage() {
       case "available":
         return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">{t("list.status.notStarted")}</Badge>;
       case "upcoming":
-        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">{t("list.status.inProgress")}</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">{t("list.status.upcoming")}</Badge>;
       case "expired":
-        return <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">{t("list.status.completed")}</Badge>;
+        return <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">{t("list.status.expired")}</Badge>;
       default:
         return <Badge>{t("list.status.expired")}</Badge>;
     }
   };
 
+  const getStatusMessage = (status: string) => {
+    switch (status) {
+      case "upcoming":
+        return {
+          type: "default" as const,
+          title: t("detail.notYetTime"),
+          description: `Bài thi sẽ bắt đầu vào ${new Date(quiz!.startTime).toLocaleString()}. Thời gian còn lại: ${timeLeft}`,
+          icon: Timer
+        };
+      case "expired":
+        return {
+          type: "destructive" as const,
+          title: t("detail.timeExpired"),
+          description: `Bài thi đã kết thúc vào ${new Date(quiz!.endTime).toLocaleString()}`,
+          icon: AlertCircle
+        };
+      default:
+        return null;
+    }
+  };
+
   const handleStartQuiz = async () => {
     if (!quiz || !userId) return;
+    
+    const status = getQuizStatus(quiz);
+    if (status !== "available") {
+      if (status === "upcoming") {
+        alert(`Bài thi chưa bắt đầu. Vui lòng đợi thêm ${timeLeft}`);
+      } else if (status === "expired") {
+        alert("Bài thi đã kết thúc. Không thể làm bài.");
+      }
+      return;
+    }
+
     setStarting(true);
     try {
       const examUserQuizRes = await quizService.getExamUserQuizzes(userId, quiz.examQuizzesId);
@@ -109,6 +183,7 @@ export default function QuizDetailPage() {
 
   const status = getQuizStatus(quiz);
   const isStartDisabled = status !== "available";
+  const statusMessage = getStatusMessage(status);
 
   return (
     <div className="container mx-auto p-6 max-w-4xl space-y-8">
@@ -126,16 +201,38 @@ export default function QuizDetailPage() {
             <div className="text-muted-foreground text-sm font-mono">{t("detail.quizCode")}: {quiz.code}</div>
           </div>
         </div>
-        <Button
-          className="h-12 px-8 text-base font-semibold shadow-md"
-          size="lg"
-          disabled={isStartDisabled || starting}
-          onClick={handleStartQuiz}
-        >
-          <Play className="w-5 h-5 mr-2" />
-{starting ? t("detail.starting") : t("detail.startNow")}
-        </Button>
+        <div className="flex flex-col items-end gap-2">
+          <Button
+            className="h-12 px-8 text-base font-semibold shadow-md"
+            size="lg"
+            disabled={isStartDisabled || starting}
+            onClick={handleStartQuiz}
+            variant={status === "available" ? "default" : "secondary"}
+          >
+            <Play className="w-5 h-5 mr-2" />
+            {starting ? t("detail.starting") : 
+             status === "upcoming" ? t("detail.waitingToStart") :
+             status === "expired" ? t("detail.ended") :
+             t("detail.startNow")}
+          </Button>
+          {status === "upcoming" && timeLeft && (
+            <div className="text-xs text-muted-foreground text-center">
+              Còn {timeLeft}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Status Alert */}
+      {statusMessage && (
+        <Alert variant={statusMessage.type}>
+          <statusMessage.icon className="h-4 w-4" />
+          <AlertDescription>
+            <div className="font-semibold">{statusMessage.title}</div>
+            <div className="text-sm mt-1">{statusMessage.description}</div>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Quiz Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -206,13 +206,13 @@ export default function QuizTakingPage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="flex flex-col items-center justify-center min-h-[400px]">
           <BookOpen className="w-16 h-16 text-muted-foreground mb-4" />
-          <h2 className="text-2xl font-semibold mb-2">Không có câu hỏi</h2>
+          <h2 className="text-2xl font-semibold mb-2">{t("taking.noQuestions")}</h2>
           <p className="text-muted-foreground mb-4">
-            Bài thi này hiện tại chưa có câu hỏi nào.
+            {t("taking.noQuestionsDescription")}
           </p>
           <Button onClick={() => navigate('/quiz/quiz-list')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Quay lại danh sách bài thi
+            {t("taking.backToQuizList")}
           </Button>
         </div>
       </div>
@@ -231,11 +231,11 @@ export default function QuizTakingPage() {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-200">
-      <div className="flex relative">
+      <div className="quiz-layout">
         {/* Question Map Sidebar - Desktop */}
-        <div className="hidden lg:block w-80 border-r bg-background sticky-sidebar transition-colors duration-200">
-          <ScrollArea className="h-screen">
-            <div className="p-4 space-y-4 flex flex-col h-full">
+        <div className="hidden lg:block w-80 border-r bg-background quiz-sidebar transition-colors duration-200">
+          <ScrollArea className="h-full">
+            <div className="p-4 space-y-4 flex flex-col min-h-full">
               <QuestionMap
                 questions={questionStatuses}
                 onQuestionClick={goToQuestion}
@@ -247,7 +247,7 @@ export default function QuizTakingPage() {
               {/* Progress */}
               <div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span>Tiến độ</span>
+                  <span>{t("taking.progress")}</span>
                   <span>{Math.round((answeredCount / state.questions.length) * 100)}%</span>
                 </div>
                 <Progress value={(answeredCount / state.questions.length) * 100} className="h-2" />
@@ -262,12 +262,12 @@ export default function QuizTakingPage() {
                 {isSubmitting ? (
                   <>
                     <Clock className="w-4 h-4 mr-2 animate-spin" />
-                    Đang nộp bài...
+                    {t("taking.submitting")}
                   </>
                 ) : (
                   <>
                     <Send className="w-4 h-4 mr-2" />
-                    Nộp bài ({answeredCount}/{state.questions.length})
+                    {t("taking.submitQuiz")} ({answeredCount}/{state.questions.length})
                   </>
                 )}
               </Button>
@@ -276,7 +276,7 @@ export default function QuizTakingPage() {
         </div>
 
         {/* Questions Content Area */}
-        <div className="flex-1">
+        <div className="quiz-content">
           <div className="max-w-4xl mx-auto p-6">
             {/* Questions */}
             <div className="space-y-6">
@@ -301,17 +301,17 @@ export default function QuizTakingPage() {
                             #{globalIndex + 1}
                           </Badge>
                           <div>
-                            <CardTitle className="text-lg">Câu {globalIndex + 1}</CardTitle>
+                            <CardTitle className="text-lg">{t("taking.question")} {globalIndex + 1}</CardTitle>
                             <Badge variant="secondary" className="mt-1">
                               {question.type === 'singleChoice' ? (
                                 <>
                                   <FileText className="w-3 h-3 mr-1" />
-                                  Một đáp án
+                                  {t("taking.singleChoice")}
                                 </>
                               ) : (
                                 <>
                                   <CheckCircle className="w-3 h-3 mr-1" />
-                                  Nhiều đáp án
+                                  {t("taking.multipleChoice")}
                                 </>
                               )}
                             </Badge>
@@ -325,7 +325,7 @@ export default function QuizTakingPage() {
                             "h-9 w-9 p-0",
                             isFlagged && "bg-yellow-100 text-yellow-600 hover:bg-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400"
                           )}
-                          title={isFlagged ? "Bỏ đánh dấu cờ" : "Đánh dấu cờ để xem lại"}
+                          title={isFlagged ? t("taking.removeFlagTooltip") : t("taking.addFlagTooltip")}
                         >
                           <Flag className={cn("h-4 w-4", isFlagged && "fill-current")} />
                         </Button>
@@ -341,7 +341,7 @@ export default function QuizTakingPage() {
                         {question.media_url && (
                           <img
                             src={question.media_url}
-                            alt="Question image"
+                            alt={t("taking.questionImage")}
                             className="max-w-full h-auto rounded-lg border shadow-sm"
                           />
                         )}
@@ -407,7 +407,7 @@ export default function QuizTakingPage() {
                           // No answers
                           <div className="text-center py-8 text-muted-foreground">
                             <AlertTriangle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                            <p>Không có câu trả lời cho câu hỏi này</p>
+                            <p>{t("taking.noAnswersAvailable")}</p>
                           </div>
                         )}
                       </div>
@@ -444,15 +444,15 @@ export default function QuizTakingPage() {
                     disabled={currentPage === 0}
                   >
                     <ChevronLeft className="w-4 h-4 mr-2" />
-                    Trang trước
+                    {t("taking.previousPage")}
                   </Button>
 
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">
-                      Trang {currentPage + 1} / {totalPages}
+                      {t("taking.page")} {currentPage + 1} / {totalPages}
                     </span>
                     <span className="text-sm text-muted-foreground">
-                      ({currentPage * QUESTIONS_PER_PAGE + 1}-{Math.min((currentPage + 1) * QUESTIONS_PER_PAGE, state.questions.length)} / {state.questions.length} câu)
+                      ({currentPage * QUESTIONS_PER_PAGE + 1}-{Math.min((currentPage + 1) * QUESTIONS_PER_PAGE, state.questions.length)} / {state.questions.length} {t("taking.questionsCount")})
                     </span>
                   </div>
 
@@ -478,7 +478,7 @@ export default function QuizTakingPage() {
                     }}
                     disabled={currentPage === totalPages - 1}
                   >
-                    Trang sau
+                    {t("taking.nextPage")}
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>

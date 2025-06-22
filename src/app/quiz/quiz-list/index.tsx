@@ -26,7 +26,7 @@ import "./style.css";
 const ITEMS_PER_PAGE = 9;
 
 export default function QuizListPage() {
-  const { t } = useTranslation('quiz');
+  const { t } = useTranslation(['quiz', 'common']);
   
   // Search and filter state
   const [searchParams, setSearchParams] = useState({
@@ -101,11 +101,23 @@ export default function QuizListPage() {
 
     switch (status) {
       case 'available':
-        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">{t("list.status.notStarted")}</Badge>;
+        return (
+          <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-200 dark:border-green-800 shadow-sm">
+            {t("list.status.notStarted")}
+          </Badge>
+        );
       case 'upcoming':
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">{t("list.status.inProgress")}</Badge>;
+        return (
+          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-800 shadow-sm">
+            {t("list.status.upcoming")}
+          </Badge>
+        );
       case 'expired':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">{t("list.status.completed")}</Badge>;
+        return (
+          <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 border-red-200 dark:border-red-800 shadow-sm">
+            {t("list.status.expired")}
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{t("list.status.expired")}</Badge>;
     }
@@ -259,7 +271,7 @@ export default function QuizListPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">{t("list.status.inProgress")}</p>
+                <p className="text-sm text-muted-foreground">{t("list.status.upcoming")}</p>
                 <h3 className="text-2xl font-bold">{stats.upcoming}</h3>
               </div>
               <Calendar className="w-8 h-8 text-blue-500" />
@@ -282,14 +294,14 @@ export default function QuizListPage() {
       {/* Quiz List */}
       <div className={`gap-6 grid md:grid-cols-2 lg:grid-cols-3`}>
         {paginatedQuizzes.map((quiz) => (
-          <Card key={quiz.examQuizzesId} className="hover:shadow-lg transition-shadow relative flex flex-col h-full">
+          <Card key={quiz.examQuizzesId} className="hover:shadow-lg transition-all duration-200 relative flex flex-col h-full group">
             {/* Status Badge - positioned at top-right corner */}
-            <div className="absolute top-4 right-4 z-10">
+            <div className="absolute top-3 right-3 z-10">
               {getStatusBadge(quiz)}
             </div>
             
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg pr-20 line-clamp-2">
+              <CardTitle className="flex items-center gap-2 text-lg pr-24 line-clamp-2">
                 <BookOpen className="w-5 h-5 flex-shrink-0" />
                 {quiz.title}
               </CardTitle>
@@ -350,7 +362,7 @@ export default function QuizListPage() {
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <span className="text-sm">
-            Trang {searchParams.page} / {totalPages}
+            {t("taking.page")} {searchParams.page} / {totalPages}
           </span>
           <Button
             variant="outline"
