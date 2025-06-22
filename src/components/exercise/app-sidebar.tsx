@@ -10,9 +10,9 @@ import {
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
-import { NavMain } from "@/components/dashboard/nav-main";
-import { NavSecondary } from "@/components/dashboard/nav-secondary";
-import { NavUser } from "@/components/dashboard/nav-user";
+import { NavMain } from "@/components/exercise/nav-main";
+import { NavSecondary } from "@/components/exercise/nav-secondary";
+import { NavUser } from "@/components/exercise/nav-user";
 import {
   Sidebar,
   SidebarContent,

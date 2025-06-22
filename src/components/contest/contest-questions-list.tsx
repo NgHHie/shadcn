@@ -1,7 +1,7 @@
 // src/components/contest/contest-questions-list.tsx
 import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Pagination } from "@/components/dashboard/pagination";
+import { Pagination } from "@/components/exercise/pagination";
 import { ContestQuestionCard } from "./contest-question-card";
 
 interface ContestQuestion {

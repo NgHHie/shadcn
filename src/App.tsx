@@ -1,7 +1,7 @@
 // src/App.tsx (Updated with Auth Guard and Quiz)
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { Page } from "./app/dashboard/page";
+import { Page } from "./app/exercise/page";
 import { Editor } from "./app/editor/page";
 import { HistoryPage } from "./app/history/page";
 import { ProfilePage } from "./app/profile/page";

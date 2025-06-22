@@ -1,12 +1,12 @@
 // src/app/dashboard/page.tsx - Updated with new filter component
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { QuestionCard } from "@/components/dashboard/question-card";
-import { Pagination } from "@/components/dashboard/pagination";
+import { QuestionCard } from "@/components/exercise/question-card";
+import { Pagination } from "@/components/exercise/pagination";
 import {
   QuestionFilter,
   QuestionFilterCriteria,
-} from "@/components/dashboard/question-filter";
+} from "@/components/exercise/question-filter";
 import { useQuestions } from "@/hooks/use-questions";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
