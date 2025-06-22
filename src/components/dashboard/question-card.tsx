@@ -12,7 +12,7 @@ interface QuestionCardProps {
     level: string;
     point: number;
     totalSub: number;
-    status?: "AC" | "WA" | "TLE" | "CE" | "Not Started";
+    status?: "AC" | "WA" | "TLE" | "CE" | "RTE" | "Not Started";
   };
   onClick: (questionId: string, questionTitle: string) => void;
 }
@@ -28,6 +28,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       case "WA":
       case "TLE":
       case "CE":
+      case "RTE":
         return "border-l-red-500";
       default:
         return "border-l-primary";

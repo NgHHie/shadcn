@@ -1,8 +1,10 @@
 // src/components/contest/contest-joined-header.tsx
-import { Trophy, Clock, RefreshCw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useCallback } from "react";
+import { toastInfo, toastSuccess } from "@/lib/toast";
+import api from "@/lib/api";
 
 interface ContestJoinedDetail {
   id: string;
@@ -28,96 +30,81 @@ export function ContestJoinedHeader({
   isActive,
   onRefresh,
 }: ContestJoinedHeaderProps) {
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case "OPEN":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "SCHEDULED":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "CLOSED":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
+  const navigate = useNavigate();
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "OPEN":
-        return "Đang diễn ra";
-      case "SCHEDULED":
-        return "Sắp diễn ra";
-      case "CLOSED":
-        return "Đã kết thúc";
-      default:
-        return status;
+  const handleLogout = useCallback(async () => {
+    try {
+      // Show loading toast
+      const loadingToast = toastInfo("Đang đăng xuất...", {
+        duration: Infinity, // Keep until we dismiss it
+      });
+
+      // Call logout API which will clear tokens
+      await api.auth.logout();
+
+      // Dismiss loading toast
+      if (loadingToast) {
+        import("@/lib/toast").then(({ dismissToast }) => {
+          dismissToast(loadingToast);
+        });
+      }
+
+      // Show success toast
+      toastSuccess("Đăng xuất thành công!", {
+        description: "Hẹn gặp lại bạn!",
+        duration: 3000,
+      });
+
+      // Redirect after showing toast
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 1000);
+    } catch (error) {
+      console.error("Logout error:", error);
+
+      // Even if API call fails, still clear local tokens and redirect
+      api.utils.clearAuthData();
+
+      toastSuccess("Đăng xuất thành công!", {
+        description: "Đã xóa phiên đăng nhập cục bộ",
+        duration: 3000,
+      });
+
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 1000);
     }
-  };
+  }, [api, navigate]);
 
   return (
     <Card>
       <CardContent className="p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          {/* Contest Info */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-primary" />
-              <h1 className="text-2xl font-bold">{contest.name}</h1>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Badge variant="outline" className="text-xs font-mono">
-                {contest.contestCode}
-              </Badge>
-
-              <Badge
-                variant="outline"
-                className={`text-xs ${getStatusBadgeClass(contest.status)}`}
-              >
-                {getStatusText(contest.status)}
-              </Badge>
-
-              <Badge
-                variant={contest.mode === "EXAM" ? "destructive" : "secondary"}
-                className="text-xs"
-              >
-                {contest.mode === "EXAM" ? "Thi" : "Luyện tập"}
-              </Badge>
-            </div>
-
-            <div className="text-sm text-muted-foreground">
-              <div>
-                Bắt đầu:{" "}
-                {new Date(contest.startDatetime).toLocaleString("vi-VN")}
-              </div>
-              <div>
-                Kết thúc:{" "}
-                {new Date(contest.endDatetime).toLocaleString("vi-VN")}
-              </div>
-            </div>
+        <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between md:items-center">
+          {/* Contest Title */}
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">
+              {contest.name}
+            </h1>
           </div>
 
-          {/* Timer and Actions */}
-          <div className="flex flex-col items-end gap-3">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span
-                className={`font-mono text-lg ${
-                  isActive ? "text-green-600" : "text-muted-foreground"
-                }`}
-              >
+          {/* Time and Refresh */}
+          <div className="flex items-center gap-4">
+            {/* Time Remaining */}
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Thời gian còn lại</p>
+              <p className={`text-lg font-mono font-semibold `}>
                 {timeRemaining}
-              </span>
+              </p>
             </div>
 
+            {/* Refresh Button */}
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
-              onClick={onRefresh}
-              className="flex items-center gap-2"
+              onClick={handleLogout}
+              className="shrink-0"
             >
-              <RefreshCw className="h-4 w-4" />
-              Làm mới
+              Hoàn thành
             </Button>
           </div>
         </div>

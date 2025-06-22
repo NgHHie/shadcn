@@ -32,10 +32,16 @@ export function AppSidebar({
   const data = {
     navMain: [
       {
-        title: "Assignment",
+        title: "Bài tập",
         url: "/",
         icon: LayoutDashboardIcon,
         isActive: location.pathname === "/",
+      },
+      {
+        title: "Các cuộc thi",
+        url: "/contest",
+        icon: FolderIcon,
+        isActive: location.pathname === "/contest",
       },
       {
         title: "Quiz",
@@ -65,12 +71,6 @@ export function AppSidebar({
       //   icon: BarChartIcon,
       //   isActive: location.pathname === "/rank",
       // },
-      {
-        title: "Contest",
-        url: "/contest",
-        icon: FolderIcon,
-        isActive: location.pathname === "/contest",
-      },
     ],
     navSecondary: [
       {

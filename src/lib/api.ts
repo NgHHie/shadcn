@@ -727,29 +727,7 @@ export const authApi = {
 
   // Logout - clear tokens
   logout: async (): Promise<void> => {
-    try {
-      const token = TokenManager.getAccessToken();
-
-      if (token) {
-        try {
-          await fetch("https://api.learnsql.store/api/app/user/auth/logout", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-        } catch (error) {
-          console.warn(
-            "Server logout failed, but continuing with local logout:",
-            error
-          );
-        }
-      }
-    } finally {
-      // Always clear local tokens
-      TokenManager.clearTokens();
-    }
+    TokenManager.clearTokens();
   },
 
   // Check if user is logged in (simple check)

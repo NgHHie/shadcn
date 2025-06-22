@@ -1,5 +1,5 @@
 // src/types/contest-joined.ts
-// Types riêng cho contest joined page, không ảnh hưởng types cũ
+// Updated types to support new question statuses
 
 export interface ContestJoinedDetail {
   id: string;
@@ -56,8 +56,9 @@ export interface ContestJoinedQuestion {
   point: number;
 }
 
+// Updated to support new statuses: AC, WA, CE, LTE, RTE, PENDING
 export interface ContestQuestionStatus {
-  status: "AC" | "WA" | "PENDING";
+  status: "AC" | "WA" | "CE" | "LTE" | "RTE" | "PENDING";
   questionId: string;
   completed: "done" | "pending";
 }

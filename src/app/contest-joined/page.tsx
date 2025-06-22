@@ -17,7 +17,6 @@ import {
 
 // Components
 import { ContestJoinedHeader } from "@/components/contest/contest-joined-header";
-import { ContestStats } from "@/components/contest/contest-stats";
 import { ContestQuestionsList } from "@/components/contest/contest-questions-list";
 
 export function ContestJoinedPage() {
@@ -45,7 +44,7 @@ export function ContestJoinedPage() {
     if (contestId && userId) {
       loadData();
     }
-  }, [contestId, userId]); // Thêm userId vào dependency
+  }, [contestId, userId]);
 
   useEffect(() => {
     if (!contestData) return;
@@ -76,62 +75,72 @@ export function ContestJoinedPage() {
     }
   };
 
-  // Data loading - FIX: Đảm bảo API complete được gọi
+  // Format time remaining helper
+  const formatTimeRemaining = (ms: number): string => {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+
+    if (hours > 0) {
+      return `${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    }
+    return `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  // Data loading
   const loadData = async () => {
     if (!contestId || !userId) return;
 
     try {
       setLoading(true);
 
-      // Load contest data trước
+      // Load contest data
       const contestResponse = await contestJoinedApi.getContestDetail(
         contestId
       );
       setContestData(contestResponse);
 
-      // Sau đó load question statuses với data từ contest
+      // Load question statuses
       if (contestResponse.questions.length > 0) {
         const questionIds = contestResponse.questions.map((q) => q.id);
-        const statusesResponse = await contestJoinedApi.checkQuestionStatus({
+        const statusResponse = await contestJoinedApi.checkQuestionStatus({
           questionIds,
           userId,
         });
-        setQuestionStatuses(statusesResponse);
-        console.log("Question statuses loaded:", statusesResponse); // Debug log
+        setQuestionStatuses(statusResponse);
       }
     } catch (error) {
       console.error("Failed to load contest data:", error);
       toastError("Không thể tải thông tin cuộc thi");
-      navigate("/contest");
     } finally {
       setLoading(false);
     }
   };
 
-  // Hàm refresh để test
   const handleRefresh = async () => {
     await loadData();
   };
 
-  // Helper functions
-  const formatTimeRemaining = (milliseconds: number): string => {
-    const total = Math.max(0, milliseconds);
-    const days = Math.floor(total / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (total % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const minutes = Math.floor((total % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((total % (1000 * 60)) / 1000);
-
-    if (days > 0) return `${days} ngày ${hours} giờ ${minutes} phút`;
-    if (hours > 0) return `${hours} giờ ${minutes} phút ${seconds} giây`;
-    if (minutes > 0) return `${minutes} phút ${seconds} giây`;
-    return `${seconds} giây`;
-  };
-
-  const getQuestionStatus = (questionId: string): "AC" | "PENDING" => {
+  // Get question status - now supports WA, CE, LTE, RTE
+  const getQuestionStatus = (
+    questionId: string
+  ): "AC" | "WA" | "CE" | "LTE" | "RTE" | "PENDING" => {
     const status = questionStatuses.find((s) => s.questionId === questionId);
-    return status?.status === "AC" ? "AC" : "PENDING";
+    return status?.status === "AC"
+      ? "AC"
+      : status?.status === "WA"
+      ? "WA"
+      : status?.status === "CE"
+      ? "CE"
+      : status?.status === "LTE"
+      ? "LTE"
+      : status?.status === "RTE"
+      ? "RTE"
+      : "PENDING";
   };
 
   // Handle question click
@@ -157,16 +166,15 @@ export function ContestJoinedPage() {
 
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
-    setCurrentPage(0); // Reset về trang đầu
+    setCurrentPage(0);
   };
 
   // Loading state
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="space-y-6">
           <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-32 w-full" />
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-16 w-full" />
@@ -192,8 +200,8 @@ export function ContestJoinedPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
-      {/* Contest Header */}
+    <div className="container mx-auto px-4 py-8 space-y-6 max-w-4xl">
+      {/* Contest Header - Simplified */}
       <ContestJoinedHeader
         contest={contestData}
         timeRemaining={timeRemaining}
@@ -201,17 +209,7 @@ export function ContestJoinedPage() {
         onRefresh={handleRefresh}
       />
 
-      {/* Contest Stats */}
-      <ContestStats
-        totalQuestions={totalQuestions}
-        completedQuestions={
-          questionStatuses.filter((s) => s.status === "AC").length
-        }
-        timeRemaining={timeRemaining}
-        isActive={isContestActive}
-      />
-
-      {/* Questions List with Pagination */}
+      {/* Questions List - No stats, simplified header */}
       <ContestQuestionsList
         questions={currentQuestions}
         getQuestionStatus={getQuestionStatus}

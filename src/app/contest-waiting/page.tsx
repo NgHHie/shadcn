@@ -121,7 +121,6 @@ export function ContestWaitingPage() {
       setStarting(true);
       // Navigate to contest start page
       navigate(`/contest-joined/${contestData.id}`);
-      toastSuccess("Đang chuyển đến cuộc thi...");
     } catch (error) {
       console.error("Failed to start contest:", error);
       toastError("Không thể bắt đầu cuộc thi", {
@@ -243,7 +242,6 @@ export function ContestWaitingPage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center gap-2 text-sm">
-                    <FileText className="w-4 h-4 text-blue-500" />
                     <span className="text-muted-foreground">
                       Số lượng câu hỏi:
                     </span>
@@ -252,7 +250,6 @@ export function ContestWaitingPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <Users className="w-4 h-4 text-green-500" />
                     <span className="text-muted-foreground">
                       Số người tham gia:
                     </span>
@@ -261,7 +258,6 @@ export function ContestWaitingPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <Clock className="w-4 h-4 text-orange-500" />
                     <span className="text-muted-foreground">Thời gian:</span>
                     <span className="font-medium">
                       {contestData.duration} phút
@@ -348,9 +344,7 @@ export function ContestWaitingPage() {
 
             {/* Contest Details */}
             <Card>
-              <CardHeader>
-                <h3 className="text-lg font-semibold">Chi tiết</h3>
-              </CardHeader>
+              <CardHeader></CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div>
                   <span className="text-muted-foreground">Mã cuộc thi: </span>

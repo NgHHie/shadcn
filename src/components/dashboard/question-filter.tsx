@@ -57,13 +57,13 @@ const TYPE_OPTIONS: { value: TypeQuestion; label: string }[] = [
 
 const LEVEL_OPTIONS: { value: LevelQuestion; label: string; color: string }[] =
   [
-    { value: "EASY", label: "Dễ", color: "bg-green-100 text-green-800" },
+    { value: "EASY", label: "Easy", color: "" },
     {
       value: "MEDIUM",
-      label: "Trung bình",
-      color: "bg-yellow-100 text-yellow-800",
+      label: "Medium",
+      color: "",
     },
-    { value: "HARD", label: "Khó", color: "bg-red-100 text-red-800" },
+    { value: "HARD", label: "Hard", color: "" },
   ];
 
 export function QuestionFilter({
@@ -185,11 +185,7 @@ export function QuestionFilter({
               <SelectItem value="ALL">Tất cả độ khó</SelectItem>
               {LEVEL_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
-                  <div className="flex items-center gap-2">
-                    <Badge className={`text-xs ${option.color}`}>
-                      {option.label}
-                    </Badge>
-                  </div>
+                  <div className="flex items-center gap-2">{option.label}</div>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -198,7 +194,6 @@ export function QuestionFilter({
 
         {/* Search Button */}
         <Button onClick={handleSearch} disabled={loading} className="shrink-0">
-          <Search className="h-4 w-4 mr-2" />
           Tìm kiếm
         </Button>
 
@@ -210,46 +205,10 @@ export function QuestionFilter({
             disabled={loading}
             className="shrink-0"
           >
-            <X className="h-4 w-4 mr-2" />
             Xóa bộ lọc
           </Button>
         )}
       </div>
-
-      {/* Active Filters Display */}
-      {hasActiveFilters && (
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Đang lọc:</span>
-          {searchInput.trim() && (
-            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-              "{searchInput.trim()}"
-            </Badge>
-          )}
-          {selectedType !== "ALL" && (
-            <Badge
-              variant="secondary"
-              className="bg-orange-100 text-orange-800"
-            >
-              Loại: {selectedType}
-            </Badge>
-          )}
-          {selectedLevel !== "ALL" && (
-            <Badge
-              variant="secondary"
-              className={
-                selectedLevel === "EASY"
-                  ? "bg-green-100 text-green-800"
-                  : selectedLevel === "MEDIUM"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-red-100 text-red-800"
-              }
-            >
-              Độ khó:{" "}
-              {LEVEL_OPTIONS.find((opt) => opt.value === selectedLevel)?.label}
-            </Badge>
-          )}
-        </div>
-      )}
     </div>
   );
 }

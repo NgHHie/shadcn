@@ -96,18 +96,12 @@ export function Page() {
 
   // Render loading skeletons
   const renderLoadingSkeletons = () => (
-    <div className="grid gap-3">
-      {Array.from({ length: 5 }).map((_, index) => (
-        <div key={index} className="border rounded-lg p-4 space-y-3">
+    <div className="grid gap-2">
+      {Array.from({ length: 10 }).map((_, index) => (
+        <div key={index} className="border rounded-lg p-3 space-y-3">
           <div className="flex items-center justify-between">
-            <Skeleton className="h-5 w-24" />
-            <Skeleton className="h-6 w-16" />
-          </div>
-          <Skeleton className="h-4 w-3/4" />
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-4 w-12" />
-            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-3 w-16" />
           </div>
         </div>
       ))}
@@ -221,41 +215,35 @@ export function Page() {
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>Bộ lọc đang áp dụng:</span>
               {filterCriteria.keyword && (
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md">
+                <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md">
                   Từ khóa: "{filterCriteria.keyword}"
                 </span>
               )}
               {filterCriteria.questionCode && (
-                <span className="px-2 py-1 bg-green-100 text-green-800 rounded-md">
+                <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md">
                   Mã: {filterCriteria.questionCode}
                 </span>
               )}
               {filterCriteria.title && (
-                <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-md">
+                <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md">
                   Tiêu đề: "{filterCriteria.title}"
                 </span>
               )}
               {filterCriteria.type && (
-                <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded-md">
+                <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md">
                   Loại: {filterCriteria.type}
                 </span>
               )}
               {filterCriteria.level && (
                 <span
-                  className={`px-2 py-1 rounded-md ${
-                    filterCriteria.level === "EASY"
-                      ? "bg-green-100 text-green-800"
-                      : filterCriteria.level === "MEDIUM"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
+                  className={`px-2 py-1 bg-gray-100 text-gray-800 rounded-md`}
                 >
                   Độ khó:{" "}
                   {filterCriteria.level === "EASY"
-                    ? "Dễ"
+                    ? "Easy"
                     : filterCriteria.level === "MEDIUM"
-                    ? "Trung bình"
-                    : "Khó"}
+                    ? "Medium"
+                    : "Hard"}
                 </span>
               )}
             </div>
