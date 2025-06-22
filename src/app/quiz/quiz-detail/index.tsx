@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, User, ListChecks, ArrowLeft, Play } from "lucide-react";
 import { quizService, PublicQuiz } from "@/services/quizService";
+import { useTranslation } from "react-i18next";
 import "@/styles/quiz-shared.css";
 import "./style.css";
 import { useUserContext } from "@/contexts/UserContext";
@@ -14,6 +15,7 @@ export default function QuizDetailPage() {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const { userId } = useUserContext();
+  const { t } = useTranslation('quiz');
 
   const [quiz, setQuiz] = useState<PublicQuiz | null>(null);
   const [loadingQuiz, setLoadingQuiz] = useState(false);
@@ -53,13 +55,13 @@ export default function QuizDetailPage() {
     const status = getQuizStatus(quiz);
     switch (status) {
       case "available":
-        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Đang mở</Badge>;
+        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">{t("list.status.notStarted")}</Badge>;
       case "upcoming":
-        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Sắp diễn ra</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">{t("list.status.inProgress")}</Badge>;
       case "expired":
-        return <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">Đã kết thúc</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">{t("list.status.completed")}</Badge>;
       default:
-        return <Badge>Không xác định</Badge>;
+        return <Badge>{t("list.status.expired")}</Badge>;
     }
   };
 
@@ -79,7 +81,7 @@ export default function QuizDetailPage() {
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error("Error starting quiz:", err);
-      alert("Không thể bắt đầu bài thi. Vui lòng thử lại!");
+      alert(t("detail.errorStarting"));
     } finally {
       setStarting(false);
     }
@@ -98,8 +100,8 @@ export default function QuizDetailPage() {
     return (
       <div className="container mx-auto p-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Không tìm thấy bài thi</h2>
-          <Button onClick={() => navigate("/quiz/quiz-list")}>Quay lại danh sách</Button>
+          <h2 className="text-2xl font-bold mb-4">{t("detail.notFound")}</h2>
+          <Button onClick={() => navigate("/quiz/quiz-list")}>{t("result.backToList")}</Button>
         </div>
       </div>
     );
@@ -121,7 +123,7 @@ export default function QuizDetailPage() {
               {quiz.title}
               {getStatusBadge(quiz)}
             </h1>
-            <div className="text-muted-foreground text-sm font-mono">Mã bài thi: {quiz.code}</div>
+            <div className="text-muted-foreground text-sm font-mono">{t("detail.quizCode")}: {quiz.code}</div>
           </div>
         </div>
         <Button
@@ -131,7 +133,7 @@ export default function QuizDetailPage() {
           onClick={handleStartQuiz}
         >
           <Play className="w-5 h-5 mr-2" />
-          {starting ? "Đang khởi tạo..." : "Bắt đầu làm bài"}
+{starting ? t("detail.starting") : t("detail.startNow")}
         </Button>
       </div>
 
@@ -141,17 +143,17 @@ export default function QuizDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Clock className="w-5 h-5" />
-              Thời gian
+              {t("detail.timeLimit")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Bắt đầu:</span>
+                <span className="text-muted-foreground">{t("detail.startTime")}:</span>
                 <span>{new Date(quiz.startTime).toLocaleString()}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Kết thúc:</span>
+                <span className="text-muted-foreground">{t("detail.endTime")}:</span>
                 <span>{new Date(quiz.endTime).toLocaleString()}</span>
               </div>
             </div>
@@ -161,12 +163,12 @@ export default function QuizDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <ListChecks className="w-5 h-5" />
-              Số lượng câu hỏi
+              {t("detail.totalQuestions")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Tổng số câu hỏi:</span>
+              <span className="text-muted-foreground">{t("detail.totalQuestions")}:</span>
               <span className="font-semibold text-lg">{quiz.totalQuestions}</span>
             </div>
           </CardContent>
@@ -175,44 +177,44 @@ export default function QuizDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <User className="w-5 h-5" />
-              Người tạo
+              {t("detail.createdBy")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Tên:</span>
+              <span className="text-muted-foreground">{t("detail.name")}:</span>
               <span>{quiz.createdBy}</span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Nội quy thi (hardcode) */}
+      {/* Quiz Rules */}
       <Card>
         <CardHeader>
-          <CardTitle>Nội quy thi</CardTitle>
+          <CardTitle>{t("detail.examRules")}</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="list-disc pl-5 space-y-1 text-sm">
-            <li>Không được sử dụng tài liệu, thiết bị hỗ trợ trong quá trình làm bài.</li>
-            <li>Không trao đổi, sao chép bài làm với người khác.</li>
-            <li>Tuân thủ thời gian làm bài đã quy định.</li>
-            <li>Mọi vi phạm sẽ bị xử lý theo quy định của nhà trường.</li>
+            <li>{t("detail.rule1")}</li>
+            <li>{t("detail.rule2")}</li>
+            <li>{t("detail.rule3")}</li>
+            <li>{t("detail.rule4")}</li>
           </ul>
         </CardContent>
       </Card>
 
-      {/* Hướng dẫn thi (hardcode) */}
+      {/* Instructions */}
       <Card>
         <CardHeader>
-          <CardTitle>Hướng dẫn làm bài</CardTitle>
+          <CardTitle>{t("detail.instructions")}</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="list-disc pl-5 space-y-1 text-sm">
-            <li>Đọc kỹ đề bài trước khi trả lời.</li>
-            <li>Chọn đáp án đúng nhất cho mỗi câu hỏi.</li>
-            <li>Kiểm tra lại bài làm trước khi nộp.</li>
-            <li>Nhấn nút "Nộp bài" khi đã hoàn thành.</li>
+            <li>{t("detail.instruction1")}</li>
+            <li>{t("detail.instruction2")}</li>
+            <li>{t("detail.instruction3")}</li>
+            <li>{t("detail.instruction4")}</li>
           </ul>
         </CardContent>
       </Card>

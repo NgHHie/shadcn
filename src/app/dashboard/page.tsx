@@ -10,9 +10,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Loader2, AlertCircle, BookOpen, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toastSuccess } from "@/lib/toast";
+import { useTranslation } from "react-i18next";
 
 export function Page() {
   const navigate = useNavigate();
+  const { t } = useTranslation('dashboard');
   const [inputKeyword, setInputKeyword] = useState(""); // Input state
   const [searchKeyword, setSearchKeyword] = useState(""); // Actual search keyword
   const [currentPage, setCurrentPage] = useState(0);
@@ -42,12 +44,12 @@ export function Page() {
 
   const handleQuestionClick = useCallback(
     (questionId: string, questionTitle: string) => {
-      toastSuccess("Chuyển đến đề bài", {
-        description: `Đang mở: ${questionTitle}`,
+      toastSuccess(t("redirectingToAssignment"), {
+        description: t("openingAssignment", { title: questionTitle }),
       });
       navigate(`/question-detail/${questionId}`);
     },
-    [navigate]
+    [navigate, t]
   );
 
   const handlePageChange = useCallback((page: number) => {
@@ -102,7 +104,7 @@ export function Page() {
               className="ml-2"
               onClick={refetch}
             >
-              Thử lại
+              {t("common:retry")}
             </Button>
           </AlertDescription>
         </Alert>
@@ -115,16 +117,16 @@ export function Page() {
         <div className="text-center py-12">
           <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium mb-2">
-            {searchKeyword ? "Không tìm thấy kết quả" : "Không có bài tập nào"}
+            {searchKeyword ? t("noResults") : t("noAssignments")}
           </h3>
           <p className="text-muted-foreground mb-4">
             {searchKeyword
-              ? `Không tìm thấy bài tập nào với từ khóa "${searchKeyword}"`
-              : "Hiện tại chưa có bài tập nào được phân công cho bạn"}
+              ? t("noResultsDescription", { keyword: searchKeyword })
+              : t("noAssignmentsDescription")}
           </p>
           {searchKeyword && (
             <Button variant="outline" onClick={handleClearSearch}>
-              Xóa bộ lọc
+              {t("clearFilter")}
             </Button>
           )}
         </div>
@@ -169,7 +171,7 @@ export function Page() {
           {/* Bên trái: Tiêu đề */}
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-semibold">
-              DANH SÁCH BÀI TẬP {!loading && `(${totalElements} bài)`}
+{t("title")} {!loading && totalElements > 0 && `(${totalElements} ${t("totalAssignments")})`}
             </h1>
             {loading && (
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -185,7 +187,7 @@ export function Page() {
 
               {/* Input */}
               <Input
-                placeholder="Tìm kiếm theo mã hoặc tên câu hỏi..."
+                placeholder={t("searchPlaceholder")}
                 value={inputKeyword}
                 onChange={(e) => setInputKeyword(e.target.value)}
                 onKeyDown={handleKeyPress}
@@ -213,7 +215,7 @@ export function Page() {
               size="sm"
               className="h-9 px-3" // Khớp chiều cao với input
             >
-              Tìm kiếm
+              {t("common:search")}
             </Button>
           </div>
         </div>

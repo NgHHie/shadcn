@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface PaginationProps {
   currentPage: number;
@@ -29,6 +30,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   onPageChange,
   onPageSizeChange,
 }) => {
+  const { t } = useTranslation('dashboard');
   // Tính toán các trang hiển thị cho desktop
   const getVisiblePages = () => {
     const current = currentPage + 1; // Convert to 1-based
@@ -119,13 +121,13 @@ export const Pagination: React.FC<PaginationProps> = ({
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
       {/* Desktop layout - giữ nguyên như cũ */}
       <div className="hidden sm:block text-sm text-muted-foreground">
-        Trang {currentPage + 1} / {totalPages} ({totalElements} bài tập)
+{t("common:page")} {currentPage + 1} {t("common:of")} {totalPages} ({totalElements} {t("totalAssignments")})
       </div>
 
       <div className="hidden sm:flex items-center gap-4">
         {/* Phần chọn số phần tử */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Hiển thị:</span>
+          <span className="text-sm text-muted-foreground">{t("common:showing")}:</span>
           <Select
             value={pageSize.toString()}
             onValueChange={(value) => onPageSizeChange(Number(value))}
@@ -142,7 +144,7 @@ export const Pagination: React.FC<PaginationProps> = ({
               <SelectItem value="30">30</SelectItem>
             </SelectContent>
           </Select>
-          <span className="text-sm text-muted-foreground">/ trang</span>
+          <span className="text-sm text-muted-foreground">/ {t("common:page")}</span>
         </div>
 
         {/* Navigation controls cho desktop */}

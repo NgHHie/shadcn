@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,6 +27,7 @@ export function RegisterForm({
   onRegisterSuccess,
   ...props
 }: RegisterFormProps) {
+  const { t } = useTranslation('auth');
   const api = useApi();
   const [isLoading, setIsLoading] = useState(false);
   
@@ -45,17 +47,17 @@ export function RegisterForm({
     e.preventDefault();
 
     if (!formData.username || !formData.password) {
-      setError("Please enter username and password");
+      setError(t('register.validation.required'));
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError(t('register.validation.passwordMismatch'));
       return;
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError(t('register.validation.passwordLength'));
       return;
     }
 
@@ -97,9 +99,9 @@ export function RegisterForm({
           <form className="p-6 md:p-8" onSubmit={handleRegister}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Create an account</h1>
+                <h1 className="text-2xl font-bold">{t('register.title')}</h1>
                 <p className="text-balance text-muted-foreground">
-                  Sign up for your new account
+                  {t('register.description')}
                 </p>
               </div>
 
@@ -111,11 +113,11 @@ export function RegisterForm({
               )}
 
               <div className="grid gap-2">
-                <Label htmlFor="fullName">Full Name (Optional)</Label>
+                <Label htmlFor="fullName">{t('register.fullName')}</Label>
                 <Input
                   id="fullName"
                   type="text"
-                  placeholder="Enter your full name"
+                  placeholder={t('register.fullNamePlaceholder')}
                   value={formData.fullName}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -128,11 +130,11 @@ export function RegisterForm({
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">{t('register.username')}</Label>
                 <Input
                   id="username"
                   type="text"
-                  placeholder="Enter your username"
+                  placeholder={t('register.usernamePlaceholder')}
                   value={formData.username}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -146,12 +148,12 @@ export function RegisterForm({
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('register.password')}</Label>
                 <div className="relative">
                   <Input 
                     id="password" 
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder={t('register.passwordPlaceholder')}
                     value={formData.password}
                     onChange={(e) =>
                       setFormData((prev) => ({
@@ -178,12 +180,12 @@ export function RegisterForm({
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword">{t('register.confirmPassword')}</Label>
                 <div className="relative">
                   <Input 
                     id="confirmPassword" 
                     type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm your password"
+                    placeholder={t('register.confirmPasswordPlaceholder')}
                     value={formData.confirmPassword}
                     onChange={(e) =>
                       setFormData((prev) => ({
@@ -213,17 +215,17 @@ export function RegisterForm({
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating account...
+                    {t('register.creatingAccount')}
                   </>
                 ) : (
-                  "Create account"
+                  t('register.createAccount')
                 )}
               </Button>
 
               <div className="text-center text-sm">
-                Already have an account?{" "}
+                {t('register.alreadyHaveAccount')}{" "}
                 <a href="/login" className="underline underline-offset-4">
-                  Sign in
+                  {t('register.signIn')}
                 </a>
               </div>
             </div>
@@ -240,8 +242,8 @@ export function RegisterForm({
         </CardContent>
       </Card>
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-        By clicking continue, you agree to our{" "}
-        <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        {t('register.terms')}{" "}
+        <a href="#">{t('register.termsOfService')}</a> {t('register.and')} <a href="#">{t('register.privacyPolicy')}</a>.
       </div>
     </div>
   );

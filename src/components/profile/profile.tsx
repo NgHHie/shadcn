@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Edit3,
   X,
@@ -39,6 +40,7 @@ interface UserData {
 }
 
 export function Profile() {
+  const { t } = useTranslation('common');
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,9 +76,9 @@ export function Profile() {
         }
 
         if (errorStatus === 401) {
-          const errorMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+          const errorMessage = t('profile.sessionExpired');
           setError(errorMessage);
-          toastError("Lỗi xác thực", {
+          toastError(t('profile.authError'), {
             description: errorMessage,
           });
           // Redirect to login after showing error
@@ -89,7 +91,7 @@ export function Profile() {
         // Handle other errors
         const errorMessage = handleDataFetchError(err);
         setError(errorMessage);
-        toastError("Lỗi khi tải thông tin người dùng", {
+        toastError(t('profile.loadUserInfoError'), {
           description: errorMessage,
         });
       } finally {
@@ -107,33 +109,33 @@ export function Profile() {
 
   const getFieldLabel = (field: string) => {
     const labels = {
-      firstName: "Họ",
-      lastName: "Tên",
-      email: "Email",
-      phone: "Số điện thoại",
-      birthday: "Ngày sinh",
+      firstName: t('profile.firstName'),
+      lastName: t('profile.lastName'),
+      email: t('profile.email'),
+      phone: t('profile.phone'),
+      birthday: t('profile.birthday'),
     };
     return labels[field as keyof typeof labels] || field;
   };
 
   const handleCancel = () => {
     setIsEditing(null);
-    toastInfo("Đã hủy chỉnh sửa");
+    toastInfo(t('profile.editingCanceled'));
   };
 
   const handleChangeAvatar = () => {
-    toastInfo("Thay đổi ảnh đại diện", {
+    toastInfo(t('profile.changeAvatar'), {
       description: "Chọn ảnh mới từ thiết bị của bạn",
       action: {
-        label: "Chọn ảnh",
+        label: t('profile.chooseImage'),
         onClick: () => {
           // Simulate file selection
           setTimeout(() => {
             if (Math.random() > 0.3) {
-              toastSuccess("Ảnh đại diện đã được cập nhật!");
+              toastSuccess(t('profile.avatarUpdated'));
             } else {
               toastError("Lỗi tải ảnh", {
-                description: "File ảnh không hợp lệ hoặc quá lớn",
+                description: t('profile.avatarError'),
               });
             }
           }, 1000);
@@ -143,16 +145,16 @@ export function Profile() {
   };
 
   const handleSaveAllChanges = () => {
-    toastSuccess("Tất cả thay đổi đã được lưu!", {
-      description: "Thông tin cá nhân đã được cập nhật thành công",
+    toastSuccess(t('profile.allChangesSaved'), {
+      description: t('profile.profileUpdated'),
       duration: 5000,
     });
   };
 
   const handleCancelAllChanges = () => {
     setIsEditing(null);
-    toastWarning("Đã hủy tất cả thay đổi", {
-      description: "Thông tin trở về trạng thái ban đầu",
+    toastWarning(t('profile.allChangesCanceled'), {
+      description: t('profile.backToInitialState'),
     });
   };
 
@@ -291,14 +293,14 @@ export function Profile() {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 {error}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="ml-2"
-                  onClick={() => window.location.reload()}
-                >
-                  Thử lại
-                </Button>
+                                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-2"
+                    onClick={() => window.location.reload()}
+                  >
+                    {t('common.retry')}
+                  </Button>
               </AlertDescription>
             </Alert>
           </Card>
@@ -332,10 +334,10 @@ export function Profile() {
                     {profileData.fullName || `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || 'User'}
                   </h1>
                   <p className="text-muted-foreground mb-1">
-                    {profileData.email || 'No email'}
+                    {profileData.email || t('profile.noEmail')}
                   </p>
                   <p className="text-muted-foreground">
-                    {profileData.birthDay ? new Date(profileData.birthDay).toLocaleDateString("vi-VN") : 'No birthday'}
+                    {profileData.birthDay ? new Date(profileData.birthDay).toLocaleDateString("vi-VN") : t('profile.noBirthday')}
                   </p>
                 </div>
               </div>
@@ -345,7 +347,7 @@ export function Profile() {
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <User className="w-6 h-6" />
-                    Thông tin cá nhân
+                    {t('profile.title')}
                   </h2>
                 </div>
 
@@ -353,21 +355,21 @@ export function Profile() {
                   <EditableField
                     field="firstName"
                     value={profileData.firstName || ''}
-                    label="Họ"
+                    label={t('profile.firstName')}
                     icon={User}
                   />
 
                   <EditableField
                     field="lastName"
                     value={profileData.lastName || ''}
-                    label="Tên"
+                    label={t('profile.lastName')}
                     icon={User}
                   />
 
                   <EditableField
                     field="email"
                     value={profileData.email || ''}
-                    label="Email"
+                    label={t('profile.email')}
                     icon={Mail}
                     type="email"
                   />
@@ -375,7 +377,7 @@ export function Profile() {
                   <EditableField
                     field="phone"
                     value={profileData.phone || ''}
-                    label="Số điện thoại"
+                    label={t('profile.phone')}
                     icon={Phone}
                     type="tel"
                   />
@@ -384,7 +386,7 @@ export function Profile() {
                     <EditableField
                       field="birthDay"
                       value={profileData.birthDay || ''}
-                      label="Ngày sinh"
+                      label={t('profile.birthday')}
                       icon={Calendar}
                       type="date"
                     />
@@ -392,28 +394,28 @@ export function Profile() {
 
                   <PasswordField
                     field="password"
-                    label="Mật khẩu mới"
-                    placeholder="Nhập mật khẩu mới"
+                    label={t('profile.newPassword')}
+                    placeholder={t('profile.newPasswordPlaceholder')}
                   />
 
                   <PasswordField
                     field="confirmPassword"
-                    label="Xác nhận mật khẩu"
-                    placeholder="Nhập lại mật khẩu"
+                    label={t('profile.confirmPassword')}
+                    placeholder={t('profile.confirmPasswordPlaceholder')}
                   />
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex gap-4 mt-8 pt-6 border-t">
                   <Button className="px-6 py-2" onClick={handleSaveAllChanges}>
-                    Lưu thay đổi
+                    {t('profile.saveChanges')}
                   </Button>
                   <Button
                     variant="outline"
                     className="px-6 py-2"
                     onClick={handleCancelAllChanges}
                   >
-                    Hủy bỏ
+                    {t('profile.cancel')}
                   </Button>
                 </div>
               </div>

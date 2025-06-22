@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useQuiz } from "@/hooks/use-quiz";
 import type { PublicQuiz } from "@/services/quizService";
+import { useTranslation } from "react-i18next";
 import "@/styles/quiz-shared.css";
 import "./style.css";
 
@@ -25,6 +26,8 @@ import "./style.css";
 const ITEMS_PER_PAGE = 9;
 
 export default function QuizListPage() {
+  const { t } = useTranslation('quiz');
+  
   // Search and filter state
   const [searchParams, setSearchParams] = useState({
     query: "",
@@ -38,6 +41,17 @@ export default function QuizListPage() {
 
   // Get quizzes from hook
   const { quizzes, loading: quizLoading, error, fetchQuizzes } = useQuiz();
+
+  // Get quiz status
+  const getQuizStatus = (quiz: PublicQuiz): "available" | "upcoming" | "expired" => {
+    const now = new Date();
+    const startTime = new Date(quiz.startTime);
+    const endTime = new Date(quiz.endTime);
+
+    if (now < startTime) return "upcoming";
+    if (now > endTime) return "expired";
+    return "available";
+  };
 
   // Filter and sort quizzes
   const filteredQuizzes = useMemo(() => {
@@ -79,18 +93,7 @@ export default function QuizListPage() {
     });
 
     return filtered;
-  }, [quizzes, searchParams]);
-
-  // Get quiz status
-  const getQuizStatus = (quiz: PublicQuiz): "available" | "upcoming" | "expired" => {
-    const now = new Date();
-    const startTime = new Date(quiz.startTime);
-    const endTime = new Date(quiz.endTime);
-
-    if (now < startTime) return "upcoming";
-    if (now > endTime) return "expired";
-    return "available";
-  };
+  }, [quizzes, searchParams, getQuizStatus]);
 
   // Get status badge
   const getStatusBadge = (quiz: PublicQuiz) => {
@@ -98,13 +101,13 @@ export default function QuizListPage() {
 
     switch (status) {
       case 'available':
-        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Đang mở</Badge>;
+        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">{t("list.status.notStarted")}</Badge>;
       case 'upcoming':
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Sắp diễn ra</Badge>;
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">{t("list.status.inProgress")}</Badge>;
       case 'expired':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">Đã kết thúc</Badge>;
+        return <Badge variant="outline" className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">{t("list.status.completed")}</Badge>;
       default:
-        return <Badge variant="outline">Không xác định</Badge>;
+        return <Badge variant="outline">{t("list.status.expired")}</Badge>;
     }
   };
 
@@ -166,9 +169,9 @@ export default function QuizListPage() {
     return (
       <div className="container mx-auto p-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Đã có lỗi xảy ra</h2>
+          <h2 className="text-2xl font-bold text-red-600 mb-4">{t("common.error")}</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
-          <Button onClick={() => fetchQuizzes()}>Thử lại</Button>
+          <Button onClick={() => fetchQuizzes()}>{t("common.retry")}</Button>
         </div>
       </div>
     );
@@ -178,14 +181,14 @@ export default function QuizListPage() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Danh sách bài thi</h1>
+        <h1 className="text-2xl font-bold">{t("list.title")}</h1>
       </div>
 
       {/* Search and Filters */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1">
           <Input
-            placeholder="Tìm kiếm bài thi..."
+            placeholder={t("list.search.placeholder")}
             value={searchParams.query}
             onChange={(e) => updateSearchParams({ query: e.target.value })}
             className="w-full"
@@ -200,13 +203,13 @@ export default function QuizListPage() {
           }
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Trạng thái" />
+            <SelectValue placeholder={t("list.sortBy.placeholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tất cả</SelectItem>
-            <SelectItem value="available">Đang mở</SelectItem>
-            <SelectItem value="upcoming">Sắp diễn ra</SelectItem>
-            <SelectItem value="expired">Đã kết thúc</SelectItem>
+            <SelectItem value="all">{t("list.sortBy.all")}</SelectItem>
+            <SelectItem value="available">{t("list.sortBy.available")}</SelectItem>
+            <SelectItem value="upcoming">{t("list.sortBy.upcoming")}</SelectItem>
+            <SelectItem value="expired">{t("list.sortBy.expired")}</SelectItem>
           </SelectContent>
         </Select>
         <Select
@@ -216,14 +219,14 @@ export default function QuizListPage() {
           }
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Sắp xếp theo" />
+            <SelectValue placeholder={t("list.sortBy.placeholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="newest">Mới nhất</SelectItem>
-            <SelectItem value="oldest">Cũ nhất</SelectItem>
-            <SelectItem value="title">Tên bài thi</SelectItem>
-            <SelectItem value="questions">Số câu hỏi</SelectItem>
-            <SelectItem value="startTime">Thời gian bắt đầu</SelectItem>
+            <SelectItem value="newest">{t("list.sortBy.newest")}</SelectItem>
+            <SelectItem value="oldest">{t("list.sortBy.oldest")}</SelectItem>
+            <SelectItem value="title">{t("list.sortBy.title")}</SelectItem>
+            <SelectItem value="questions">{t("list.sortBy.questions")}</SelectItem>
+            <SelectItem value="startTime">{t("list.sortBy.startTime")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -234,7 +237,7 @@ export default function QuizListPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Tổng số bài thi</p>
+                <p className="text-sm text-muted-foreground">{t("list.totalQuizzes")}</p>
                 <h3 className="text-2xl font-bold">{stats.total}</h3>
               </div>
               <BookOpen className="w-8 h-8 text-muted-foreground" />
@@ -245,7 +248,7 @@ export default function QuizListPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Đang mở</p>
+                <p className="text-sm text-muted-foreground">{t("list.status.notStarted")}</p>
                 <h3 className="text-2xl font-bold">{stats.available}</h3>
               </div>
               <Play className="w-8 h-8 text-green-500" />
@@ -256,7 +259,7 @@ export default function QuizListPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Sắp diễn ra</p>
+                <p className="text-sm text-muted-foreground">{t("list.status.inProgress")}</p>
                 <h3 className="text-2xl font-bold">{stats.upcoming}</h3>
               </div>
               <Calendar className="w-8 h-8 text-blue-500" />
@@ -267,7 +270,7 @@ export default function QuizListPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Đã kết thúc</p>
+                <p className="text-sm text-muted-foreground">{t("list.status.expired")}</p>
                 <h3 className="text-2xl font-bold">{stats.expired}</h3>
               </div>
               <Users className="w-8 h-8 text-gray-500" />
@@ -279,50 +282,54 @@ export default function QuizListPage() {
       {/* Quiz List */}
       <div className={`gap-6 grid md:grid-cols-2 lg:grid-cols-3`}>
         {paginatedQuizzes.map((quiz) => (
-          <Card key={quiz.examQuizzesId} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <BookOpen className="w-5 h-5" />
-                  {quiz.title}
-                </CardTitle>
-                {getStatusBadge(quiz)}
-              </div>
+          <Card key={quiz.examQuizzesId} className="hover:shadow-lg transition-shadow relative flex flex-col h-full">
+            {/* Status Badge - positioned at top-right corner */}
+            <div className="absolute top-4 right-4 z-10">
+              {getStatusBadge(quiz)}
+            </div>
+            
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg pr-20 line-clamp-2">
+                <BookOpen className="w-5 h-5 flex-shrink-0" />
+                {quiz.title}
+              </CardTitle>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <User className="w-4 h-4" />
-                <span>{quiz.createdBy}</span>
+                <span className="truncate">{quiz.createdBy}</span>
                 {quiz.code && (
                   <>
                     <span>•</span>
-                    <span className="font-mono">{quiz.code}</span>
+                    <span className="font-mono text-xs">{quiz.code}</span>
                   </>
                 )}
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3 mb-6">
+            
+            <CardContent className="pt-0 flex-1 flex flex-col">
+              <div className="space-y-3 flex-1">
                 <div className="flex items-center gap-2 text-sm">
                   <Users className="w-4 h-4 text-muted-foreground" />
-                  <span>{quiz.totalQuestions} câu hỏi</span>
+                  <span>{quiz.totalQuestions} {t("list.questions")}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <span>
+                  <span className="text-xs">
                     {new Date(quiz.startTime).toLocaleDateString()} -{" "}
                     {new Date(quiz.endTime).toLocaleDateString()}
                   </span>
                 </div>
               </div>
-
-              <div className="flex gap-2">
+              
+              {/* Action button at the bottom */}
+              <div className="mt-6">
                 <Button
                   variant="outline"
-                  className="flex-1"
+                  className="w-full"
                   asChild
                 >
                   <Link to={`/quiz/quiz-detail/${quiz.examQuizzesId}`}>
                     <Eye className="w-4 h-4 mr-2" />
-                    Xem chi tiết
+                    {t("list.viewDetail")}
                   </Link>
                 </Button>
               </div>
@@ -363,19 +370,17 @@ export default function QuizListPage() {
           {quizzes.length === 0 ? (
             // No quizzes at all
             <>
-              <h3 className="text-lg font-medium mb-2">Không có bài thi nào</h3>
+              <h3 className="text-lg font-medium mb-2">{t("list.noQuizzes")}</h3>
               <p className="text-muted-foreground">
-                Hiện tại chưa có bài thi nào được phân công cho bạn.{" "}
-                <br />
-                Vui lòng liên hệ giảng viên hoặc kiểm tra lại sau.
+                {t("list.noQuizzesDescription")}
               </p>
             </>
           ) : (
             // Has quizzes but filtered out
             <>
-              <h3 className="text-lg font-medium mb-2">Không tìm thấy bài thi nào</h3>
+              <h3 className="text-lg font-medium mb-2">{t("list.noQuizzesFound")}</h3>
               <p className="text-muted-foreground">
-                Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+                {t("list.noQuizzesFoundDescription")}
               </p>
             </>
           )}
