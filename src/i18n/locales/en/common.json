@@ -71,6 +71,7 @@
   },
   "sidebar": {
     "account": "Account",
+    "settings": "Settings",
     "interface": "Interface",
     "logout": "Logout",
     "light": "Light",
@@ -81,5 +82,38 @@
     "logoutSuccess": "Logout successful!",
     "seeYouSoon": "See you soon!",
     "localSessionCleared": "Local session cleared"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Customize your application appearance and language",
+    "appearance": {
+      "themeMode": "Theme Mode",
+      "colorTheme": "Color Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Choose your preferred language",
+      "chooseLanguage": "Choose language"
+    },
+    "colors": {
+      "blue": "Blue",
+      "cyan": "Cyan",
+      "green": "Green",
+      "purple": "Purple",
+      "orange": "Orange",
+      "pink": "Pink"
+    },
+    "currentSettings": "Current Settings",
+    "theme": "Theme",
+    "color": "Color",
+    "languages": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    },
+    "openSettings": "Open settings",
+    "customizePreferences": "Customize your preferences"
   }
 } 

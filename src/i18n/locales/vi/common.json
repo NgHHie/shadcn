@@ -71,6 +71,7 @@
   },
   "sidebar": {
     "account": "Tài khoản",
+    "settings": "Cài đặt",
     "interface": "Giao diện",
     "logout": "Đăng xuất",
     "light": "Sáng",
@@ -81,5 +82,38 @@
     "logoutSuccess": "Đăng xuất thành công!",
     "seeYouSoon": "Hẹn gặp lại bạn!",
     "localSessionCleared": "Đã xóa phiên đăng nhập cục bộ"
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "description": "Tùy chỉnh giao diện và ngôn ngữ ứng dụng",
+    "appearance": {
+      "themeMode": "Chế độ giao diện",
+      "colorTheme": "Màu chủ đề",
+      "light": "Sáng",
+      "dark": "Tối",
+      "system": "Hệ thống"
+    },
+    "language": {
+      "title": "Ngôn ngữ",
+      "description": "Chọn ngôn ngữ bạn muốn sử dụng",
+      "chooseLanguage": "Chọn ngôn ngữ"
+    },
+    "colors": {
+      "blue": "Xanh dương",
+      "cyan": "Xanh lơ",
+      "green": "Xanh lá",
+      "purple": "Tím",
+      "orange": "Cam",
+      "pink": "Hồng"
+    },
+    "currentSettings": "Cài đặt hiện tại",
+    "theme": "Giao diện",
+    "color": "Màu sắc",
+    "languages": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    },
+    "openSettings": "Mở cài đặt",
+    "customizePreferences": "Tùy chỉnh các tùy chọn của bạn"
   }
 }

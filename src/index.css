@@ -97,6 +97,127 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+
+  /* Color Theme Variants */
+  /* Blue Theme (Default) - Already defined above */
+  .theme-blue {
+    /* Light mode */
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --ring: 222.2 84% 4.9%;
+    --sidebar-primary: 222.2 47.4% 11.2%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .theme-blue.dark {
+    /* Dark mode */
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-primary: 210 40% 98%;
+    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Cyan Theme */
+  .theme-cyan {
+    /* Light mode */
+    --primary: 189 94% 43%;
+    --primary-foreground: 0 0% 98%;
+    --ring: 189 94% 43%;
+    --sidebar-primary: 189 94% 43%;
+    --sidebar-ring: 189 94% 43%;
+  }
+
+  .theme-cyan.dark {
+    /* Dark mode */
+    --primary: 189 100% 80%;
+    --primary-foreground: 189 94% 10%;
+    --ring: 189 100% 80%;
+    --sidebar-primary: 189 100% 80%;
+    --sidebar-primary-foreground: 189 94% 10%;
+    --sidebar-ring: 189 100% 80%;
+  }
+
+  /* Green Theme */
+  .theme-green {
+    /* Light mode */
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 98%;
+    --ring: 142 76% 36%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-ring: 142 76% 36%;
+  }
+
+  .theme-green.dark {
+    /* Dark mode */
+    --primary: 142 84% 70%;
+    --primary-foreground: 142 76% 10%;
+    --ring: 142 84% 70%;
+    --sidebar-primary: 142 84% 70%;
+    --sidebar-primary-foreground: 142 76% 10%;
+    --sidebar-ring: 142 84% 70%;
+  }
+
+  /* Purple Theme */
+  .theme-purple {
+    /* Light mode */
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 98%;
+    --ring: 262 83% 58%;
+    --sidebar-primary: 262 83% 58%;
+    --sidebar-ring: 262 83% 58%;
+  }
+
+  .theme-purple.dark {
+    /* Dark mode */
+    --primary: 262 90% 75%;
+    --primary-foreground: 262 83% 15%;
+    --ring: 262 90% 75%;
+    --sidebar-primary: 262 90% 75%;
+    --sidebar-primary-foreground: 262 83% 15%;
+    --sidebar-ring: 262 90% 75%;
+  }
+
+  /* Orange Theme */
+  .theme-orange {
+    /* Light mode */
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 98%;
+    --ring: 25 95% 53%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-ring: 25 95% 53%;
+  }
+
+  .theme-orange.dark {
+    /* Dark mode */
+    --primary: 25 100% 70%;
+    --primary-foreground: 25 95% 15%;
+    --ring: 25 100% 70%;
+    --sidebar-primary: 25 100% 70%;
+    --sidebar-primary-foreground: 25 95% 15%;
+    --sidebar-ring: 25 100% 70%;
+  }
+
+  /* Pink Theme */
+  .theme-pink {
+    /* Light mode */
+    --primary: 330 81% 60%;
+    --primary-foreground: 0 0% 98%;
+    --ring: 330 81% 60%;
+    --sidebar-primary: 330 81% 60%;
+    --sidebar-ring: 330 81% 60%;
+  }
+
+  .theme-pink.dark {
+    /* Dark mode */
+    --primary: 330 85% 75%;
+    --primary-foreground: 330 81% 15%;
+    --ring: 330 85% 75%;
+    --sidebar-primary: 330 85% 75%;
+    --sidebar-primary-foreground: 330 81% 15%;
+    --sidebar-ring: 330 85% 75%;
+  }
 }
 
 @layer base {
