@@ -101,23 +101,11 @@ export default function QuizListPage() {
 
     switch (status) {
       case 'available':
-        return (
-          <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-200 dark:border-green-800 shadow-sm">
-            {t("list.status.notStarted")}
-          </Badge>
-        );
+        return <Badge className="bg-primary text-primary-foreground">{t("list.status.notStarted")}</Badge>;
       case 'upcoming':
-        return (
-          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-800 shadow-sm">
-            {t("list.status.upcoming")}
-          </Badge>
-        );
+        return <Badge variant="secondary">{t("list.status.inProgress")}</Badge>;
       case 'expired':
-        return (
-          <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 border-red-200 dark:border-red-800 shadow-sm">
-            {t("list.status.expired")}
-          </Badge>
-        );
+        return <Badge variant="outline">{t("list.status.completed")}</Badge>;
       default:
         return <Badge variant="outline">{t("list.status.expired")}</Badge>;
     }
@@ -252,7 +240,9 @@ export default function QuizListPage() {
                 <p className="text-sm text-muted-foreground">{t("list.totalQuizzes")}</p>
                 <h3 className="text-2xl font-bold">{stats.total}</h3>
               </div>
-              <BookOpen className="w-8 h-8 text-muted-foreground" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <BookOpen className="w-6 h-6 text-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -263,7 +253,9 @@ export default function QuizListPage() {
                 <p className="text-sm text-muted-foreground">{t("list.status.notStarted")}</p>
                 <h3 className="text-2xl font-bold">{stats.available}</h3>
               </div>
-              <Play className="w-8 h-8 text-green-500" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Play className="w-6 h-6 text-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -274,7 +266,9 @@ export default function QuizListPage() {
                 <p className="text-sm text-muted-foreground">{t("list.status.upcoming")}</p>
                 <h3 className="text-2xl font-bold">{stats.upcoming}</h3>
               </div>
-              <Calendar className="w-8 h-8 text-blue-500" />
+              <div className="p-2 bg-secondary/50 rounded-lg">
+                <Calendar className="w-6 h-6 text-secondary-foreground" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -285,7 +279,9 @@ export default function QuizListPage() {
                 <p className="text-sm text-muted-foreground">{t("list.status.expired")}</p>
                 <h3 className="text-2xl font-bold">{stats.expired}</h3>
               </div>
-              <Users className="w-8 h-8 text-gray-500" />
+              <div className="p-2 bg-muted rounded-lg">
+                <Users className="w-6 h-6 text-muted-foreground" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -334,16 +330,28 @@ export default function QuizListPage() {
               
               {/* Action button at the bottom */}
               <div className="mt-6">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  asChild
-                >
-                  <Link to={`/quiz/quiz-detail/${quiz.examQuizzesId}`}>
-                    <Eye className="w-4 h-4 mr-2" />
-                    {t("list.viewDetail")}
-                  </Link>
-                </Button>
+                {getQuizStatus(quiz) === 'available' ? (
+                  <Button
+                    className="w-full"
+                    asChild
+                  >
+                    <Link to={`/quiz/quiz-detail/${quiz.examQuizzesId}`}>
+                      <Play className="w-4 h-4 mr-2" />
+                      {t("list.startQuiz")}
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    asChild
+                  >
+                    <Link to={`/quiz/quiz-detail/${quiz.examQuizzesId}`}>
+                      <Eye className="w-4 h-4 mr-2" />
+                      {t("list.viewDetail")}
+                    </Link>
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>

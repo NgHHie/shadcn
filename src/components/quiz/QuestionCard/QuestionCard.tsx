@@ -114,7 +114,7 @@ export function QuestionCard({
             onClick={() => onFlagToggle(question.id)}
             className={cn(
               "h-9 w-9 p-0",
-              isFlagged && "bg-yellow-100 text-yellow-600 hover:bg-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400"
+              isFlagged ? "bg-primary/10 text-primary hover:bg-primary/20" : "hover:bg-muted"
             )}
             title={isFlagged ? "Bỏ đánh dấu cờ" : "Đánh dấu cờ để xem lại"}
           >

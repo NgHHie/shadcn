@@ -98,125 +98,125 @@
     --chart-5: 340 75% 55%;
   }
 
-  /* Color Theme Variants */
-  /* Blue Theme (Default) - Already defined above */
-  .theme-blue {
-    /* Light mode */
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --ring: 222.2 84% 4.9%;
-    --sidebar-primary: 222.2 47.4% 11.2%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+  /* Color Theme Variants - Override base themes */
+  /* Blue Theme (Default) */
+  :root.theme-blue {
+    /* Light mode - Override base :root */
+    --primary: 222.2 47.4% 11.2% !important;
+    --primary-foreground: 210 40% 98% !important;
+    --ring: 222.2 84% 4.9% !important;
+    --sidebar-primary: 222.2 47.4% 11.2% !important;
+    --sidebar-ring: 217.2 91.2% 59.8% !important;
   }
 
-  .theme-blue.dark {
-    /* Dark mode */
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-primary: 210 40% 98%;
-    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+  :root.theme-blue.dark {
+    /* Dark mode - Override base .dark */
+    --primary: 210 40% 98% !important;
+    --primary-foreground: 222.2 47.4% 11.2% !important;
+    --ring: 212.7 26.8% 83.9% !important;
+    --sidebar-primary: 210 40% 98% !important;
+    --sidebar-primary-foreground: 222.2 47.4% 11.2% !important;
+    --sidebar-ring: 217.2 91.2% 59.8% !important;
   }
 
   /* Cyan Theme */
-  .theme-cyan {
-    /* Light mode */
-    --primary: 189 94% 43%;
-    --primary-foreground: 0 0% 98%;
-    --ring: 189 94% 43%;
-    --sidebar-primary: 189 94% 43%;
-    --sidebar-ring: 189 94% 43%;
+  :root.theme-cyan {
+    /* Light mode - Force override */
+    --primary: 189 94% 43% !important;
+    --primary-foreground: 0 0% 98% !important;
+    --ring: 189 94% 43% !important;
+    --sidebar-primary: 189 94% 43% !important;
+    --sidebar-ring: 189 94% 43% !important;
   }
 
-  .theme-cyan.dark {
-    /* Dark mode */
-    --primary: 189 100% 80%;
-    --primary-foreground: 189 94% 10%;
-    --ring: 189 100% 80%;
-    --sidebar-primary: 189 100% 80%;
-    --sidebar-primary-foreground: 189 94% 10%;
-    --sidebar-ring: 189 100% 80%;
+  :root.theme-cyan.dark {
+    /* Dark mode - Force override */
+    --primary: 189 100% 80% !important;
+    --primary-foreground: 189 94% 10% !important;
+    --ring: 189 100% 80% !important;
+    --sidebar-primary: 189 100% 80% !important;
+    --sidebar-primary-foreground: 189 94% 10% !important;
+    --sidebar-ring: 189 100% 80% !important;
   }
 
   /* Green Theme */
-  .theme-green {
-    /* Light mode */
-    --primary: 142 76% 36%;
-    --primary-foreground: 0 0% 98%;
-    --ring: 142 76% 36%;
-    --sidebar-primary: 142 76% 36%;
-    --sidebar-ring: 142 76% 36%;
+  :root.theme-green {
+    /* Light mode - Force override */
+    --primary: 142 76% 36% !important;
+    --primary-foreground: 0 0% 98% !important;
+    --ring: 142 76% 36% !important;
+    --sidebar-primary: 142 76% 36% !important;
+    --sidebar-ring: 142 76% 36% !important;
   }
 
-  .theme-green.dark {
-    /* Dark mode */
-    --primary: 142 84% 70%;
-    --primary-foreground: 142 76% 10%;
-    --ring: 142 84% 70%;
-    --sidebar-primary: 142 84% 70%;
-    --sidebar-primary-foreground: 142 76% 10%;
-    --sidebar-ring: 142 84% 70%;
+  :root.theme-green.dark {
+    /* Dark mode - Force override */
+    --primary: 142 84% 70% !important;
+    --primary-foreground: 142 76% 10% !important;
+    --ring: 142 84% 70% !important;
+    --sidebar-primary: 142 84% 70% !important;
+    --sidebar-primary-foreground: 142 76% 10% !important;
+    --sidebar-ring: 142 84% 70% !important;
   }
 
   /* Purple Theme */
-  .theme-purple {
-    /* Light mode */
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 98%;
-    --ring: 262 83% 58%;
-    --sidebar-primary: 262 83% 58%;
-    --sidebar-ring: 262 83% 58%;
+  :root.theme-purple {
+    /* Light mode - Force override */
+    --primary: 262 83% 58% !important;
+    --primary-foreground: 0 0% 98% !important;
+    --ring: 262 83% 58% !important;
+    --sidebar-primary: 262 83% 58% !important;
+    --sidebar-ring: 262 83% 58% !important;
   }
 
-  .theme-purple.dark {
-    /* Dark mode */
-    --primary: 262 90% 75%;
-    --primary-foreground: 262 83% 15%;
-    --ring: 262 90% 75%;
-    --sidebar-primary: 262 90% 75%;
-    --sidebar-primary-foreground: 262 83% 15%;
-    --sidebar-ring: 262 90% 75%;
+  :root.theme-purple.dark {
+    /* Dark mode - Force override */
+    --primary: 262 90% 75% !important;
+    --primary-foreground: 262 83% 15% !important;
+    --ring: 262 90% 75% !important;
+    --sidebar-primary: 262 90% 75% !important;
+    --sidebar-primary-foreground: 262 83% 15% !important;
+    --sidebar-ring: 262 90% 75% !important;
   }
 
   /* Orange Theme */
-  .theme-orange {
-    /* Light mode */
-    --primary: 25 95% 53%;
-    --primary-foreground: 0 0% 98%;
-    --ring: 25 95% 53%;
-    --sidebar-primary: 25 95% 53%;
-    --sidebar-ring: 25 95% 53%;
+  :root.theme-orange {
+    /* Light mode - Force override */
+    --primary: 25 95% 53% !important;
+    --primary-foreground: 0 0% 98% !important;
+    --ring: 25 95% 53% !important;
+    --sidebar-primary: 25 95% 53% !important;
+    --sidebar-ring: 25 95% 53% !important;
   }
 
-  .theme-orange.dark {
-    /* Dark mode */
-    --primary: 25 100% 70%;
-    --primary-foreground: 25 95% 15%;
-    --ring: 25 100% 70%;
-    --sidebar-primary: 25 100% 70%;
-    --sidebar-primary-foreground: 25 95% 15%;
-    --sidebar-ring: 25 100% 70%;
+  :root.theme-orange.dark {
+    /* Dark mode - Force override */
+    --primary: 25 100% 70% !important;
+    --primary-foreground: 25 95% 15% !important;
+    --ring: 25 100% 70% !important;
+    --sidebar-primary: 25 100% 70% !important;
+    --sidebar-primary-foreground: 25 95% 15% !important;
+    --sidebar-ring: 25 100% 70% !important;
   }
 
   /* Pink Theme */
-  .theme-pink {
-    /* Light mode */
-    --primary: 330 81% 60%;
-    --primary-foreground: 0 0% 98%;
-    --ring: 330 81% 60%;
-    --sidebar-primary: 330 81% 60%;
-    --sidebar-ring: 330 81% 60%;
+  :root.theme-pink {
+    /* Light mode - Force override */
+    --primary: 330 81% 60% !important;
+    --primary-foreground: 0 0% 98% !important;
+    --ring: 330 81% 60% !important;
+    --sidebar-primary: 330 81% 60% !important;
+    --sidebar-ring: 330 81% 60% !important;
   }
 
-  .theme-pink.dark {
-    /* Dark mode */
-    --primary: 330 85% 75%;
-    --primary-foreground: 330 81% 15%;
-    --ring: 330 85% 75%;
-    --sidebar-primary: 330 85% 75%;
-    --sidebar-primary-foreground: 330 81% 15%;
-    --sidebar-ring: 330 85% 75%;
+  :root.theme-pink.dark {
+    /* Dark mode - Force override */
+    --primary: 330 85% 75% !important;
+    --primary-foreground: 330 81% 15% !important;
+    --ring: 330 85% 75% !important;
+    --sidebar-primary: 330 85% 75% !important;
+    --sidebar-primary-foreground: 330 81% 15% !important;
+    --sidebar-ring: 330 85% 75% !important;
   }
 }
 
