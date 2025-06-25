@@ -18,6 +18,7 @@ import QuizDetailPage from "./app/quiz/quiz-detail";
 import QuizTakingPage from "./app/quiz/quiz-taking";
 import QuizResultPage from "./app/quiz/quiz-result";
 import { ContestWaitingPage } from "./app/contest-waiting/page";
+import { ContestEditor } from "@/app/contest-editor/page";
 
 // Context Providers
 import { UserProvider } from "./contexts/UserContext";
@@ -141,6 +142,14 @@ function App() {
             element={
               <AuthRouteGuard requireAuth={true}>
                 <ContestJoinedPage />
+              </AuthRouteGuard>
+            }
+          />
+          <Route
+            path="/contest-joined/:contestId/question/:innerQuestionId/:outerQuestionId"
+            element={
+              <AuthRouteGuard requireAuth={true}>
+                <ContestEditor />
               </AuthRouteGuard>
             }
           />

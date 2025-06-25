@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUserContext } from "@/contexts/UserContext";
 import { toastError, toastWarning } from "@/lib/toast";
 import { contestJoinedApi } from "@/lib/api";
+import { useNavigate } from "react-router-dom";
 
 import {
   ContestJoinedDetail,
@@ -20,6 +21,7 @@ import { ContestJoinedHeader } from "@/components/contest/contest-joined-header"
 import { ContestQuestionsList } from "@/components/contest/contest-questions-list";
 
 export function ContestJoinedPage() {
+  const navigate = useNavigate();
   const { contestId } = useParams<{ contestId: string }>();
   const { userId } = useUserContext();
 
@@ -143,13 +145,28 @@ export function ContestJoinedPage() {
   };
 
   // Handle question click
-  const handleQuestionClick = () => {
-    toastWarning("Chưa hoàn thiện chức năng");
-    // if (!isContestActive) {
-    //   toastError("Cuộc thi chưa bắt đầu hoặc đã kết thúc");
-    //   return;
-    // }
-    // navigate(`/question-detail/${questionId}?contest=${contestId}`);
+  const handleQuestionClick = (
+    innerQuestionId: string,
+    questionCode: string
+  ) => {
+    if (!isContestActive) {
+      toastError("Cuộc thi chưa bắt đầu hoặc đã kết thúc");
+      return;
+    }
+
+    // Tìm outerQuestionId từ danh sách questions
+    const questionData = contestData?.questions.find(
+      (q) => q.question.id === innerQuestionId
+    );
+
+    if (questionData) {
+      // Điều hướng với format URL mới: /contest-joined/:contestId/question/:innerQuestionId/:outerQuestionId
+      navigate(
+        `/contest-joined/${contestId}/question/${innerQuestionId}/${questionData.id}`
+      );
+    } else {
+      toastError("Không tìm thấy thông tin câu hỏi");
+    }
   };
 
   // Pagination logic
@@ -213,7 +230,11 @@ export function ContestJoinedPage() {
       <ContestQuestionsList
         questions={currentQuestions}
         getQuestionStatus={getQuestionStatus}
-        onQuestionClick={handleQuestionClick}
+        onQuestionClick={(questionId, questionCode) => {
+          // questionId ở đây là question.question.id (innerQuestionId)
+          // questionCode là question.question.questionCode
+          handleQuestionClick(questionId, questionCode);
+        }}
         loading={loading}
         totalElements={totalQuestions}
         currentPage={currentPage}
