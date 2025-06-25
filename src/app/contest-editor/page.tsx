@@ -11,7 +11,7 @@ interface EditorProps {
   question?: QuestionDetail | null;
 }
 
-export function Editor({ question: propQuestion }: EditorProps) {
+export function ContestEditor({ question: propQuestion }: EditorProps) {
   // ⚠️ CRITICAL: ALL HOOKS MUST BE DECLARED FIRST - NO EXCEPTIONS!
   const { questionId } = useParams<{ questionId?: string }>();
   const api = useApi();

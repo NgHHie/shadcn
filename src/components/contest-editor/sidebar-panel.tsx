@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 
 // Import the new tab components
 import { AssignmentTab } from "./assignment-tab";
-import { DiscussionTab } from "./discussion-tab";
 
 interface SidebarPanelProps {
   question?: QuestionDetail | null;
@@ -79,16 +78,6 @@ export function SidebarPanel({
               onQuestionChange={handleQuestionSelect}
             />
           </TabsContent>
-
-          {/* Discussion Tab */}
-          <TabsContent value="discussion" className="flex-1 h-full m-0">
-            <DiscussionTab questionId={question?.id} />
-          </TabsContent>
-
-          {/* AI Assistant Tab */}
-          {/* <TabsContent value="assistant" className="flex-1 h-full m-0">
-            <AiAssistantTab question={question} />
-          </TabsContent> */}
         </div>
       </Tabs>
     </div>
