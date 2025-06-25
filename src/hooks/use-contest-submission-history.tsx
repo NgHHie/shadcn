@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback } from "react";
 import { toastError, toastSuccess } from "@/lib/toast";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { SocketMessage } from "@/lib/websocket";
+import { contestApi, ContestSubmissionRequest } from "@/lib/apiContest";
+import { authApi } from "@/lib/api";
 
 interface SubmissionHistoryItem {
   id: string;
@@ -106,57 +108,33 @@ export const useContestSubmissionHistory = (
     onMessage: handleSocketMessage,
     autoConnect: true,
   });
-  // Fetch user info
+
+  // Fetch user info - SỬ DỤNG API CÓ SẴN
   const fetchUserInfo = useCallback(async () => {
     try {
-      const response = await fetch(
-        "https://api.learnsql.store/api/app/user/info",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage
-              .getItem("access_token")
-              ?.replace(/"/g, "")}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setUserInfo(data);
-        return data;
-      }
+      const data = await authApi.getUserInfo();
+      setUserInfo(data);
+      return data;
     } catch (error) {
       console.error("Failed to fetch user info:", error);
     }
     return null;
   }, []);
 
-  // Fetch contest history
+  // Fetch contest history - SỬ DỤNG API MỚI
   const fetchContestHistory = useCallback(async () => {
     if (!outerQuestionId) return;
 
     try {
       setLoading(true);
 
-      const url = new URL(
-        "https://api.learnsql.store/api/app/submit-contest/user"
-      );
-      url.searchParams.append("questionContestId", outerQuestionId);
-      url.searchParams.append("page", "0");
-      url.searchParams.append("size", "20");
-
-      const response = await fetch(url.toString(), {
-        headers: {
-          Authorization: `Bearer ${localStorage
-            .getItem("access_token")
-            ?.replace(/"/g, "")}`,
-        },
+      const response = await contestApi.getSubmissionHistory({
+        questionContestId: outerQuestionId,
+        page: 0,
+        size: 20,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setSubmissions(data.content || []);
-      }
+      setSubmissions(response.content || []);
     } catch (error) {
       toastError("Lỗi khi tải lịch sử submit");
     } finally {
@@ -164,7 +142,7 @@ export const useContestSubmissionHistory = (
     }
   }, [outerQuestionId]);
 
-  // Submit solution
+  // Submit solution - SỬ DỤNG API MỚI
   const submitToAPI = useCallback(
     async (
       payload: {
@@ -179,63 +157,55 @@ export const useContestSubmissionHistory = (
       }
     ) => {
       try {
-        const response = await fetch(
-          "https://api.learnsql.store/api/app/executor/submit",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${localStorage
-                .getItem("access_token")
-                ?.replace(/"/g, "")}`,
-              "Content-Type": "application/json",
+        // Prepare contest submission payload
+        const contestPayload: ContestSubmissionRequest = {
+          questionId: payload.questionId,
+          sql: payload.sql,
+          typeDatabaseId: payload.typeDatabaseId,
+          contestId: contestId,
+          questionContestId: outerQuestionId,
+        };
+
+        const result = await contestApi.submitCode(contestPayload);
+
+        // Add pending submission
+        if (result.submitId && userInfo) {
+          const pendingSubmission: SubmissionHistoryItem = {
+            id: result.submitId,
+            createdAt: result.timeSubmit,
+            createdBy: userInfo.id,
+            lastModifiedAt: result.timeSubmit,
+            timeSubmit: result.timeSubmit,
+            timeout: result.timeExec || 0,
+            status: "PENDING",
+            user: {
+              firstName: userInfo.firstName,
+              lastName: userInfo.lastName,
+              userCode: userInfo.userCode,
+              fullName: userInfo.fullName,
             },
-            body: JSON.stringify(payload), // payload đã được truyền từ component
-          }
-        );
+            testPass: 0,
+            totalTest: 0,
+            question: {
+              questionCode: additionalInfo?.questionCode || "",
+              title: additionalInfo?.questionTitle || "",
+            },
+            database: {
+              id: payload.typeDatabaseId,
+              name: additionalInfo?.databaseName || "Unknown",
+            },
+          };
 
-        if (response.ok) {
-          const result = await response.json();
-
-          // Add pending submission
-          if (result.submitId && userInfo) {
-            const pendingSubmission: SubmissionHistoryItem = {
-              id: result.submitId,
-              createdAt: result.timeSubmit,
-              createdBy: userInfo.id,
-              lastModifiedAt: result.timeSubmit,
-              timeSubmit: result.timeSubmit,
-              timeout: result.timeExec || 0,
-              status: "PENDING",
-              user: {
-                firstName: userInfo.firstName,
-                lastName: userInfo.lastName,
-                userCode: userInfo.userCode,
-                fullName: userInfo.fullName,
-              },
-              testPass: 0,
-              totalTest: 0,
-              question: {
-                questionCode: additionalInfo?.questionCode || "",
-                title: additionalInfo?.questionTitle || "",
-              },
-              database: {
-                id: payload.typeDatabaseId,
-                name: additionalInfo?.databaseName || "Unknown",
-              },
-            };
-
-            setSubmissions((prev) => [pendingSubmission, ...prev]);
-          }
-
-          return result;
+          setSubmissions((prev) => [pendingSubmission, ...prev]);
         }
-        throw new Error("Submit failed");
+
+        return result;
       } catch (error) {
         toastError("Lỗi khi submit");
         throw error;
       }
     },
-    [userInfo]
+    [userInfo, contestId, outerQuestionId]
   );
 
   // Initialize
@@ -254,6 +224,6 @@ export const useContestSubmissionHistory = (
     loading,
     userInfo,
     submitToAPI,
-    isConnected, // Thêm dòng này
+    isConnected,
   };
 };

@@ -19,6 +19,7 @@ import {
 // Components
 import { ContestJoinedHeader } from "@/components/contest/contest-joined-header";
 import { ContestQuestionsList } from "@/components/contest/contest-questions-list";
+import { GlobalContestHeader } from "@/components/contest/global-contest-header";
 
 export function ContestJoinedPage() {
   const navigate = useNavigate();
@@ -219,7 +220,7 @@ export function ContestJoinedPage() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6 max-w-4xl">
       {/* Contest Header - Simplified */}
-      <ContestJoinedHeader
+      <GlobalContestHeader
         contest={contestData}
         timeRemaining={timeRemaining}
         isActive={isContestActive}
