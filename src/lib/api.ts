@@ -633,6 +633,26 @@ export const scheduleApi = {
   },
 };
 
+export const scheduleApi = {
+  // Get authenticated schedule (thời khóa biểu)
+  getSchedule: async (semesterCode?: number): Promise<ScheduleResponse> => {
+    const params = semesterCode ? `?semesterCode=${semesterCode}` : "";
+    return apiAuth.get<ScheduleResponse>(`/schedule${params}`);
+  },
+
+  // Get semesters list
+  getSemesters: async (): Promise<SemestersResponse> => {
+    return apiAuth.get<SemestersResponse>("/schedule/semesters");
+  },
+
+  // Đồng bộ thời khóa biểu từ QLDT/PTIT
+  syncFromPtit: async (): Promise<{ success: boolean; message?: string }> => {
+    return apiAuth.post<{ success: boolean; message?: string }>(
+      "/schedule/sync-from-ptit"
+    );
+  },
+};
+
 // Auth API
 export const authApi = {
   // Base URL for auth endpoints
