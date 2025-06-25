@@ -224,7 +224,6 @@ export function ContestJoinedPage() {
         contest={contestData}
         timeRemaining={timeRemaining}
         isActive={isContestActive}
-        onRefresh={handleRefresh}
       />
 
       {/* Questions List - No stats, simplified header */}

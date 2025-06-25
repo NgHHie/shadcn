@@ -1,13 +1,14 @@
-// src/app/editor/page.tsx
+// src/app/contest-editor/page.tsx
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { SalesAnalyticsDashboard } from "@/components/contest-editor/sales-analytics-dashboard";
 import { SidebarPanel } from "@/components/contest-editor/sidebar-panel";
+import { GlobalContestHeader } from "@/components/contest/global-contest-header";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { QuestionDetail, useApi } from "@/lib/api";
 import { toastError, toastInfo } from "@/lib/toast";
 import { useUserActionTracker } from "@/hooks/use-user-action-tracker";
-import { checkContestTracker } from "@/lib/user-tracker";
+import { contestApi } from "@/lib/apiContest";
 
 interface EditorProps {
   question?: QuestionDetail | null;
@@ -27,6 +28,9 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
   // State hooks
   const [isTrackerEnabled, setIsTrackerEnabled] = useState(false);
   const [apiQuestion, setApiQuestion] = useState<QuestionDetail | null>(null);
+  const [contestData, setContestData] = useState<any>(null);
+  const [timeRemaining, setTimeRemaining] = useState<string>("");
+  const [isContestActive, setIsContestActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(600);
@@ -91,56 +95,88 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
     [isDragging, isMobile, debouncedResize]
   );
 
+  // Timer logic
+  const updateTimer = useCallback(() => {
+    if (!contestData) return;
+
+    const now = new Date();
+    const startTime = new Date(contestData.startDatetime);
+    const endTime = new Date(contestData.endDatetime);
+
+    if (now >= startTime && now <= endTime) {
+      setIsContestActive(true);
+      const remaining = endTime.getTime() - now.getTime();
+      setTimeRemaining(formatTimeRemaining(remaining));
+    } else if (now < startTime) {
+      setIsContestActive(false);
+      const remaining = startTime.getTime() - now.getTime();
+      setTimeRemaining(`Bắt đầu sau: ${formatTimeRemaining(remaining)}`);
+    } else {
+      setIsContestActive(false);
+      setTimeRemaining("Cuộc thi đã kết thúc");
+    }
+  }, [contestData]);
+
+  // Format time remaining helper
+  const formatTimeRemaining = (ms: number): string => {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
+    }
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
   }, []);
 
   // Effects
   useEffect(() => {
-    const fetchQuestion = async () => {
-      if (!innerQuestionId) {
-        setApiQuestion(null);
-        setError(null);
-        setLoading(false);
-        return;
-      }
+    const fetchContestAndQuestion = async () => {
+      if (!contestId) return;
 
       try {
         setLoading(true);
         setError(null);
 
-        const questionData = await api.question.getQuestionDetail(
-          innerQuestionId
-        );
-        setApiQuestion(questionData);
+        // Fetch contest data with tracker info - DÙNG API MỚI TỪ apiContest.ts
+        const contestResponse = await contestApi.getContestForEditor(contestId);
+        setContestData(contestResponse.contest);
+        setIsTrackerEnabled(contestResponse.isTrackerEnabled);
+
+        // Fetch question if innerQuestionId exists
+        if (innerQuestionId) {
+          const questionData = await api.question.getQuestionDetail(
+            innerQuestionId
+          );
+          setApiQuestion(questionData);
+        }
       } catch (err: any) {
         const errorMessage = api.utils.formatErrorMessage(err);
         setError(errorMessage);
-        toastError("Lỗi khi tải đề bài: " + errorMessage);
+        toastError("Lỗi khi tải dữ liệu: " + errorMessage);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchQuestion();
-  }, [innerQuestionId]);
+    fetchContestAndQuestion();
+  }, [contestId, innerQuestionId]);
 
-  // Effects
+  // Timer effect
   useEffect(() => {
-    const initializeTracker = async () => {
-      if (contestId) {
-        try {
-          const trackerEnabled = await checkContestTracker(contestId);
-          setIsTrackerEnabled(trackerEnabled);
-        } catch (error) {
-          console.error("Failed to check contest tracker:", error);
-        }
-      }
-    };
+    if (!contestData) return;
+    const interval = setInterval(updateTimer, 1000);
+    updateTimer();
+    return () => clearInterval(interval);
+  }, [contestData, updateTimer]);
 
-    initializeTracker();
-  }, [contestId]);
-
+  // Effects - XÓA PHẦN CHECK TRACKER CŨ
   useEffect(() => {
     if (isDragging) {
       document.addEventListener("mousemove", handleMouseMove, {
@@ -190,12 +226,10 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
   }) => (
     <div className="absolute inset-0 flex items-center justify-center">
       <div
-        className={`${
-          direction === "horizontal" ? "h-0.5 w-8" : "w-0.5 h-8"
-        } flex ${
+        className={`flex ${
           direction === "horizontal"
-            ? "items-center justify-center space-x-1"
-            : "flex-col items-center justify-center space-y-1"
+            ? "flex-col items-center justify-center space-y-1" // Thanh dọc -> dots dọc
+            : "items-center justify-center space-x-1" // Thanh ngang -> dots ngang
         }`}
       >
         <div className="w-1 h-1 rounded-full bg-muted-foreground"></div>
@@ -209,6 +243,15 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
   if (isMobile) {
     return (
       <div className="flex flex-col">
+        {/* Global Contest Header */}
+        <GlobalContestHeader
+          contest={contestData}
+          timeRemaining={timeRemaining}
+          isActive={isContestActive}
+          showBackButton={true}
+          showCompleteButton={false}
+        />
+
         <div
           ref={containerRef}
           className="flex flex-col min-h-[calc(100vh-4rem)] bg-background rounded-lg border shadow-sm"
@@ -231,13 +274,13 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
           <div
             className={`relative h-3 w-full bg-muted hover:bg-primary/20 cursor-row-resize z-10 ${
               isDragging ? "bg-primary/30" : ""
-            } transition-colors flex-shrink-0`}
+            }`}
             onMouseDown={startDragging}
           >
-            <DragHandle direction="horizontal" />
+            <DragHandle direction="vertical" />
           </div>
 
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 overflow-hidden">
             <SalesAnalyticsDashboard question={question} />
           </div>
         </div>
@@ -247,13 +290,25 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
 
   return (
     <div className="flex flex-col">
+      {/* Global Contest Header */}
+      <GlobalContestHeader
+        contest={contestData}
+        timeRemaining={timeRemaining}
+        isActive={isContestActive}
+        showBackButton={true}
+        showCompleteButton={false}
+      />
+
       <div
         ref={containerRef}
-        className="flex h-[calc(100vh-4rem)] overflow-hidden bg-background rounded-lg border shadow-sm"
+        className="flex h-[calc(100vh-4rem)] bg-background rounded-lg border shadow-sm relative"
       >
         <div
-          style={{ width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}
-          className="h-full overflow-hidden border-r"
+          style={{
+            width: `${sidebarWidth}px`,
+            minWidth: `${sidebarWidth}px`,
+          }}
+          className="h-full overflow-hidden border-r flex-shrink-0"
         >
           <SidebarPanel
             question={question}
@@ -264,15 +319,15 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
         </div>
 
         <div
-          className={`relative w-3 bg-muted hover:bg-primary/20 cursor-col-resize z-10 ${
+          className={`relative w-3 h-full bg-muted hover:bg-primary/20 cursor-col-resize z-10 ${
             isDragging ? "bg-primary/30" : ""
-          } transition-colors flex-shrink-0`}
+          }`}
           onMouseDown={startDragging}
         >
-          <DragHandle direction="vertical" />
+          <DragHandle direction="horizontal" />
         </div>
 
-        <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="flex-1 overflow-hidden">
           <SalesAnalyticsDashboard question={question} />
         </div>
       </div>
