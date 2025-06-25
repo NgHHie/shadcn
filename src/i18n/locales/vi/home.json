@@ -25,7 +25,17 @@
     "description": "Lịch học ngày",
     "lecture": "lecture",
     "lab": "lab", 
-    "practice": "practice"
+    "practice": "practice",
+    "ongoing": "Đang diễn ra",
+    "upcoming": "Sắp tới",
+    "completed": "Đã kết thúc",
+    "noClasses": "Hôm nay bạn không có tiết học nào!",
+    "noClassesSubtitle": "Hãy tận hưởng thời gian rảnh rỗi",
+    "andMore": "Và {{count}} tiết học khác...",
+    "viewFullSchedule": "Xem thời khóa biểu đầy đủ",
+    "loadError": "Không thể tải thời khóa biểu",
+    "retry": "Thử lại",
+    "periods": "tiết học"
   },
   "exams": {
     "title": "Lịch Thi Sắp Tới",
@@ -75,5 +85,31 @@
     "dayAgo": "ngày trước",
     "minutesAgo": "phút trước",
     "justNow": "vừa xong"
+  },
+  "practiceSuggestions": {
+    "title": "Gợi ý bài tập",
+    "type": {
+      "quiz": "Quiz",
+      "practice": "Thực hành"
+    },
+    "difficulty": {
+      "easy": "Dễ",
+      "medium": "Trung bình",
+      "hard": "Khó"
+    },
+    "doNow": "Làm ngay",
+    "noSuggestions": "Không có gợi ý nào lúc này",
+    "suggestion1": {
+      "title": "SQL JOIN nâng cao",
+      "reason": "Bạn thường sai ở chủ đề này"
+    },
+    "suggestion2": {
+      "title": "Bài tập WHERE nâng cao",
+      "reason": "Sai nhiều ở câu điều kiện"
+    },
+    "suggestion3": {
+      "title": "Quiz: GROUP BY & HAVING",
+      "reason": "Chưa hoàn thành"
+    }
   }
 } 

@@ -216,15 +216,6 @@ export function ExtendedThemeProvider({ children }: { children: React.ReactNode 
     requestAnimationFrame(() => {
       // Trigger reflow to ensure CSS variables are updated
       void root.offsetHeight;
-      
-      // Debug logging
-      console.log('🎨 Theme Color Applied:', {
-        colorTheme,
-        isDarkMode,
-        classes: root.className,
-        primaryColor: getComputedStyle(root).getPropertyValue('--primary'),
-        injectedVariables: colorConfig,
-      });
     });
     
     // Save to localStorage

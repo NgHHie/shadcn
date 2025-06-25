@@ -119,7 +119,7 @@ export interface RegisterRequest {
 export interface RegisterResponse {
   status: number;
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 export interface QuestionListItem {
@@ -132,6 +132,42 @@ export interface QuestionListItem {
   enable: boolean;
   totalSub: number;
   status?: "AC" | "WA" | "TLE" | "CE" | "Not Started";
+}
+
+export interface ScheduleClass {
+  id: string;
+  subject: string;
+  code: string;
+  group: string;
+  room: string;
+  building: string;
+  instructor: string;
+  startTime: string;
+  endTime: string;
+  dayOfWeek: number;
+  startTimeSlot: number;
+  duration: number;
+  color?: string;
+  type: "lecture" | "lab" | "practice";
+}
+
+export interface ScheduleResponse {
+  weekStart: string;
+  classes: ScheduleClass[];
+  // Add more fields if needed based on actual API response
+}
+
+export interface Semester {
+  id: string;
+  semesterCode: number;
+  semesterName: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface SemestersResponse {
+  semesters: Semester[];
+  totalSemesters: number;
 }
 
 // HTTP Client with error handling and auto token refresh
@@ -235,7 +271,7 @@ export class ApiClient {
         ) as Error & {
           response?: {
             status: number;
-            data: any;
+            data: unknown;
           };
           status?: number;
         };
@@ -262,14 +298,14 @@ export class ApiClient {
     return this.request<T>(endpoint, { method: "GET" });
   }
 
-  async post<T>(endpoint: string, body?: any): Promise<T> {
+  async post<T>(endpoint: string, body?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: "POST",
       body: body ? JSON.stringify(body) : undefined,
     });
   }
 
-  async put<T>(endpoint: string, body?: any): Promise<T> {
+  async put<T>(endpoint: string, body?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: "PUT",
       body: body ? JSON.stringify(body) : undefined,
@@ -386,7 +422,7 @@ export const questionApi = {
     typeDatabaseId: string;
   }): Promise<{
     status: number;
-    result: any[] | string;
+    result: unknown[] | string;
     typeQuery: string;
     timeExec: number;
     testPass: number;
@@ -429,7 +465,7 @@ export const questionApi = {
       size?: number;
     }
   ): Promise<{
-    content: any[];
+    content: unknown[];
     totalElements: number;
     totalPages: number;
     number: number;
@@ -472,7 +508,13 @@ export const userApi = {
     pointsByType: Record<string, number>;
     submissionsByMonth: Array<{ month: string; count: number }>;
   }> => {
-    return apiClient.get("/user/statistics");
+    return apiClient.get<{
+      totalSolved: number;
+      totalSubmissions: number;
+      acceptanceRate: number;
+      pointsByType: Record<string, number>;
+      submissionsByMonth: Array<{ month: string; count: number }>;
+    }>("/user/statistics");
   },
 };
 
@@ -567,6 +609,26 @@ export const contestJoinedApi = {
     return apiClient.post<ContestQuestionStatus[]>(
       "/submit-contest/check/complete",
       payload
+    );
+  },
+};
+
+export const scheduleApi = {
+  // Get authenticated schedule (thời khóa biểu)
+  getSchedule: async (semesterCode?: number): Promise<ScheduleResponse> => {
+    const params = semesterCode ? `?semesterCode=${semesterCode}` : "";
+    return apiAuth.get<ScheduleResponse>(`/schedule${params}`);
+  },
+
+  // Get semesters list
+  getSemesters: async (): Promise<SemestersResponse> => {
+    return apiAuth.get<SemestersResponse>("/schedule/semesters");
+  },
+
+  // Đồng bộ thời khóa biểu từ QLDT/PTIT
+  syncFromPtit: async (): Promise<{ success: boolean; message?: string }> => {
+    return apiAuth.post<{ success: boolean; message?: string }>(
+      "/schedule/sync-from-ptit"
     );
   },
 };
@@ -749,9 +811,9 @@ export const authApi = {
   },
 
   // Get user info from API (not from token)
-  getCurrentUser: async (): Promise<any> => {
+  getCurrentUser: async (): Promise<unknown> => {
     // Call API to get current user info instead of parsing token
-    return apiClient.get("/users/info");
+    return apiClient.get<unknown>("/users/info");
   },
 
   // Get user info (moved from userApi - uses auth domain)
@@ -773,7 +835,24 @@ export const authApi = {
     fullName: string;
     isPremium: boolean;
   }> => {
-    return apiAuth.get("/users/info");
+    return apiAuth.get<{
+      id: string;
+      createdAt: string;
+      createdBy: string;
+      lastModifiedAt: string;
+      firstName: string;
+      lastName: string;
+      username: string;
+      avatar: string;
+      email: string;
+      phone: string;
+      birthDay: string;
+      role: string;
+      userCode: string;
+      userPrefix: string;
+      fullName: string;
+      isPremium: boolean;
+    }>("/users/info");
   },
 };
 
@@ -796,7 +875,7 @@ export const apiUtils = {
   },
 
   // Helper function to check if error is auth-related
-  isAuthError: (error: any): boolean => {
+  isAuthError: (error: unknown): boolean => {
     if (typeof error === "string") {
       return (
         error.toLowerCase().includes("authentication") ||
@@ -806,8 +885,13 @@ export const apiUtils = {
       );
     }
 
-    if (error?.message) {
-      const message = error.message.toLowerCase();
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error &&
+      typeof (error as { message: unknown }).message === "string"
+    ) {
+      const message = (error as { message: string }).message.toLowerCase();
       return (
         message.includes("authentication") ||
         message.includes("unauthorized") ||
@@ -821,13 +905,18 @@ export const apiUtils = {
   },
 
   // Simple error message formatting without JWT parsing
-  formatErrorMessage: (error: any): string => {
+  formatErrorMessage: (error: unknown): string => {
     let message = "";
 
     if (typeof error === "string") {
       message = error;
-    } else if (error?.message) {
-      message = error.message;
+    } else if (
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error &&
+      typeof (error as { message: unknown }).message === "string"
+    ) {
+      message = (error as { message: string }).message;
     } else {
       message = "An unexpected error occurred";
     }
@@ -904,6 +993,7 @@ export const useApi = () => {
     ranking: rankingApi,
     contest: contestApi,
     auth: authApi,
+    schedule: scheduleApi,
     utils: apiUtils,
   };
 };
@@ -914,6 +1004,7 @@ export default {
   ranking: rankingApi,
   contest: contestApi,
   auth: authApi,
+  schedule: scheduleApi,
   utils: apiUtils,
 };
 

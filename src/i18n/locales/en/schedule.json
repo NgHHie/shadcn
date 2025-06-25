@@ -84,6 +84,9 @@
     "filterBy": "Filter by",
     "clearFilters": "Clear Filters"
   },
+  "semester": {
+    "label": "Semester"
+  },
   "format": {
     "timeFormat": "HH:mm",
     "dateFormat": "MM/dd/yyyy",
