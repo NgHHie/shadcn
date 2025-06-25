@@ -122,6 +122,7 @@ export const useContestSubmissionHistory = (
       try {
         // Prepare contest submission payload
         const contestPayload: ContestSubmissionRequest = {
+          isSubmitContest: true,
           questionId: payload.questionId,
           sql: payload.sql,
           typeDatabaseId: payload.typeDatabaseId,

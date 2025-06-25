@@ -8,6 +8,7 @@ const apiClient = new ApiClient(API_BASE_URL);
 
 // Types for contest submission operations
 export interface ContestSubmissionRequest {
+  isSubmitContest: boolean;
   questionId: string;
   sql: string;
   typeDatabaseId: string;
@@ -160,32 +161,19 @@ export const contestApi = {
       const formData = new FormData();
       formData.append("file", payload.file);
 
-      const url = new URL(`${API_BASE_URL}/executor/submit-file`);
-      url.searchParams.append("questionId", payload.questionId);
-      url.searchParams.append("typeDatabaseId", payload.typeDatabaseId);
-      url.searchParams.append("isSubmitContest", "true");
-      url.searchParams.append("contestId", payload.contestId);
-      url.searchParams.append("questionContestId", payload.questionContestId);
-
-      // Get auth token
-      const token = localStorage.getItem("access_token")?.replace(/"/g, "");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-
-      const response = await fetch(url.toString(), {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
+      const params = new URLSearchParams({
+        questionId: payload.questionId,
+        typeDatabaseId: payload.typeDatabaseId,
+        isSubmitContest: "true",
+        contestId: payload.contestId,
+        questionContestId: payload.questionContestId,
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      return await response.json();
+      const response = await apiClient.post<ContestSubmissionResponse>(
+        `/executor/submit-file?${params.toString()}`,
+        formData
+      );
+      return response;
     } catch (error) {
       console.error("Contest file submission failed:", error);
       throw error;
@@ -281,34 +269,14 @@ export const contestApi = {
       throw error;
     }
   },
+
   /**
    * Send tracker log data
    */
   sendLogTracker: async (payload: TrackerData): Promise<any> => {
     try {
-      // Get auth token
-      const token = localStorage.getItem("access_token")?.replace(/"/g, "");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-
-      const response = await fetch(
-        "https://api.learnsql.store/api/app/tracker/push",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      return await response.json();
+      const response = await apiClient.post<any>("/tracker/push", payload);
+      return response;
     } catch (error) {
       console.error("Failed to send tracker log:", error);
       throw error;
@@ -320,28 +288,9 @@ export const contestApi = {
    */
   checkContestTracker: async (contestId: string): Promise<boolean> => {
     try {
-      // Get auth token
-      const token = localStorage.getItem("access_token")?.replace(/"/g, "");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-
-      const response = await fetch(
-        `https://api.learnsql.store/api/app/contest/${contestId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const data = await apiClient.get<ContestDetailWithTracker>(
+        `/contest/${contestId}`
       );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
       return data.isTracker || false;
     } catch (error) {
       console.error("Failed to check contest tracker:", error);
@@ -359,28 +308,9 @@ export const contestApi = {
     isTrackerEnabled: boolean;
   }> => {
     try {
-      // Get auth token
-      const token = localStorage.getItem("access_token")?.replace(/"/g, "");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-
-      const response = await fetch(
-        `https://api.learnsql.store/api/app/contest/${contestId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const contestData = await apiClient.get<ContestDetailWithTracker>(
+        `/contest/${contestId}`
       );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const contestData: ContestDetailWithTracker = await response.json();
 
       return {
         contest: contestData,
@@ -399,28 +329,9 @@ export const contestApi = {
     contestId: string
   ): Promise<ContestDetailWithTracker> => {
     try {
-      // Get auth token
-      const token = localStorage.getItem("access_token")?.replace(/"/g, "");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-
-      const response = await fetch(
-        `https://api.learnsql.store/api/app/contest/${contestId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      return await apiClient.get<ContestDetailWithTracker>(
+        `/contest/${contestId}`
       );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      return await response.json();
     } catch (error) {
       console.error("Failed to fetch contest detail with tracker:", error);
       throw error;
