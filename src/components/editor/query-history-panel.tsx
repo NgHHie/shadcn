@@ -60,40 +60,68 @@ export function QueryHistoryPanel({
       <div className="p-4 bg-background">
         <div className="grid grid-cols-12 gap-2 text-xs font-medium text-muted-foreground mb-2 px-2">
           <div className="col-span-3">{t("queryHistory.headers.time")}</div>
-          <div className="col-span-2">{t("queryHistory.headers.status")}</div>
-          <div className="col-span-2">{t("queryHistory.headers.duration")}</div>
-          <div className="col-span-2">{t("queryHistory.headers.result")}</div>
+          <div className="col-span-2 text-center">
+            {t("queryHistory.headers.status")}
+          </div>
+          <div className="col-span-2 text-center">
+            {t("queryHistory.headers.duration")}
+          </div>
+          <div className="col-span-2 text-center">
+            {t("queryHistory.headers.result")}
+          </div>
           <div className="col-span-3">{t("queryHistory.headers.dbType")}</div>
         </div>
 
         <div className="space-y-2">
-          {queryHistory.map((query) => (
+          {queryHistory.map((query, index) => (
             <div
               key={query.id}
-              className="grid grid-cols-12 gap-2 p-2 text-sm border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+              className={`grid grid-cols-12 gap-2 p-2 text-sm border rounded-lg cursor-pointer transition-all duration-200 ${
+                index === 0
+                  ? "border-primary bg-primary/5 hover:bg-primary/10 shadow-sm ring-1 ring-primary/20"
+                  : "border-border hover:bg-muted/50"
+              }`}
               onClick={() => handleQueryClick(query)}
             >
-              <div className="col-span-3 text-xs text-foreground">
+              <div
+                className={`col-span-3 text-xs ${
+                  index === 0 ? "text-primary font-medium" : "text-foreground"
+                }`}
+              >
                 {query.time}
               </div>
-              <div className="col-span-2">
+              <div className="col-span-2 flex justify-center">
                 <span
                   className={`text-xs px-1.5 py-0.5 rounded-full ${
                     query.status === "AC"
                       ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                      : query.status === "PENDING"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 animate-pulse"
                       : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                   }`}
                 >
-                  {query.status}
+                  {query.status === "PENDING" ? "PENDING..." : query.status}
                 </span>
               </div>
-              <div className="col-span-2 text-xs text-foreground">
+              <div
+                className={`col-span-2 text-xs text-center ${
+                  index === 0 ? "text-primary font-medium" : "text-foreground"
+                }`}
+              >
                 {query.duration}
               </div>
-              <div className="col-span-2 text-xs text-foreground">
+              <div
+                className={`col-span-2 text-xs text-center ${
+                  index === 0 ? "text-primary font-medium" : "text-foreground"
+                }`}
+              >
                 {query.result}
               </div>
-              <div className="col-span-3 text-xs text-foreground">
+              <div
+                className={`col-span-3 text-xs ${
+                  index === 0 ? "text-primary font-medium" : "text-foreground"
+                }`}
+              >
                 {query.dbType}
               </div>
             </div>
@@ -120,10 +148,14 @@ export function QueryHistoryPanel({
                   className={
                     selectedQuery?.status === "AC"
                       ? "text-green-600 dark:text-green-400"
+                      : selectedQuery?.status === "PENDING"
+                      ? "text-blue-600 dark:text-blue-400"
                       : "text-red-600 dark:text-red-400"
                   }
                 >
-                  {selectedQuery?.status}
+                  {selectedQuery?.status === "PENDING"
+                    ? "PENDING..."
+                    : selectedQuery?.status}
                 </span>{" "}
                 | Duration: {selectedQuery?.duration}
               </div>
