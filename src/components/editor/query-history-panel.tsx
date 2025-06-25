@@ -1,4 +1,6 @@
 // src/components/editor/query-history-panel.tsx
+import { useTranslation } from "react-i18next";
+
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { QueryHistoryItem } from "@/types/sales";
@@ -23,6 +25,8 @@ export function QueryHistoryPanel({
   onClose,
   queryHistory,
 }: QueryHistoryPanelProps) {
+  const { t } = useTranslation("editor");
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedQuery, setSelectedQuery] = useState<QueryHistoryItem | null>(
     null
@@ -39,8 +43,10 @@ export function QueryHistoryPanel({
         isOpen ? "translate-x-0" : "translate-x-full"
       }`}
     >
-      <div className="flex items-center justify-between p-3 border-b border-border bg-background">
-        <h3 className="font-medium text-sm text-foreground">Query History</h3>
+      <div className="flex items-center justify-between p-2 pl-4 border-b border-border bg-background">
+        <h3 className="font-medium text-sm text-foreground">
+          {t("queryHistory.title")}
+        </h3>
         <Button
           variant="ghost"
           size="icon"
@@ -53,11 +59,11 @@ export function QueryHistoryPanel({
 
       <div className="p-4 bg-background">
         <div className="grid grid-cols-12 gap-2 text-xs font-medium text-muted-foreground mb-2 px-2">
-          <div className="col-span-3">Time</div>
-          <div className="col-span-2">Status</div>
-          <div className="col-span-2">Duration</div>
-          <div className="col-span-2">Result</div>
-          <div className="col-span-3">DB Type</div>
+          <div className="col-span-3">{t("queryHistory.headers.time")}</div>
+          <div className="col-span-2">{t("queryHistory.headers.status")}</div>
+          <div className="col-span-2">{t("queryHistory.headers.duration")}</div>
+          <div className="col-span-2">{t("queryHistory.headers.result")}</div>
+          <div className="col-span-3">{t("queryHistory.headers.dbType")}</div>
         </div>
 
         <div className="space-y-2">

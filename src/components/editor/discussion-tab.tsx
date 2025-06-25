@@ -1,5 +1,6 @@
 // src/components/editor/discussion-tab.tsx
 "use client";
+import { useTranslation } from "react-i18next";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,8 @@ interface DiscussionTabProps {
 export function DiscussionTab({
   questionId: propQuestionId,
 }: DiscussionTabProps) {
+  const { t } = useTranslation("editor");
+
   const { questionId: urlQuestionId } = useParams<{ questionId?: string }>();
   const questionId = propQuestionId || urlQuestionId;
 
@@ -168,8 +171,8 @@ export function DiscussionTab({
   // Post a new comment
   const postComment = useCallback(async () => {
     if (!inputValue.trim() || !questionId || !currentUser) {
-      toastError("Không thể gửi bình luận", {
-        description: "Vui lòng nhập nội dung bình luận",
+      toastError(t("discussion.errors.error"), {
+        description: t("discussion.errors.emptyComment"),
       });
       return;
     }
@@ -203,13 +206,13 @@ export function DiscussionTab({
 
       // Clear input and refresh comments
       setInputValue("");
-      toastSuccess("Đã gửi bình luận thành công!");
+      toastSuccess(t("discussion.commentSent"));
 
       // Refresh comments to show the new one
       await fetchComments(0, false);
     } catch (err: any) {
       const errorMessage = api.utils.formatErrorMessage(err);
-      toastError("Lỗi khi gửi bình luận", {
+      toastError(t("discussion.errors.loadComments"), {
         description: errorMessage,
       });
     } finally {
@@ -265,11 +268,13 @@ export function DiscussionTab({
 
         const comment = comments.find((c) => c.id === commentId);
         toastSuccess(
-          comment?.isUserLike ? "Đã bỏ thích bình luận" : "Đã thích bình luận"
+          comment?.isUserLike
+            ? t("discussion.unlikeComment")
+            : t("discussion.likeComment")
         );
       } catch (err: any) {
         const errorMessage = api.utils.formatErrorMessage(err);
-        toastError("Lỗi khi thích bình luận", {
+        toastError(t("discussion.errors.likeComment"), {
           description: errorMessage,
         });
       } finally {
@@ -333,7 +338,7 @@ export function DiscussionTab({
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">
-                Đang tải bình luận...
+                {t("discussion.loadingComments")}
               </p>
             </div>
           </div>
@@ -348,17 +353,15 @@ export function DiscussionTab({
               size="sm"
               variant="outline"
             >
-              Thử lại
+              {t("assignment.retry")}
             </Button>
           </div>
         ) : (
           <div className="space-y-3">
             {comments.length === 0 ? (
               <div className="text-center text-muted-foreground py-8">
-                <p className="text-sm mb-2">Chưa có bình luận nào</p>
-                <p className="text-xs">
-                  Hãy là người đầu tiên chia sẻ ý kiến về câu hỏi này!
-                </p>
+                <p className="text-sm mb-2">{t("discussion.noComments")}</p>
+                <p className="text-xs">{t("discussion.firstComment")}</p>
               </div>
             ) : (
               <>
@@ -384,10 +387,10 @@ export function DiscussionTab({
                       {loading ? (
                         <>
                           <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                          Đang tải...
+                          {t("discussion.loadingComments")}
                         </>
                       ) : (
-                        "Tải thêm bình luận"
+                        t("discussion.loadMore")
                       )}
                     </Button>
                   </div>
@@ -403,7 +406,7 @@ export function DiscussionTab({
         <div className="flex items-center bg-muted rounded-lg px-3 py-2 gap-2">
           <input
             type="text"
-            placeholder="Nhập bình luận..."
+            placeholder={t("discussion.inputPlaceholder")}
             className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground min-w-0"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}

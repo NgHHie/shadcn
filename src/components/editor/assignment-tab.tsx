@@ -1,6 +1,6 @@
 // src/components/editor/assignment-tab.tsx
 "use client";
-
+import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,7 @@ export function AssignmentTab({
   onRetry,
   onQuestionChange,
 }: AssignmentTabProps) {
+  const { t } = useTranslation("editor");
   // Memoize color functions to prevent recalculation
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -90,6 +91,19 @@ Bạn có thể:
     );
   };
 
+  const getLevelText = (level: string) => {
+    switch (level) {
+      case "EASY":
+        return t("assignment.difficulty.easy");
+      case "MEDIUM":
+        return t("assignment.difficulty.medium");
+      case "HARD":
+        return t("assignment.difficulty.hard");
+      default:
+        return level.charAt(0) + level.slice(1).toLowerCase();
+    }
+  };
+
   // Memoize question metadata
   const questionMetadata = useMemo(() => {
     if (!question) return null;
@@ -109,10 +123,10 @@ Bạn có thể:
             question.level
           )}`}
         >
-          {question.level}
+          {getLevelText(question.level)}
         </span>
         <span className="text-sm text-muted-foreground">
-          {question.point} điểm
+          {question.point} {t("assignment.points")}
         </span>
       </div>
     );
@@ -127,7 +141,7 @@ Bạn có thể:
             <div className="flex flex-col items-center gap-4">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">
-                Đang tải đề bài...
+                {t("assignment.loading")}
               </p>
             </div>
           </div>
@@ -141,7 +155,7 @@ Bạn có thể:
 
             {onRetry && (
               <Button onClick={onRetry} size="sm">
-                Thử lại
+                {t("assignment.retry")}
               </Button>
             )}
           </div>

@@ -1,6 +1,6 @@
 // src/components/editor/sales-analytics-dashboard.tsx
 "use client";
-
+import { useTranslation } from "react-i18next";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { History, Upload, Terminal, Send, Loader2 } from "lucide-react";
@@ -29,6 +29,7 @@ interface SalesAnalyticsDashboardProps {
 export function SalesAnalyticsDashboard({
   question,
 }: SalesAnalyticsDashboardProps) {
+  const { t } = useTranslation("editor");
   const isMobile = useIsMobile();
   const api = useApi();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -103,17 +104,17 @@ export function SalesAnalyticsDashboard({
   // Execute SQL query via API
   const handleRunQuery = async () => {
     if (!question) {
-      toastError("Chưa có đề bài để chạy query");
+      toastError(t("sqlEditor.errors.noQuestionRun"));
       return;
     }
 
     if (!sqlQuery.trim()) {
-      toastWarning("Vui lòng nhập SQL query trước khi chạy");
+      toastWarning("sqlEditor.errors.emptyQuery");
       return;
     }
 
     if (!selectedDatabase) {
-      toastWarning("Vui lòng chọn loại database");
+      toastWarning("sqlEditor.errors.noDatabase");
       return;
     }
 
@@ -122,7 +123,7 @@ export function SalesAnalyticsDashboard({
       (db) => db.name === selectedDatabase
     );
     if (!selectedDbDetail) {
-      toastError("Database không hợp lệ");
+      toastError("sqlEditor.errors.invalidDatabase");
       return;
     }
 
@@ -277,19 +278,19 @@ export function SalesAnalyticsDashboard({
   // Submit solution to API
   const submitSolution = async () => {
     if (!question) {
-      toastError("Chưa có đề bài", {
-        description: "Vui lòng chọn một câu hỏi để nộp bài",
+      toastError(t("sqlEditor.erors"), {
+        description: t("sqlEditor.noQuestionSubmit"),
       });
       return;
     }
 
     if (!sqlQuery.trim()) {
-      toastWarning("Vui lòng nhập SQL query trước khi nộp bài");
+      toastWarning(t("sqlEditor.emptyQuerySubmit"));
       return;
     }
 
     if (!selectedDatabase) {
-      toastWarning("Vui lòng chọn loại database");
+      toastWarning(t("sqlEditor.noDatabase"));
       return;
     }
 
@@ -298,7 +299,7 @@ export function SalesAnalyticsDashboard({
       (db) => db.name === selectedDatabase
     );
     if (!selectedDbDetail) {
-      toastError("Database không hợp lệ");
+      toastError(t("sqlEditor.invalidDatabase"));
       return;
     }
 
@@ -324,11 +325,11 @@ export function SalesAnalyticsDashboard({
 
       // The result will be updated via WebSocket in real-time
     } catch (error: any) {
-      toastError("Lỗi khi nộp bài", {
+      toastError(t("sqlEditor.submitFailed"), {
         description: api.utils.formatErrorMessage(error),
         duration: 6000,
         action: {
-          label: "Thử lại",
+          label: t("assignment.retry"),
           onClick: () => submitSolution(),
         },
       });
@@ -338,7 +339,7 @@ export function SalesAnalyticsDashboard({
   };
 
   const handleSaveQuery = () => {
-    toastWarning("Chưa có chức năng này.");
+    toastWarning(t("sqlEditor.errors.saveFailed"));
     return;
   };
 
@@ -451,7 +452,7 @@ export function SalesAnalyticsDashboard({
               isMobile ? "text-xs" : "text-sm"
             }`}
           >
-            SQL Editor
+            {t("sqlEditor.title")}
           </span>
         </div>
 
@@ -477,7 +478,7 @@ export function SalesAnalyticsDashboard({
                 ))
               ) : (
                 <SelectItem value="default" disabled>
-                  Chưa có database
+                  {t("sqlEditor.noDatabase")}
                 </SelectItem>
               )}
             </SelectContent>
@@ -501,10 +502,10 @@ export function SalesAnalyticsDashboard({
               }`}
             >
               {isUploading
-                ? "Uploading..."
+                ? t("sqlEditor.uploading")
                 : isMobile
-                ? "Upload"
-                : "Upload file"}
+                ? t("sqlEditor.uploadShort")
+                : t("sqlEditor.uploadFile")}
             </span>
           </Button>
 
@@ -520,7 +521,7 @@ export function SalesAnalyticsDashboard({
                 isMobile ? "" : "hidden sm:inline"
               }`}
             >
-              History
+              {t("sqlEditor.history")}
             </span>
           </Button>
         </div>
@@ -576,7 +577,9 @@ export function SalesAnalyticsDashboard({
                 disabled={isSubmitting || !question}
               >
                 <Send className="h-3 w-3 mr-1" />
-                {isSubmitting ? "Đang nộp..." : "Submit"}
+                {isSubmitting
+                  ? t("sqlEditor.submitting")
+                  : t("sqlEditor.submit")}
               </Button>
 
               <Button
@@ -597,11 +600,13 @@ export function SalesAnalyticsDashboard({
                 {isRunning ? (
                   <>
                     <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                    Đang chạy...
+                    {t("sqlEditor.running")}
                   </>
                 ) : (
                   <span className="transition-opacity duration-200 ease-in-out">
-                    {isHovering && !isMobile ? "Ctrl + Enter" : "Run query"}
+                    {isHovering && !isMobile
+                      ? "Ctrl + Enter"
+                      : t("sqlEditor.runQuery")}
                   </span>
                 )}
               </Button>
@@ -613,7 +618,7 @@ export function SalesAnalyticsDashboard({
                 }`}
                 onClick={handleSaveQuery}
               >
-                Save query
+                {t("sqlEditor.saveQuery")}
               </Button>
             </div>
 
@@ -655,12 +660,13 @@ export function SalesAnalyticsDashboard({
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                           <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                            Query executed successfully
+                            {t("sqlEditor.success.queryExecuted")}
                           </span>
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {queryResult.result.length} rows •{" "}
-                          {queryResult.timeExec}ms • {queryResult.typeQuery}
+                          {queryResult.result.length}{" "}
+                          {t("sqlEditor.results.rows")} • {queryResult.timeExec}
+                          ms • {queryResult.typeQuery}
                         </span>
                       </div>
                     </div>

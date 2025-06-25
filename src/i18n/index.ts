@@ -9,6 +9,7 @@ import viQuiz from "./locales/vi/quiz.json";
 import viExercise from "./locales/vi/exercise.json";
 import viHome from "./locales/vi/home.json";
 import viSchedule from "./locales/vi/schedule.json";
+import viEditor from "./locales/vi/editor.json";
 import enCommon from "./locales/en/common.json";
 import enAuth from "./locales/en/auth.json";
 import enDashboard from "./locales/en/dashboard.json";
@@ -16,6 +17,7 @@ import enQuiz from "./locales/en/quiz.json";
 import enExercise from "./locales/en/exercise.json";
 import enHome from "./locales/en/home.json";
 import enSchedule from "./locales/en/schedule.json";
+import enEditor from "./locales/en/editor.json";
 
 // Configuration
 i18n.use(initReactI18next).init({
@@ -24,7 +26,7 @@ i18n.use(initReactI18next).init({
   fallbackLng: "en",
 
   // Namespaces
-  ns: ["common", "auth", "dashboard", "quiz", "home", "schedule"],
+  ns: ["common", "auth", "dashboard", "quiz", "home", "schedule", "editor"],
   defaultNS: "common",
 
   // Resources
@@ -37,6 +39,7 @@ i18n.use(initReactI18next).init({
       exercise: viExercise,
       home: viHome,
       schedule: viSchedule,
+      editor: viEditor,
     },
     en: {
       common: enCommon,
@@ -46,6 +49,7 @@ i18n.use(initReactI18next).init({
       exercise: enExercise,
       home: enHome,
       schedule: enSchedule,
+      editor: enEditor,
     },
   },
 

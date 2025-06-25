@@ -1,5 +1,6 @@
 // src/components/editor/sidebar-panel.tsx (Refactored)
 "use client";
+import { useTranslation } from "react-i18next";
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,6 +26,8 @@ export function SidebarPanel({
   error,
   onRetry,
 }: SidebarPanelProps) {
+  const { t } = useTranslation("editor");
+
   const navigate = useNavigate();
   const [, setActiveTab] = useState("assignment");
 
@@ -48,14 +51,14 @@ export function SidebarPanel({
               className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none px-4 py-2 text-foreground"
             >
               <BookOpen className="h-4 w-4 mr-2" />
-              Đề bài
+              {t("tabs.assignment")}
             </TabsTrigger>
             <TabsTrigger
               value="discussion"
               className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none px-4 py-2 text-foreground"
             >
               <MessageSquare className="h-4 w-4 mr-2" />
-              Bàn luận
+              {t("tabs.discussion")}
             </TabsTrigger>
             {/* <TabsTrigger
               value="assistant"

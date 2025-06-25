@@ -1,5 +1,6 @@
 // src/components/editor/sales-table.tsx
 "use client";
+import { useTranslation } from "react-i18next";
 
 import {
   Table,
@@ -15,7 +16,8 @@ interface SalesTableProps {
 }
 
 export function SalesTable({ data }: SalesTableProps = {}) {
-  // Use provided data or fallback to mock data
+  const { t } = useTranslation("editor");
+
   const tableData = data;
 
   if (!tableData) {
@@ -23,7 +25,7 @@ export function SalesTable({ data }: SalesTableProps = {}) {
       <div className="w-full overflow-auto scrollbar-thin">
         <div>
           <div className="p-4 text-muted-foreground">
-            <p>Kết quả truy vấn sẽ hiển thị tại đây.</p>
+            <p>{t("sqlEditor.results.result")}</p>
           </div>
         </div>
       </div>
@@ -33,7 +35,7 @@ export function SalesTable({ data }: SalesTableProps = {}) {
       <div className="w-full overflow-auto scrollbar-thin">
         <div>
           <div className="p-4 text-muted-foreground">
-            <p>Không có dữ liệu.</p>
+            <p>{t("sqlEditor.results.noResult")}</p>
           </div>
         </div>
       </div>
