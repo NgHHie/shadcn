@@ -1,25 +1,24 @@
-// src/app/contest-editor/page.tsx
+// src/app/editor/page.tsx
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { ContestCodeEditor } from "@/components/contest-editor/contest-code-editor";
-import { ContestSidebar } from "@/components/contest-editor/contest-sidebar";
+import { SalesAnalyticsDashboard } from "@/components/contest-editor/sales-analytics-dashboard";
+import { SidebarPanel } from "@/components/contest-editor/sidebar-panel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { QuestionDetail, useApi } from "@/lib/api";
 import { toastError } from "@/lib/toast";
 
-export function ContestEditor() {
-  // Get params from URL
-  const { contestId, innerQuestionId, outerQuestionId } = useParams<{
-    contestId: string;
-    innerQuestionId: string;
-    outerQuestionId: string;
-  }>();
+interface EditorProps {
+  question?: QuestionDetail | null;
+}
 
+export function Editor({ question: propQuestion }: EditorProps) {
+  // ⚠️ CRITICAL: ALL HOOKS MUST BE DECLARED FIRST - NO EXCEPTIONS!
+  const { questionId } = useParams<{ questionId?: string }>();
   const api = useApi();
   const isMobile = useIsMobile();
 
   // State hooks
-  const [question, setQuestion] = useState<QuestionDetail | null>(null);
+  const [apiQuestion, setApiQuestion] = useState<QuestionDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(600);
@@ -86,8 +85,9 @@ export function ContestEditor() {
   // Effects
   useEffect(() => {
     const fetchQuestion = async () => {
-      if (!innerQuestionId) {
-        setQuestion(null);
+      // Only fetch if there's a questionId, otherwise leave everything as null/empty
+      if (!questionId) {
+        setApiQuestion(null);
         setError(null);
         setLoading(false);
         return;
@@ -97,11 +97,8 @@ export function ContestEditor() {
         setLoading(true);
         setError(null);
 
-        // Sử dụng innerQuestionId để lấy chi tiết câu hỏi
-        const questionData = await api.question.getQuestionDetail(
-          innerQuestionId
-        );
-        setQuestion(questionData);
+        const questionData = await api.question.getQuestionDetail(questionId);
+        setApiQuestion(questionData);
       } catch (err: any) {
         const errorMessage = api.utils.formatErrorMessage(err);
         setError(errorMessage);
@@ -112,7 +109,7 @@ export function ContestEditor() {
     };
 
     fetchQuestion();
-  }, [innerQuestionId]);
+  }, [questionId]); // Only depend on questionId
 
   useEffect(() => {
     if (isDragging) {
@@ -153,6 +150,9 @@ export function ContestEditor() {
     return () => window.removeEventListener("resize", handleResize);
   }, [sidebarWidth, sidebarHeight, isMobile, debouncedResize]);
 
+  // Memoized values (after all hooks)
+  const question = propQuestion || apiQuestion;
+
   const DragHandle = ({
     direction,
   }: {
@@ -161,90 +161,91 @@ export function ContestEditor() {
     <div className="absolute inset-0 flex items-center justify-center">
       <div
         className={`${
+          direction === "horizontal" ? "h-0.5 w-8" : "w-0.5 h-8"
+        } flex ${
           direction === "horizontal"
-            ? "w-1 h-16 cursor-col-resize"
-            : "h-1 w-16 cursor-row-resize"
-        } bg-border hover:bg-border/80 transition-colors rounded-full`}
-      />
+            ? "items-center justify-center space-x-1"
+            : "flex-col items-center justify-center space-y-1"
+        }`}
+      >
+        <div className="w-1 h-1 rounded-full bg-muted-foreground"></div>
+        <div className="w-1 h-1 rounded-full bg-muted-foreground"></div>
+        <div className="w-1 h-1 rounded-full bg-muted-foreground"></div>
+      </div>
     </div>
   );
 
-  return (
-    <div
-      ref={containerRef}
-      className="h-screen w-screen overflow-hidden bg-background"
-    >
-      {isMobile ? (
-        // Mobile Layout - Vertical Split
-        <div className="flex flex-col h-full">
-          {/* Code Editor */}
-          <div style={{ height: `${sidebarHeight}px` }} className="relative">
-            <ContestCodeEditor
-              question={question}
-              loading={loading}
-              error={error}
-              onRetry={() => window.location.reload()}
-              contestId={contestId!}
-              outerQuestionId={outerQuestionId!}
-            />
-          </div>
-
-          {/* Drag Handle */}
+  // NOW it's safe to render conditionally - all hooks have been called
+  if (isMobile) {
+    return (
+      <div className="flex flex-col">
+        <div
+          ref={containerRef}
+          className="flex flex-col min-h-[calc(100vh-4rem)] bg-background rounded-lg border shadow-sm"
+        >
           <div
-            className="relative h-2 bg-muted cursor-row-resize flex-shrink-0 hover:bg-muted/80 transition-colors"
-            onMouseDown={startDragging}
+            style={{
+              height: `${sidebarHeight}px`,
+              minHeight: `${sidebarHeight}px`,
+            }}
+            className="w-full overflow-hidden border-b"
           >
-            <DragHandle direction="vertical" />
-          </div>
-
-          {/* Sidebar */}
-          <div className="flex-1 overflow-hidden">
-            <ContestSidebar
+            <SidebarPanel
               question={question}
               loading={loading}
               error={error}
               onRetry={() => window.location.reload()}
-              contestId={contestId!}
-              outerQuestionId={outerQuestionId!}
-            />
-          </div>
-        </div>
-      ) : (
-        // Desktop Layout - Horizontal Split
-        <div className="flex h-full">
-          {/* Code Editor */}
-          <div style={{ width: `${sidebarWidth}px` }} className="relative">
-            <ContestCodeEditor
-              question={question}
-              loading={loading}
-              error={error}
-              onRetry={() => window.location.reload()}
-              contestId={contestId!}
-              outerQuestionId={outerQuestionId!}
             />
           </div>
 
-          {/* Drag Handle */}
           <div
-            className="relative w-2 bg-muted cursor-col-resize flex-shrink-0 hover:bg-muted/80 transition-colors"
+            className={`relative h-3 w-full bg-muted hover:bg-primary/20 cursor-row-resize z-10 ${
+              isDragging ? "bg-primary/30" : ""
+            } transition-colors flex-shrink-0`}
             onMouseDown={startDragging}
           >
             <DragHandle direction="horizontal" />
           </div>
 
-          {/* Sidebar */}
-          <div className="flex-1 overflow-hidden">
-            <ContestSidebar
-              question={question}
-              loading={loading}
-              error={error}
-              onRetry={() => window.location.reload()}
-              contestId={contestId!}
-              outerQuestionId={outerQuestionId!}
-            />
+          <div className="flex-1 min-h-0">
+            <SalesAnalyticsDashboard question={question} />
           </div>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col">
+      <div
+        ref={containerRef}
+        className="flex h-[calc(100vh-4rem)] overflow-hidden bg-background rounded-lg border shadow-sm"
+      >
+        <div
+          style={{ width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }}
+          className="h-full overflow-hidden border-r"
+        >
+          <SidebarPanel
+            question={question}
+            loading={loading}
+            error={error}
+            onRetry={() => window.location.reload()}
+          />
+        </div>
+
+        <div
+          className={`relative w-3 bg-muted hover:bg-primary/20 cursor-col-resize z-10 ${
+            isDragging ? "bg-primary/30" : ""
+          } transition-colors flex-shrink-0`}
+          onMouseDown={startDragging}
+        >
+          <DragHandle direction="vertical" />
+        </div>
+
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <SalesAnalyticsDashboard question={question} />
+        </div>
+      </div>
     </div>
   );
 }
