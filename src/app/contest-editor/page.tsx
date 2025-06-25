@@ -7,7 +7,7 @@ import { GlobalContestHeader } from "@/components/contest/global-contest-header"
 import { useIsMobile } from "@/hooks/use-mobile";
 import { QuestionDetail, useApi } from "@/lib/api";
 import { toastError } from "@/lib/toast";
-import { contestApi, TrackerData } from "@/lib/apiContest";
+import { contestApi } from "@/lib/apiContest";
 import { useUserActionTracker } from "@/hooks/use-user-action-tracker";
 
 interface EditorProps {
@@ -297,7 +297,7 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
         timeRemaining={timeRemaining}
         isActive={isContestActive}
         showBackButton={true}
-        showCompleteButton={false}
+        showCompleteButton={true}
       />
 
       <div

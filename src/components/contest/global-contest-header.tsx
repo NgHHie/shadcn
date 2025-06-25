@@ -83,18 +83,6 @@ export function GlobalContestHeader({
         <div className="flex items-center justify-between gap-6">
           {/* Left section - Back button and Contest info */}
           <div className="flex items-center gap-4 flex-1 min-w-0">
-            {showBackButton && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBackClick}
-                className="flex items-center gap-2 flex-shrink-0 text-white hover:bg-white/10 border-white/20"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">Quay lại</span>
-              </Button>
-            )}
-
             {/* Contest and User info */}
             <div className="flex flex-col min-w-0 flex-1">
               {contest && (
@@ -116,6 +104,17 @@ export function GlobalContestHeader({
 
           {/* Right section - Timer and Complete button */}
           <div className="flex items-center gap-4 flex-shrink-0">
+            {showBackButton && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBackClick}
+                className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/50 backdrop-blur-sm"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Danh sách câu hỏi</span>
+              </Button>
+            )}
             {/* Timer */}
             {timeRemaining && (
               <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg backdrop-blur-sm">
@@ -129,10 +128,10 @@ export function GlobalContestHeader({
             {/* Complete button */}
             {showCompleteButton && (
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={handleCompleteClick}
-                className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/50 backdrop-blur-sm"
+                className="flex items-center gap-2 flex-shrink-0 text-white hover:bg-white/10 border-white/20"
               >
                 Hoàn thành
               </Button>

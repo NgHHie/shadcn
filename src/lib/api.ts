@@ -20,8 +20,7 @@ const API_BASE_URL = "https://api.learnsql.store/api/app";
 const API_AUTH_URL = "https://api.learnsql.store/api/auth";
 
 const PUBLIC_ENDPOINTS = [
-  "/question", // GET /question (list questions)
-  "/question/", // GET /question/{id} (get question detail)
+  "/hiep", // GET /question (list questions)
 ];
 
 // Helper function to check if endpoint is public

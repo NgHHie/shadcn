@@ -40,31 +40,6 @@ export function SidebarPanel({
         onValueChange={setActiveTab}
       >
         {/* Tab Headers - Fixed */}
-        <div className="border-b flex-shrink-0 bg-background">
-          <TabsList className="w-full justify-start p-0 h-auto bg-transparent">
-            <TabsTrigger
-              value="assignment"
-              className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none px-4 py-2 text-foreground"
-            >
-              <BookOpen className="h-4 w-4 mr-2" />
-              Đề bài
-            </TabsTrigger>
-            {/* <TabsTrigger
-              value="discussion"
-              className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none px-4 py-2 text-foreground"
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Bàn luận
-            </TabsTrigger> */}
-            {/* <TabsTrigger
-              value="assistant"
-              className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none px-4 py-2 text-foreground"
-            >
-              <Bot className="h-4 w-4 mr-2" />
-              AI Assistant
-            </TabsTrigger> */}
-          </TabsList>
-        </div>
 
         {/* Tab Content - Flexible */}
         <div className="flex-1 min-h-0">

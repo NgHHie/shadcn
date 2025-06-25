@@ -141,10 +141,7 @@ export function ContestJoinedPage() {
   };
 
   // Handle question click
-  const handleQuestionClick = (
-    innerQuestionId: string,
-    questionCode: string
-  ) => {
+  const handleQuestionClick = (innerQuestionId: string) => {
     if (!isContestActive) {
       toastError("Cuộc thi chưa bắt đầu hoặc đã kết thúc");
       return;
@@ -250,10 +247,10 @@ export function ContestJoinedPage() {
           <ContestQuestionsList
             questions={currentQuestions}
             getQuestionStatus={getQuestionStatus}
-            onQuestionClick={(questionId, questionCode) => {
+            onQuestionClick={(questionId) => {
               // questionId ở đây là question.question.id (innerQuestionId)
               // questionCode là question.question.questionCode
-              handleQuestionClick(questionId, questionCode);
+              handleQuestionClick(questionId);
             }}
             loading={loading}
             totalElements={totalQuestions}
