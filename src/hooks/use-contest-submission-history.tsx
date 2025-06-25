@@ -1,6 +1,8 @@
 // src/hooks/use-contest-submission-history.tsx
 import { useState, useEffect, useCallback } from "react";
-import { toastError } from "@/lib/toast";
+import { toastError, toastSuccess } from "@/lib/toast";
+import { useWebSocket } from "@/hooks/use-websocket";
+import { SocketMessage } from "@/lib/websocket";
 
 interface SubmissionHistoryItem {
   id: string;
@@ -44,6 +46,66 @@ export const useContestSubmissionHistory = (
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState<any>(null);
 
+  const handleSocketMessage = useCallback(
+    (message: SocketMessage) => {
+      console.log("Received contest socket message:", message);
+
+      setSubmissions((prevSubmissions) => {
+        const updatedSubmissions = prevSubmissions.map((submission) => {
+          if (submission.id === message.submitId) {
+            return {
+              ...submission,
+              status: message.statusSubmit,
+              timeout: message.timeExec,
+              testPass: message.testPass,
+              totalTest: message.totalTest,
+            };
+          }
+          return submission;
+        });
+
+        // Check if any submission was updated
+        const wasUpdated = updatedSubmissions.some(
+          (submission, index) => submission !== prevSubmissions[index]
+        );
+
+        if (wasUpdated) {
+          // Show success toast for accepted solutions
+          if (message.statusSubmit === "AC") {
+            toastSuccess("🎉 Accepted!", {
+              description: `Test passed: ${message.testPass}/${message.totalTest} | Time: ${message.timeExec}ms`,
+              action: onOpenHistory
+                ? {
+                    label: "Xem History",
+                    onClick: onOpenHistory,
+                  }
+                : undefined,
+            });
+          } else {
+            toastError("Rejected!", {
+              description: `Test passed: ${message.testPass}/${message.totalTest} | Time: ${message.timeExec}ms`,
+              action: onOpenHistory
+                ? {
+                    label: "Xem History",
+                    onClick: onOpenHistory,
+                  }
+                : undefined,
+            });
+          }
+        }
+
+        return updatedSubmissions;
+      });
+    },
+    [onOpenHistory]
+  );
+
+  // Setup WebSocket connection
+  const { isConnected } = useWebSocket({
+    userId: userInfo?.id,
+    onMessage: handleSocketMessage,
+    autoConnect: true,
+  });
   // Fetch user info
   const fetchUserInfo = useCallback(async () => {
     try {
@@ -127,7 +189,7 @@ export const useContestSubmissionHistory = (
                 ?.replace(/"/g, "")}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(payload),
+            body: JSON.stringify(payload), // payload đã được truyền từ component
           }
         );
 
@@ -192,6 +254,6 @@ export const useContestSubmissionHistory = (
     loading,
     userInfo,
     submitToAPI,
-    isConnected: true,
+    isConnected, // Thêm dòng này
   };
 };

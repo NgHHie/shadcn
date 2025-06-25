@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/select";
 import { toastSuccess, toastError, toastWarning, toastInfo } from "@/lib/toast";
 import { QuestionDetail, useApi } from "@/lib/api";
-import { useSubmissionHistory } from "@/hooks/use-submission-history";
+import { useContestSubmissionHistory } from "@/hooks/use-contest-submission-history";
+import { useParams } from "react-router-dom";
 
 import { SqlEditor } from "./sql-editor";
 
@@ -29,6 +30,12 @@ interface SalesAnalyticsDashboardProps {
 export function SalesAnalyticsDashboard({
   question,
 }: SalesAnalyticsDashboardProps) {
+  const { contestId, innerQuestionId, outerQuestionId } = useParams<{
+    contestId: string;
+    innerQuestionId: string;
+    outerQuestionId: string;
+  }>();
+
   const isMobile = useIsMobile();
   const api = useApi();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,13 +45,15 @@ export function SalesAnalyticsDashboard({
   }, []);
 
   // Use submission history hook for WebSocket integration
-  const { submissions, submitSolution: submitToAPI } = useSubmissionHistory(
-    question?.id,
+  const { submissions, submitToAPI, isConnected } = useContestSubmissionHistory(
+    innerQuestionId,
     {
       code: question?.questionCode || "",
       title: question?.title || "",
     },
-    handleOpenHistory
+    handleOpenHistory,
+    contestId,
+    outerQuestionId
   );
 
   const [sqlQuery, setSqlQuery] = useState(""); // Empty by default
@@ -132,7 +141,7 @@ export function SalesAnalyticsDashboard({
       setQueryResult(null);
 
       const payload = {
-        questionId: question.id,
+        questionId: innerQuestionId!,
         sql: sqlQuery,
         typeDatabaseId: selectedDbDetail.id,
       };
@@ -212,7 +221,7 @@ export function SalesAnalyticsDashboard({
 
       // Call API
       const response = await fetch(
-        `https://api.learnsql.store/api/app/executor/submit-file?questionId=${question.id}&typeDatabaseId=${selectedDbDetail.id}&isSubmitContest=false`,
+        `https://api.learnsql.store/api/app/executor/submit-file?questionId=${innerQuestionId}&typeDatabaseId=${selectedDbDetail.id}&isSubmitContest=true&contestId=${contestId}&questionContestId=${outerQuestionId}`,
         {
           method: "POST",
           headers: {
@@ -319,9 +328,12 @@ export function SalesAnalyticsDashboard({
       setIsSubmitting(true);
 
       const payload = {
-        questionId: question.id,
+        questionId: innerQuestionId!,
         sql: sqlQuery,
         typeDatabaseId: selectedDbDetail.id,
+        contestId: contestId!,
+        isSubmitContest: true,
+        questionContestId: outerQuestionId!,
       };
 
       // Use the WebSocket-integrated submit function

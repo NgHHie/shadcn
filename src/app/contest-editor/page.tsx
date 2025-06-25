@@ -13,7 +13,11 @@ interface EditorProps {
 
 export function ContestEditor({ question: propQuestion }: EditorProps) {
   // ⚠️ CRITICAL: ALL HOOKS MUST BE DECLARED FIRST - NO EXCEPTIONS!
-  const { questionId } = useParams<{ questionId?: string }>();
+  const { innerQuestionId } = useParams<{
+    contestId: string;
+    innerQuestionId: string;
+    outerQuestionId: string;
+  }>();
   const api = useApi();
   const isMobile = useIsMobile();
 
@@ -85,8 +89,7 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
   // Effects
   useEffect(() => {
     const fetchQuestion = async () => {
-      // Only fetch if there's a questionId, otherwise leave everything as null/empty
-      if (!questionId) {
+      if (!innerQuestionId) {
         setApiQuestion(null);
         setError(null);
         setLoading(false);
@@ -97,7 +100,9 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
         setLoading(true);
         setError(null);
 
-        const questionData = await api.question.getQuestionDetail(questionId);
+        const questionData = await api.question.getQuestionDetail(
+          innerQuestionId
+        );
         setApiQuestion(questionData);
       } catch (err: any) {
         const errorMessage = api.utils.formatErrorMessage(err);
@@ -109,7 +114,7 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
     };
 
     fetchQuestion();
-  }, [questionId]); // Only depend on questionId
+  }, [innerQuestionId]);
 
   useEffect(() => {
     if (isDragging) {
