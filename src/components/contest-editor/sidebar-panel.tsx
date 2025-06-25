@@ -49,13 +49,13 @@ export function SidebarPanel({
               <BookOpen className="h-4 w-4 mr-2" />
               Đề bài
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
               value="discussion"
               className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none px-4 py-2 text-foreground"
             >
               <MessageSquare className="h-4 w-4 mr-2" />
               Bàn luận
-            </TabsTrigger>
+            </TabsTrigger> */}
             {/* <TabsTrigger
               value="assistant"
               className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none px-4 py-2 text-foreground"

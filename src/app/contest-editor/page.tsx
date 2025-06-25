@@ -5,7 +5,9 @@ import { SalesAnalyticsDashboard } from "@/components/contest-editor/sales-analy
 import { SidebarPanel } from "@/components/contest-editor/sidebar-panel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { QuestionDetail, useApi } from "@/lib/api";
-import { toastError } from "@/lib/toast";
+import { toastError, toastInfo } from "@/lib/toast";
+import { useUserActionTracker } from "@/hooks/use-user-action-tracker";
+import { checkContestTracker } from "@/lib/user-tracker";
 
 interface EditorProps {
   question?: QuestionDetail | null;
@@ -13,7 +15,8 @@ interface EditorProps {
 
 export function ContestEditor({ question: propQuestion }: EditorProps) {
   // ⚠️ CRITICAL: ALL HOOKS MUST BE DECLARED FIRST - NO EXCEPTIONS!
-  const { innerQuestionId } = useParams<{
+
+  const { contestId, innerQuestionId } = useParams<{
     contestId: string;
     innerQuestionId: string;
     outerQuestionId: string;
@@ -22,12 +25,18 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
   const isMobile = useIsMobile();
 
   // State hooks
+  const [isTrackerEnabled, setIsTrackerEnabled] = useState(false);
   const [apiQuestion, setApiQuestion] = useState<QuestionDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(600);
   const [sidebarHeight, setSidebarHeight] = useState(300);
   const [isDragging, setIsDragging] = useState(false);
+
+  const { sendLog } = useUserActionTracker({
+    contestId: contestId || "",
+    enabled: isTrackerEnabled,
+  });
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -115,6 +124,22 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
 
     fetchQuestion();
   }, [innerQuestionId]);
+
+  // Effects
+  useEffect(() => {
+    const initializeTracker = async () => {
+      if (contestId) {
+        try {
+          const trackerEnabled = await checkContestTracker(contestId);
+          setIsTrackerEnabled(trackerEnabled);
+        } catch (error) {
+          console.error("Failed to check contest tracker:", error);
+        }
+      }
+    };
+
+    initializeTracker();
+  }, [contestId]);
 
   useEffect(() => {
     if (isDragging) {
