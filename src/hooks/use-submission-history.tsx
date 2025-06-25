@@ -120,34 +120,6 @@ export const useSubmissionHistory = (
       });
 
       // Check if any submission was updated
-      const wasUpdated = updatedSubmissions.some(
-        (submission, index) => submission !== prevSubmissions[index]
-      );
-
-      if (wasUpdated) {
-        // Show success toast for accepted solutions
-        if (message.statusSubmit === "AC") {
-          toastSuccess("🎉 Accepted!", {
-            description: `Test passed: ${message.testPass}/${message.totalTest} | Time: ${message.timeExec}ms`,
-            action: onOpenHistory
-              ? {
-                  label: "Xem History",
-                  onClick: onOpenHistory,
-                }
-              : undefined,
-          });
-        } else {
-          toastError("Rejected!", {
-            description: `Test passed: ${message.testPass}/${message.totalTest} | Time: ${message.timeExec}ms`,
-            action: onOpenHistory
-              ? {
-                  label: "Xem History",
-                  onClick: onOpenHistory,
-                }
-              : undefined,
-          });
-        }
-      }
 
       return updatedSubmissions;
     });

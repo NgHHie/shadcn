@@ -241,19 +241,6 @@ export function SalesAnalyticsDashboard({
 
       // Update SQL editor with file content
       setSqlQuery(fileContent);
-
-      toastSuccess("Upload file thành công!", {
-        description: `File ${file.name} đã được upload và nội dung đã được load vào editor`,
-        duration: 3000,
-      });
-
-      // Process the response similar to submit
-      if (result.submitId) {
-        // Add pending submission to history
-        toastInfo("Đang xử lý submission...", {
-          description: "Kết quả sẽ được cập nhật qua WebSocket",
-        });
-      }
     } catch (error: any) {
       console.error("Upload error:", error);
       toastError("Lỗi khi upload file", {
@@ -343,10 +330,9 @@ export function SalesAnalyticsDashboard({
         questionTitle: question.title,
       });
 
-      toastInfo("Đã nộp bài thành công!", {
-        description: `Đang chờ kết quả từ hệ thống...`,
-        duration: 1000,
-      });
+      setTimeout(() => {
+        setIsHistoryOpen(true);
+      }, 500);
 
       // The result will be updated via WebSocket in real-time
     } catch (error: any) {
@@ -441,9 +427,6 @@ export function SalesAnalyticsDashboard({
   const handleSelectQuery = (query: QueryHistoryItem) => {
     console.log("Selected query:", query);
     setIsHistoryOpen(false);
-    toastSuccess("Đã chọn query từ lịch sử", {
-      description: `Query từ ${query.time}`,
-    });
   };
 
   return (
