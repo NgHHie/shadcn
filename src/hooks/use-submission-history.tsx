@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useApi } from "@/lib/api";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { SocketMessage } from "@/lib/websocket";
-import { toastError, toastSuccess } from "@/lib/toast";
+import { toastError } from "@/lib/toast";
 import { handleDataFetchError } from "@/lib/error-handler";
 
 export interface SubmissionHistoryItem {
@@ -87,8 +87,7 @@ interface QuestionInfo {
 
 export const useSubmissionHistory = (
   questionId?: string,
-  questionInfo?: QuestionInfo,
-  onOpenHistory?: () => void
+  questionInfo?: QuestionInfo
 ) => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [submissions, setSubmissions] = useState<SubmissionHistoryItem[]>([]);

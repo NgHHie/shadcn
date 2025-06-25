@@ -1,7 +1,7 @@
 // src/components/editor/sales-analytics-dashboard.tsx
 "use client";
 import { useTranslation } from "react-i18next";
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { History, Upload, Terminal, Send, Loader2 } from "lucide-react";
 import { SalesTable } from "@/components/editor/sales-table";
@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toastSuccess, toastError, toastWarning, toastInfo } from "@/lib/toast";
+import { toastError, toastWarning } from "@/lib/toast";
 import { QuestionDetail, useApi } from "@/lib/api";
 import { useSubmissionHistory } from "@/hooks/use-submission-history";
 
@@ -34,18 +34,13 @@ export function SalesAnalyticsDashboard({
   const api = useApi();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleOpenHistory = useCallback(() => {
-    setIsHistoryOpen(true);
-  }, []);
-
   // Use submission history hook for WebSocket integration
   const { submissions, submitSolution: submitToAPI } = useSubmissionHistory(
     question?.id,
     {
       code: question?.questionCode || "",
       title: question?.title || "",
-    },
-    handleOpenHistory
+    }
   );
 
   const [sqlQuery, setSqlQuery] = useState(""); // Empty by default
@@ -228,8 +223,6 @@ export function SalesAnalyticsDashboard({
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-
-      const result = await response.json();
 
       // Update SQL editor with file content
       setSqlQuery(fileContent);

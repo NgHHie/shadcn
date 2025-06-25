@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { QuestionDetail } from "@/lib/api";
-import { QuestionSelector } from "./question-selector";
 
 interface AssignmentTabProps {
   question?: QuestionDetail | null;
@@ -22,7 +21,6 @@ export function AssignmentTab({
   loading,
   error,
   onRetry,
-  onQuestionChange,
 }: AssignmentTabProps) {
   const { t } = useTranslation("editor");
   // Memoize color functions to prevent recalculation

@@ -1,6 +1,6 @@
 // src/hooks/use-contest-submission-history.tsx
 import { useState, useEffect, useCallback } from "react";
-import { toastError, toastSuccess } from "@/lib/toast";
+import { toastError } from "@/lib/toast";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { SocketMessage } from "@/lib/websocket";
 import { contestApi, ContestSubmissionRequest } from "@/lib/apiContest";
@@ -32,14 +32,7 @@ interface SubmissionHistoryItem {
   };
 }
 
-interface QuestionInfo {
-  code: string;
-  title: string;
-}
-
 export const useContestSubmissionHistory = (
-  questionId?: string,
-  questionInfo?: QuestionInfo,
   onOpenHistory?: () => void,
   contestId?: string,
   outerQuestionId?: string
@@ -65,11 +58,6 @@ export const useContestSubmissionHistory = (
           }
           return submission;
         });
-
-        // Check if any submission was updated
-        const wasUpdated = updatedSubmissions.some(
-          (submission, index) => submission !== prevSubmissions[index]
-        );
 
         return updatedSubmissions;
       });

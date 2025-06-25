@@ -12,7 +12,7 @@ import { useEffect, useRef } from "react";
 // Component con để điều khiển sidebar
 function SidebarController({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const { setOpen, setOpenMobile, open } = useSidebar();
+  const { setOpen, setOpenMobile } = useSidebar();
   const userInteracted = useRef(false);
   const lastRoute = useRef(location.pathname);
 

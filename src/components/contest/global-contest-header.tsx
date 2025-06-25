@@ -39,11 +39,9 @@ interface GlobalContestHeaderProps {
 export function GlobalContestHeader({
   contest,
   timeRemaining,
-  isActive = false,
   showBackButton = false,
   showCompleteButton = true,
   onBackClick,
-  onCompleteClick,
 }: GlobalContestHeaderProps) {
   const navigate = useNavigate();
   const api = useApi();
