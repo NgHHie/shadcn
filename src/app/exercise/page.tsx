@@ -58,9 +58,6 @@ export function Page() {
   // Handle question click
   const handleQuestionClick = useCallback(
     (questionId: string, questionTitle: string) => {
-      toastSuccess(t("redirectingToAssignment"), {
-        description: t("openingAssignment", { title: questionTitle }),
-      });
       navigate(`/question-detail/${questionId}`);
     },
     [navigate, t]

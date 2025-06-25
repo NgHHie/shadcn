@@ -6,8 +6,9 @@ import { SidebarPanel } from "@/components/contest-editor/sidebar-panel";
 import { GlobalContestHeader } from "@/components/contest/global-contest-header";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { QuestionDetail, useApi } from "@/lib/api";
-import { toastError, toastInfo } from "@/lib/toast";
-import { contestApi } from "@/lib/apiContest";
+import { toastError } from "@/lib/toast";
+import { contestApi, TrackerData } from "@/lib/apiContest";
+import { useUserActionTracker } from "@/hooks/use-user-action-tracker";
 
 interface EditorProps {
   question?: QuestionDetail | null;
@@ -38,6 +39,12 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // USER ACTION TRACKER - Sử dụng hook có sẵn với API từ apiContest.ts
+  useUserActionTracker({
+    contestId: contestId || "",
+    enabled: isTrackerEnabled,
+  });
 
   const startDragging = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -138,7 +145,7 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
         setLoading(true);
         setError(null);
 
-        // Fetch contest data with tracker info - DÙNG API MỚI TỪ apiContest.ts
+        // Fetch contest data with tracker info
         const contestResponse = await contestApi.getContestForEditor(contestId);
         setContestData(contestResponse.contest);
         setIsTrackerEnabled(contestResponse.isTrackerEnabled);
@@ -170,7 +177,7 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
     return () => clearInterval(interval);
   }, [contestData, updateTimer]);
 
-  // Effects - XÓA PHẦN CHECK TRACKER CŨ
+  // Mouse event effects
   useEffect(() => {
     if (isDragging) {
       document.addEventListener("mousemove", handleMouseMove, {

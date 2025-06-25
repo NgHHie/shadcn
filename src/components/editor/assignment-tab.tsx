@@ -118,30 +118,6 @@ Bạn có thể:
     );
   }, [question]);
 
-  // Memoize additional info
-  const additionalInfo = useMemo(() => {
-    if (!question) return null;
-
-    return (
-      <div className="mt-6 p-3 bg-muted/50 rounded-lg">
-        <h4 className="text-sm font-medium mb-2 text-foreground">
-          Thông tin thêm:
-        </h4>
-        <div className="space-y-1 text-xs text-muted-foreground">
-          <p>Mã câu hỏi: {question.questionCode}</p>
-          <p>
-            Loại cơ sở dữ liệu:{" "}
-            {question.questionDetails?.[0]?.typeDatabase?.name || "MySQL"}
-          </p>
-          <p>
-            Cập nhật lần cuối:{" "}
-            {new Date(question.lastModifiedAt).toLocaleDateString("vi-VN")}
-          </p>
-        </div>
-      </div>
-    );
-  }, [question]);
-
   return (
     <div className="h-full flex flex-col">
       <div className="flex-1 p-4 overflow-auto">
@@ -179,12 +155,6 @@ Bạn có thể:
                     {question?.questionCode || "SQL Editor"}:{" "}
                     {question?.title || "Chọn câu hỏi để bắt đầu"}
                   </h3>
-                  {onQuestionChange && (
-                    <QuestionSelector
-                      currentQuestionId={question?.id}
-                      onQuestionChange={onQuestionChange}
-                    />
-                  )}
                 </div>
 
                 {/* Question metadata */}
@@ -202,9 +172,6 @@ Bạn có thể:
                 </div>
               )}
             </div>
-
-            {/* Additional question info */}
-            {additionalInfo}
           </div>
         )}
       </div>

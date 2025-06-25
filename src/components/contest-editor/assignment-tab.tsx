@@ -195,9 +195,6 @@ Bạn có thể:
                 </div>
               )}
             </div>
-
-            {/* Additional question info */}
-            {additionalInfo}
           </div>
         )}
       </div>
