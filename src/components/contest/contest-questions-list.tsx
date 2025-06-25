@@ -46,12 +46,6 @@ export function ContestQuestionsList({
 }: ContestQuestionsListProps) {
   return (
     <div className="space-y-4">
-      {/* Simple Section Header - No icons, no counts */}
-      <div className="flex items-center gap-2">
-        <h2 className="text-lg font-semibold">Danh sách câu hỏi</h2>
-        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-      </div>
-
       {/* Questions List */}
       {totalElements === 0 ? (
         <Card>

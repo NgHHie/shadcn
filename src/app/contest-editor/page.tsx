@@ -7,7 +7,6 @@ import { GlobalContestHeader } from "@/components/contest/global-contest-header"
 import { useIsMobile } from "@/hooks/use-mobile";
 import { QuestionDetail, useApi } from "@/lib/api";
 import { toastError, toastInfo } from "@/lib/toast";
-import { useUserActionTracker } from "@/hooks/use-user-action-tracker";
 import { contestApi } from "@/lib/apiContest";
 
 interface EditorProps {
@@ -36,11 +35,6 @@ export function ContestEditor({ question: propQuestion }: EditorProps) {
   const [sidebarWidth, setSidebarWidth] = useState(600);
   const [sidebarHeight, setSidebarHeight] = useState(300);
   const [isDragging, setIsDragging] = useState(false);
-
-  const { sendLog } = useUserActionTracker({
-    contestId: contestId || "",
-    enabled: isTrackerEnabled,
-  });
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);

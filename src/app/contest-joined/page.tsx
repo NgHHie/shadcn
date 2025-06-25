@@ -7,7 +7,7 @@ import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserContext } from "@/contexts/UserContext";
-import { toastError, toastWarning } from "@/lib/toast";
+import { toastError } from "@/lib/toast";
 import { contestJoinedApi } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 
@@ -17,7 +17,6 @@ import {
 } from "@/types/contest-joined";
 
 // Components
-import { ContestJoinedHeader } from "@/components/contest/contest-joined-header";
 import { ContestQuestionsList } from "@/components/contest/contest-questions-list";
 import { GlobalContestHeader } from "@/components/contest/global-contest-header";
 
@@ -123,10 +122,6 @@ export function ContestJoinedPage() {
     }
   };
 
-  const handleRefresh = async () => {
-    await loadData();
-  };
-
   // Get question status - now supports WA, CE, LTE, RTE
   const getQuestionStatus = (
     questionId: string
@@ -190,13 +185,18 @@ export function ContestJoinedPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="space-y-6">
-          <Skeleton className="h-20 w-full" />
-          <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full" />
-            ))}
+      <div className="min-h-screen bg-background">
+        {/* Global Contest Header */}
+        <GlobalContestHeader showBackButton={true} showCompleteButton={true} />
+
+        <div className="container mx-auto px-6 py-8 max-w-6xl">
+          <div className="space-y-6">
+            <Skeleton className="h-8 w-64" />
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -206,43 +206,65 @@ export function ContestJoinedPage() {
   // Error state
   if (!contestData) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Không thể tải thông tin cuộc thi. Vui lòng thử lại sau.
-          </AlertDescription>
-        </Alert>
+      <div className="min-h-screen bg-background">
+        {/* Global Contest Header */}
+        <GlobalContestHeader showBackButton={true} showCompleteButton={true} />
+
+        <div className="container mx-auto px-6 py-8 max-w-6xl">
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Không thể tải thông tin cuộc thi. Vui lòng thử lại sau.
+            </AlertDescription>
+          </Alert>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6 max-w-4xl">
-      {/* Contest Header - Simplified */}
+    <div className="min-h-screen bg-background">
+      {/* Global Contest Header - Full Width */}
       <GlobalContestHeader
         contest={contestData}
         timeRemaining={timeRemaining}
         isActive={isContestActive}
+        showBackButton={false}
+        showCompleteButton={true}
       />
 
-      {/* Questions List - No stats, simplified header */}
-      <ContestQuestionsList
-        questions={currentQuestions}
-        getQuestionStatus={getQuestionStatus}
-        onQuestionClick={(questionId, questionCode) => {
-          // questionId ở đây là question.question.id (innerQuestionId)
-          // questionCode là question.question.questionCode
-          handleQuestionClick(questionId, questionCode);
-        }}
-        loading={loading}
-        totalElements={totalQuestions}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        pageSize={pageSize}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-      />
+      {/* Main Content - Contained */}
+      <div className="container mx-auto px-6 py-6 max-w-6xl">
+        <div className="space-y-6">
+          {/* Page Title */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-semibold text-foreground">
+              Danh sách câu hỏi
+            </h2>
+            <span className="text-muted-foreground">
+              {totalQuestions} câu hỏi
+            </span>
+          </div>
+
+          {/* Questions List */}
+          <ContestQuestionsList
+            questions={currentQuestions}
+            getQuestionStatus={getQuestionStatus}
+            onQuestionClick={(questionId, questionCode) => {
+              // questionId ở đây là question.question.id (innerQuestionId)
+              // questionCode là question.question.questionCode
+              handleQuestionClick(questionId, questionCode);
+            }}
+            loading={loading}
+            totalElements={totalQuestions}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </div>
+      </div>
     </div>
   );
 }

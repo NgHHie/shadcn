@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Timer, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Timer, User } from "lucide-react";
 import { useApi } from "@/lib/api";
 
 interface UserInfo {
@@ -70,60 +70,70 @@ export function GlobalContestHeader({
     }
   };
 
-  const handleCompleteClick = () => {
-    if (onCompleteClick) {
-      onCompleteClick();
-    } else {
-      api.auth.logout();
-    }
+  const handleCompleteClick = async () => {
+    await api.auth.logout();
+    setTimeout(() => {
+      navigate("/login", { replace: true });
+    }, 1000);
   };
 
   return (
-    <div className="w-full border-b">
-      <div className="w-full px-4 py-3">
-        <div className="flex items-start justify-between">
-          {/* Left section - Back button (if needed) and Contest info */}
-          <div className="flex items-start gap-4 flex-1 min-w-0">
+    <div className="w-full bg-gradient-to-r  border-b  shadow-md">
+      <div className="w-full px-6 py-4">
+        <div className="flex items-center justify-between gap-6">
+          {/* Left section - Back button and Contest info */}
+          <div className="flex items-center gap-4 flex-1 min-w-0">
             {showBackButton && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleBackClick}
-                className="flex items-center gap-2 flex-shrink-0"
+                className="flex items-center gap-2 flex-shrink-0 text-white hover:bg-white/10 border-white/20"
               >
                 <ArrowLeft className="h-4 w-4" />
-                <span>Quay lại</span>
+                <span className="hidden sm:inline">Quay lại</span>
               </Button>
             )}
 
+            {/* Contest and User info */}
             <div className="flex flex-col min-w-0 flex-1">
               {contest && (
-                <h1 className="text-xl font-semibold truncate">
+                <h1 className="text-xl font-semibold text-white truncate leading-tight">
                   {contest.name}
                 </h1>
               )}
 
-              {/* User info below contest name */}
               {userInfo && (
-                <span className="text-white text-sm mt-1">
-                  {userInfo.fullName} - {userInfo.userCode}
-                </span>
+                <div className="flex items-center gap-2 mt-1">
+                  <User className="h-3 w-3 text-blue-200" />
+                  <span className="text-blue-100 text-sm truncate">
+                    {userInfo.fullName} - {userInfo.userCode}
+                  </span>
+                </div>
               )}
             </div>
           </div>
 
-          {/* Right section - Timer and complete button */}
+          {/* Right section - Timer and Complete button */}
           <div className="flex items-center gap-4 flex-shrink-0">
             {/* Timer */}
             {timeRemaining && (
-              <span className="font-mono text-lg font-medium text-white">
-                {timeRemaining}
-              </span>
+              <div className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg backdrop-blur-sm">
+                <Timer className="h-4 w-4 text-white" />
+                <span className="font-mono text-lg font-medium text-white whitespace-nowrap">
+                  {timeRemaining}
+                </span>
+              </div>
             )}
 
             {/* Complete button */}
             {showCompleteButton && (
-              <Button variant="outline" size="sm" onClick={handleCompleteClick}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCompleteClick}
+                className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/50 backdrop-blur-sm"
+              >
                 Hoàn thành
               </Button>
             )}
