@@ -65,33 +65,59 @@ html {
   animation: spin 1s linear infinite;
 }
 
-/* Sticky sidebar enhancements */
-.sticky-sidebar {
+/* Enhanced sticky sidebar */
+.quiz-sidebar {
   position: sticky;
   top: 0;
-  overflow-y: auto;
-  z-index: 10;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 20;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
-.sticky-sidebar:hover {
+.quiz-sidebar:hover {
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure sidebar stays fixed */
+.quiz-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.quiz-content {
+  flex: 1;
+  min-width: 0; /* Allow flex item to shrink below its content size */
+  overflow-x: hidden;
 }
 
 /* Dark mode shadow */
 @media (prefers-color-scheme: dark) {
-  .sticky-sidebar {
+  .quiz-sidebar {
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
   }
 
-  .sticky-sidebar:hover {
+  .quiz-sidebar:hover {
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
   }
 }
 
 /* Ensure smooth scrolling in sidebar */
-.sticky-sidebar .scroll-area {
+.quiz-sidebar .scroll-area {
   height: 100%;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 1024px) {
+  .quiz-sidebar {
+    display: none;
+  }
+  
+  .quiz-content {
+    flex: none;
+    width: 100%;
+  }
 }
 
 /* Responsive design */
