@@ -1,5 +1,4 @@
 // src/components/contest/contest-questions-list.tsx
-import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Pagination } from "@/components/dashboard/pagination";
 import { ContestQuestionCard } from "./contest-question-card";
@@ -36,7 +35,6 @@ export function ContestQuestionsList({
   questions,
   getQuestionStatus,
   onQuestionClick,
-  loading = false,
   totalElements,
   currentPage,
   totalPages,

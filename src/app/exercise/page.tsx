@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, AlertCircle, BookOpen } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toastSuccess } from "@/lib/toast";
 
 export function Page() {
   const { t } = useTranslation("exercise");
@@ -57,7 +56,7 @@ export function Page() {
 
   // Handle question click
   const handleQuestionClick = useCallback(
-    (questionId: string, questionTitle: string) => {
+    (questionId: string) => {
       navigate(`/question-detail/${questionId}`);
     },
     [navigate, t]

@@ -2,8 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, BookOpen } from "lucide-react";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { QuestionDetail } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 

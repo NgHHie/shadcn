@@ -1,5 +1,5 @@
 // src/hooks/use-sidebar-state.tsx
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
 
 export const useSidebarState = () => {

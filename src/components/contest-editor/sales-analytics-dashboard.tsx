@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toastSuccess, toastError, toastWarning, toastInfo } from "@/lib/toast";
+import { toastError, toastWarning } from "@/lib/toast";
 import { QuestionDetail, useApi } from "@/lib/api";
 import { useContestSubmissionHistory } from "@/hooks/use-contest-submission-history";
 import { useParams } from "react-router-dom";
@@ -45,12 +45,7 @@ export function SalesAnalyticsDashboard({
   }, []);
 
   // Use submission history hook for WebSocket integration
-  const { submissions, submitToAPI, isConnected } = useContestSubmissionHistory(
-    innerQuestionId,
-    {
-      code: question?.questionCode || "",
-      title: question?.title || "",
-    },
+  const { submissions, submitToAPI } = useContestSubmissionHistory(
     handleOpenHistory,
     contestId,
     outerQuestionId
@@ -236,8 +231,6 @@ export function SalesAnalyticsDashboard({
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-
-      const result = await response.json();
 
       // Update SQL editor with file content
       setSqlQuery(fileContent);
