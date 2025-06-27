@@ -9,10 +9,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
 import { RegisterRequest, useApi } from "@/lib/api";
 import { handleRegistrationError } from "@/lib/error-handler";
+import { isValidEmail, validateUsername, validatePassword } from "@/lib/validation";
 import ptitLogo from "@/assets/ptit.png";
 
 interface RegisterFormData {
-  fullName: string;
+  email: string;
   username: string;
   password: string;
   confirmPassword: string;
@@ -33,7 +34,7 @@ export function RegisterForm({
   
   // Register credentials
   const [formData, setFormData] = useState<RegisterFormData>({
-    fullName: "",
+    email: "",
     username: "",
     password: "",
     confirmPassword: "",
@@ -46,18 +47,34 @@ export function RegisterForm({
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.username || !formData.password) {
+    // Validation
+    if (!formData.email || !formData.username || !formData.password) {
       setError(t('register.validation.required'));
+      return;
+    }
+
+    // Email validation
+    if (!isValidEmail(formData.email)) {
+      setError(t('register.validation.invalidEmail'));
+      return;
+    }
+
+    // Username validation
+    const usernameValidation = validateUsername(formData.username);
+    if (!usernameValidation.isValid) {
+      setError(usernameValidation.message || 'Invalid username');
+      return;
+    }
+
+    // Password validation
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.isValid) {
+      setError(passwordValidation.message || 'Invalid password');
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
       setError(t('register.validation.passwordMismatch'));
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError(t('register.validation.passwordLength'));
       return;
     }
 
@@ -68,9 +85,9 @@ export function RegisterForm({
       
       // Use simplified register API
       const registerData: RegisterRequest = {
+        email: formData.email,
         username: formData.username,
         password: formData.password,
-        fullName: formData.fullName || '',
       };
 
       await api.auth.register(registerData);
@@ -113,19 +130,20 @@ export function RegisterForm({
               )}
 
               <div className="grid gap-2">
-                <Label htmlFor="fullName">{t('register.fullName')}</Label>
+                <Label htmlFor="email">{t('register.email')}</Label>
                 <Input
-                  id="fullName"
-                  type="text"
-                  placeholder={t('register.fullNamePlaceholder')}
-                  value={formData.fullName}
+                  id="email"
+                  type="email"
+                  placeholder={t('register.emailPlaceholder')}
+                  value={formData.email}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      fullName: e.target.value,
+                      email: e.target.value,
                     }))
                   }
                   disabled={isLoading}
+                  required
                 />
               </div>
 
