@@ -67,7 +67,17 @@
     "authError": "Authentication error",
     "loadUserInfoError": "Error loading user information",
     "noEmail": "No email",
-    "noBirthday": "No birthday"
+    "noBirthday": "No birthday",
+    "noChangesToSave": "No changes to save",
+    "validationError": "Validation error",
+    "updateError": "Error updating information",
+    "saving": "Saving...",
+    "noChanges": "No changes to save",
+    "passwordMismatch": "Password mismatch",
+    "passwordMismatchDesc": "Confirm password does not match the new password",
+    "changesSaved": "All changes have been saved successfully",
+    "unsavedChanges": "You have unsaved changes. Please save or cancel before leaving.",
+    "notSet": "Not set"
   },
   "sidebar": {
     "account": "Account",

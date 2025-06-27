@@ -67,7 +67,17 @@
     "authError": "Lỗi xác thực",
     "loadUserInfoError": "Lỗi khi tải thông tin người dùng",
     "noEmail": "Không có email",
-    "noBirthday": "Không có ngày sinh"
+    "noBirthday": "Không có ngày sinh",
+    "noChangesToSave": "Không có thay đổi nào để lưu",
+    "validationError": "Lỗi xác thực dữ liệu",
+    "updateError": "Lỗi khi cập nhật thông tin",
+    "saving": "Đang lưu...",
+    "noChanges": "Không có thay đổi nào để lưu",
+    "passwordMismatch": "Mật khẩu không khớp",
+    "passwordMismatchDesc": "Mật khẩu xác nhận không khớp với mật khẩu mới",
+    "changesSaved": "Tất cả thay đổi đã được lưu thành công",
+    "unsavedChanges": "Bạn có thay đổi chưa lưu. Vui lòng lưu hoặc hủy bỏ trước khi rời khỏi.",
+    "notSet": "Chưa thiết lập"
   },
   "sidebar": {
     "account": "Tài khoản",

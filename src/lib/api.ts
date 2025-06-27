@@ -111,9 +111,9 @@ export interface LoginResponse {
 }
 
 export interface RegisterRequest {
+  email: string;
   username: string;
   password: string;
-  fullName?: string;
 }
 
 export interface RegisterResponse {
@@ -192,22 +192,32 @@ export class ApiClient {
       ...options,
     };
 
+    console.log(`🔍 Making request to: ${url}`);
+    console.log(`🔍 Method: ${options.method || "GET"}`);
+    console.log(`🔍 Is public endpoint: ${isPublicEndpoint(endpoint)}`);
+
     if (!isPublicEndpoint(endpoint)) {
       const token = TokenManager.getAccessToken();
       const refreshToken = TokenManager.getRefreshToken();
+
+      console.log(`🔍 Token exists: ${!!token}`);
+      console.log(`🔍 Refresh token exists: ${!!refreshToken}`);
 
       if (token) {
         defaultOptions.headers = {
           ...defaultOptions.headers,
           Authorization: `Bearer ${token}`,
         };
+        console.log(`🔍 Added Authorization header with token`);
       } else if (refreshToken && retryCount === 0) {
         try {
+          console.log(`🔍 Attempting token refresh...`);
           const newToken = await TokenManager.refreshAccessToken();
           defaultOptions.headers = {
             ...defaultOptions.headers,
             Authorization: `Bearer ${newToken}`,
           };
+          console.log(`🔍 Token refreshed successfully`);
         } catch (refreshError) {
           console.error("Token refresh failed:", refreshError);
           // Delay trước khi redirect để tránh race condition
@@ -218,11 +228,18 @@ export class ApiClient {
           }, 1000);
           throw new Error("Authentication failed. Please login again.");
         }
+      } else {
+        console.log(`🔍 No token available, request will be made without auth`);
       }
     }
 
+    console.log(`🔍 Final headers:`, defaultOptions.headers);
+
     try {
       const response = await fetch(url, defaultOptions);
+
+      console.log(`🔍 Response status: ${response.status}`);
+      console.log(`🔍 Response ok: ${response.ok}`);
 
       if (
         response.status === 401 &&
@@ -230,6 +247,7 @@ export class ApiClient {
         !isPublicEndpoint(endpoint)
       ) {
         try {
+          console.log(`🔍 401 received, attempting token refresh...`);
           const newToken = await TokenManager.refreshAccessToken();
 
           const newHeaders = {
@@ -286,8 +304,20 @@ export class ApiClient {
         throw error;
       }
 
-      const data = await response.json();
-      return data;
+      // Handle empty response
+      const responseText = await response.text();
+      if (!responseText.trim()) {
+        console.warn("⚠️ Empty response from server");
+        return {} as T;
+      }
+
+      try {
+        const data = JSON.parse(responseText);
+        return data;
+      } catch (parseError) {
+        console.error("❌ Failed to parse JSON response:", responseText);
+        throw new Error(`Invalid JSON response: ${responseText}`);
+      }
     } catch (error) {
       console.error(`API Error [${endpoint}]:`, error);
       throw error;
@@ -763,7 +793,7 @@ export const authApi = {
       body: JSON.stringify({
         username: userData.username,
         password: userData.password,
-        fullName: userData.fullName,
+        email: userData.email,
       }),
     });
 
@@ -853,6 +883,32 @@ export const authApi = {
       fullName: string;
       isPremium: boolean;
     }>("/users/info");
+  },
+
+  // Update user information
+  updateUserInfo: async (
+    userData: UpdateUserRequest
+  ): Promise<UpdateUserResponse> => {
+    try {
+      const response = await apiAuth.put<UpdateUserResponse>(
+        "/users/update",
+        userData
+      );
+      return response;
+    } catch (error) {
+      if (error instanceof Error && "response" in error) {
+        const errorResponse = (error as Error & { response?: Response })
+          .response;
+        console.error("❌ Response status:", errorResponse?.status);
+        console.error("❌ Response headers:", errorResponse?.headers);
+        if (errorResponse?.text) {
+          const responseText = await errorResponse.text();
+          console.error("❌ Response text:", responseText);
+        }
+      }
+
+      throw error;
+    }
   },
 };
 
@@ -989,6 +1045,7 @@ export const useApi = () => {
       ...userApi,
       getUserInfo: authApi.getUserInfo, // Reference to auth getUserInfo
       getUserInfo2: authApi.getCurrentUser,
+      updateUserInfo: authApi.updateUserInfo, // Add update method
     },
     ranking: rankingApi,
     contest: contestApi,
@@ -1018,4 +1075,31 @@ export interface QuestionCompletionStatus {
 export interface CheckCompletionRequest {
   questionIds: string[];
   userId: string;
+}
+
+export interface UpdateUserRequest {
+  password?: string;
+  repassword?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  email?: string;
+  avatar?: string;
+  birthDay?: string; // ISO date string
+  userCode?: string;
+}
+
+export interface UpdateUserResponse {
+  status: number;
+  message: string;
+  data?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    birthDay: string;
+    avatar: string;
+    userCode: string;
+  };
 }

@@ -15,6 +15,7 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
+  Save,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,8 +23,9 @@ import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toastSuccess, toastError, toastWarning, toastInfo } from "@/lib/toast";
-import { useApi } from "@/lib/api";
+import { useApi, UpdateUserRequest } from "@/lib/api";
 import { handleDataFetchError } from "@/lib/error-handler";
+import { validateProfileUpdate, isValidEmail, isValidPhone } from "@/lib/validation";
 
 interface UserData {
   id: string;
@@ -44,7 +46,10 @@ export function Profile() {
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<UpdateUserRequest>({});
+  const [hasChanges, setHasChanges] = useState(false);
 
   const api = useApi();
 
@@ -57,6 +62,15 @@ export function Profile() {
         
         const userData = await api.user.getUserInfo();
         setProfileData(userData);
+        
+        // Initialize form data with current user data
+        setFormData({
+          firstName: userData.firstName || '',
+          lastName: userData.lastName || '',
+          email: userData.email || '',
+          phone: userData.phone || '',
+          birthDay: userData.birthDay || '',
+        });
       } catch (err: unknown) {
         console.error("Error fetching user data:", err);
         
@@ -102,25 +116,168 @@ export function Profile() {
     fetchUserData();
   }, []); // Empty dependency array - only run once on mount
 
+  // Check for changes in form data
+  useEffect(() => {
+    if (!profileData) return;
+    
+    const hasFormChanges = Boolean(
+      formData.firstName !== profileData.firstName ||
+      formData.lastName !== profileData.lastName ||
+      formData.email !== profileData.email ||
+      formData.phone !== profileData.phone ||
+      formData.birthDay !== profileData.birthDay ||
+      formData.password ||
+      formData.repassword
+    );
+    
+    setHasChanges(hasFormChanges);
+  }, [formData, profileData]);
+
   const handleEdit = (field: string) => {
     setIsEditing(field);
-    toastInfo(`Chỉnh sửa ${getFieldLabel(field)}`);
-  };
-
-  const getFieldLabel = (field: string) => {
-    const labels = {
-      firstName: t('profile.firstName'),
-      lastName: t('profile.lastName'),
-      email: t('profile.email'),
-      phone: t('profile.phone'),
-      birthday: t('profile.birthday'),
-    };
-    return labels[field as keyof typeof labels] || field;
   };
 
   const handleCancel = () => {
     setIsEditing(null);
+    // Reset form data to original values
+    if (profileData) {
+      setFormData({
+        firstName: profileData.firstName || '',
+        lastName: profileData.lastName || '',
+        email: profileData.email || '',
+        phone: profileData.phone || '',
+        birthDay: profileData.birthDay || '',
+      });
+    }
     toastInfo(t('profile.editingCanceled'));
+  };
+
+  const handleSaveChanges = async () => {
+    if (!hasChanges) {
+      toastWarning(t('profile.noChanges'));
+      return;
+    }
+
+    // Validate password fields if they are filled
+    if (formData.password && formData.password !== formData.repassword) {
+      toastError(t('profile.passwordMismatch'), {
+        description: t('profile.passwordMismatchDesc'),
+      });
+      return;
+    }
+
+    // Validate form data using validation utilities
+    const validationResult = validateProfileUpdate(formData);
+    if (!validationResult.isValid) {
+      toastError(t('profile.validationError'), {
+        description: validationResult.message,
+      });
+      return;
+    }
+
+    // Additional validation for specific fields
+    if (formData.email && !isValidEmail(formData.email)) {
+      toastError(t('profile.validationError'), {
+        description: "Email không hợp lệ",
+      });
+      return;
+    }
+
+    if (formData.phone && !isValidPhone(formData.phone)) {
+      toastError(t('profile.validationError'), {
+        description: "Số điện thoại không hợp lệ",
+      });
+      return;
+    }
+
+    try {
+      setSaving(true);
+      
+      // Prepare update data - only include fields that have values
+      const updateData: UpdateUserRequest = {};
+      
+      if (formData.firstName !== profileData?.firstName) {
+        updateData.firstName = formData.firstName;
+      }
+      if (formData.lastName !== profileData?.lastName) {
+        updateData.lastName = formData.lastName;
+      }
+      if (formData.email !== profileData?.email) {
+        updateData.email = formData.email;
+      }
+      if (formData.phone !== profileData?.phone) {
+        updateData.phone = formData.phone;
+      }
+      if (formData.birthDay !== profileData?.birthDay) {
+        updateData.birthDay = formData.birthDay;
+      }
+      if (formData.password) {
+        updateData.password = formData.password;
+        updateData.repassword = formData.repassword;
+      }
+
+      // Call API to update user info
+      const response = await api.user.updateUserInfo(updateData);
+      
+      if (response.status === 200 || response.status === 201) {
+        // Update local profile data with new data
+        if (response.data && profileData) {
+          setProfileData({
+            ...profileData,
+            firstName: response.data.firstName,
+            lastName: response.data.lastName,
+            email: response.data.email,
+            phone: response.data.phone,
+            birthDay: response.data.birthDay,
+            avatar: response.data.avatar,
+            fullName: `${response.data.firstName} ${response.data.lastName}`.trim(),
+          });
+        }
+        
+        // Clear password fields
+        setFormData(prev => ({
+          ...prev,
+          password: '',
+          repassword: '',
+        }));
+        
+        setIsEditing(null);
+        setHasChanges(false);
+        
+        toastSuccess(t('profile.profileUpdated'), {
+          description: t('profile.changesSaved'),
+          duration: 5000,
+        });
+      } else {
+        throw new Error(response.message || 'Update failed');
+      }
+    } catch (err: unknown) {
+      console.error("Error updating user profile:", err);
+      const errorMessage = handleDataFetchError(err);
+      toastError(t('profile.updateError'), {
+        description: errorMessage,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelAllChanges = () => {
+    setIsEditing(null);
+    // Reset form data to original values
+    if (profileData) {
+      setFormData({
+        firstName: profileData.firstName || '',
+        lastName: profileData.lastName || '',
+        email: profileData.email || '',
+        phone: profileData.phone || '',
+        birthDay: profileData.birthDay || '',
+      });
+    }
+    setHasChanges(false);
+    toastWarning(t('profile.allChangesCanceled'), {
+      description: t('profile.backToInitialState'),
+    });
   };
 
   const handleChangeAvatar = () => {
@@ -144,29 +301,15 @@ export function Profile() {
     });
   };
 
-  const handleSaveAllChanges = () => {
-    toastSuccess(t('profile.allChangesSaved'), {
-      description: t('profile.profileUpdated'),
-      duration: 5000,
-    });
-  };
-
-  const handleCancelAllChanges = () => {
-    setIsEditing(null);
-    toastWarning(t('profile.allChangesCanceled'), {
-      description: t('profile.backToInitialState'),
-    });
-  };
-
   const PasswordField = ({
     label,
     placeholder,
+    field,
   }: {
     field: string;
     label: string;
     placeholder: string;
   }) => {
-    const [tempValue, setTempValue] = useState("");
     const [showPassword, setShowPassword] = useState(false);
 
     return (
@@ -179,8 +322,13 @@ export function Profile() {
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               type={showPassword ? "text" : "password"}
-              value={tempValue}
-              onChange={(e) => setTempValue(e.target.value)}
+              value={formData[field as keyof UpdateUserRequest] as string || ''}
+              onChange={(e) => {
+                setFormData(prev => ({
+                  ...prev,
+                  [field]: e.target.value,
+                }));
+              }}
               placeholder={placeholder}
               className="pl-10 pr-10"
             />
@@ -216,7 +364,7 @@ export function Profile() {
     icon: React.ComponentType<{ className?: string }>;
     type?: string;
   }) => {
-    const [tempValue, setTempValue] = useState(value);
+    const currentValue = formData[field as keyof UpdateUserRequest] as string || value;
 
     return (
       <div className="group">
@@ -230,8 +378,13 @@ export function Profile() {
                 <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   type={type}
-                  value={tempValue}
-                  onChange={(e) => setTempValue(e.target.value)}
+                  value={currentValue}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      [field]: e.target.value,
+                    }));
+                  }}
                   className="pl-10"
                   autoFocus
                 />
@@ -247,7 +400,7 @@ export function Profile() {
               onClick={() => handleEdit(field)}
             >
               <Icon className="w-4 h-4 text-muted-foreground" />
-              <span className="flex-1">{value}</span>
+              <span className="flex-1">{currentValue || t('profile.notSet')}</span>
               <Edit3 className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           )}
@@ -293,14 +446,14 @@ export function Profile() {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 {error}
-                                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="ml-2"
-                    onClick={() => window.location.reload()}
-                  >
-                    {t('common.retry')}
-                  </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-2"
+                  onClick={() => window.location.reload()}
+                >
+                  {t('common.retry')}
+                </Button>
               </AlertDescription>
             </Alert>
           </Card>
@@ -399,7 +552,7 @@ export function Profile() {
                   />
 
                   <PasswordField
-                    field="confirmPassword"
+                    field="repassword"
                     label={t('profile.confirmPassword')}
                     placeholder={t('profile.confirmPasswordPlaceholder')}
                   />
@@ -407,17 +560,42 @@ export function Profile() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-4 mt-8 pt-6 border-t">
-                  <Button className="px-6 py-2" onClick={handleSaveAllChanges}>
-                    {t('profile.saveChanges')}
+                  <Button 
+                    className="px-6 py-2" 
+                    onClick={handleSaveChanges}
+                    disabled={!hasChanges || saving}
+                  >
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        {t('profile.saving')}
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4 mr-2" />
+                        {t('profile.saveChanges')}
+                      </>
+                    )}
                   </Button>
                   <Button
                     variant="outline"
                     className="px-6 py-2"
                     onClick={handleCancelAllChanges}
+                    disabled={!hasChanges || saving}
                   >
                     {t('profile.cancel')}
                   </Button>
                 </div>
+
+                {/* Changes indicator */}
+                {hasChanges && (
+                  <Alert className="mt-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      {t('profile.unsavedChanges')}
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
             </div>
           </Card>
