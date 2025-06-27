@@ -456,11 +456,10 @@ export function Profile() {
           <Card className="px-4 py-6 shadow-lg">
             <div className="grid lg:grid-cols-3 gap-8 items-start">
               <div className="lg:col-span-1 flex flex-col items-center">
-                <Skeleton className="w-64 h-64 rounded-full" />
+                <Skeleton className="w-24 h-24 rounded-full" />
                 <div className="mt-6 text-center space-y-2">
                   <Skeleton className="h-8 w-48 mx-auto" />
                   <Skeleton className="h-4 w-32 mx-auto" />
-                  <Skeleton className="h-4 w-24 mx-auto" />
                 </div>
               </div>
               <div className="lg:col-span-2 space-y-6">
@@ -498,197 +497,216 @@ export function Profile() {
           </Card>
         )}
 
-        {/* Main Profile Card - Only show when data is loaded */}
+        {/* Main Profile - Option 1: Center-focused Layout */}
         {profileData && !loading && !error && (
-          <Card className={`px-4 py-6 shadow-lg transition-all duration-300 ${
-            isEditMode ? 'ring-2 ring-primary/20 bg-primary/5' : ''
-          }`}>
-            <div className="grid lg:grid-cols-3 gap-8 items-start">
-              {/* Avatar Section */}
-              <div className="lg:col-span-1 flex flex-col items-center">
+          <div className="max-w-5xl mx-auto">
+            <Card className={`px-6 py-8 shadow-lg transition-all duration-300 ${
+              isEditMode ? 'ring-2 ring-primary/20 bg-primary/5' : ''
+            }`}>
+              
+              {/* Compact Header */}
+              <div className="flex items-center gap-6 pb-8 border-b">
+                {/* Compact Avatar */}
                 <div
                   className="relative group cursor-pointer"
                   onClick={handleChangeAvatar}
                 >
-                  <div className="w-64 h-64 rounded-full bg-gradient-to-br from-pink-400 via-red-400 to-orange-400 p-1 shadow-2xl transform transition-all duration-300 group-hover:scale-105">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-pink-400 via-red-400 to-orange-400 p-1 shadow-lg transform transition-all duration-300 group-hover:scale-105">
                     <div className="w-full h-full rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center overflow-hidden border">
-                      <div className="w-full h-full rounded-full bg-muted flex items-center justify-center text-6xl font-bold text-muted-foreground">
+                      <div className="w-full h-full rounded-full bg-muted flex items-center justify-center text-xl font-bold text-muted-foreground">
                         {profileData.firstName?.charAt(0) || 'U'}
                         {profileData.lastName?.charAt(0) || 'S'}
                       </div>
                     </div>
                   </div>
-                  <div className="absolute inset-0 rounded-full bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <Camera className="w-8 h-8 text-white" />
+                  {isEditMode && (
+                    <div className="absolute inset-0 rounded-full bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <Camera className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Name and Info */}
+                <div className="flex-1">
+                  <h1 className="text-2xl font-bold mb-1">
+                    {profileData.fullName || `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || 'User'}
+                  </h1>
+                  <p className="text-muted-foreground mb-2">
+                    {profileData.email || t('profile.noEmail')}
+                  </p>
+                  {isEditMode && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                      <Edit className="w-3 h-3 mr-1" />
+                      Đang chỉnh sửa
+                    </span>
+                  )}
+                </div>
+
+                {/* Edit Button */}
+                {!isEditMode && (
+                  <Button onClick={handleEnterEditMode} className="px-6">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Chỉnh sửa thông tin
+                  </Button>
+                )}
+              </div>
+
+              {/* Content Sections */}
+              <div className="pt-8 space-y-8">
+                
+                {/* Personal Information Section */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-muted-foreground">
+                    Thông tin cá nhân
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <DisplayField
+                      field="firstName"
+                      label={t('profile.firstName')}
+                      icon={User}
+                      isEditMode={isEditMode}
+                      currentValue={isEditMode 
+                        ? (formData.firstName || '') 
+                        : (profileData.firstName || '')}
+                      onFieldChange={handleFieldChange}
+                      t={t}
+                    />
+
+                    <DisplayField
+                      field="lastName"
+                      label={t('profile.lastName')}
+                      icon={User}
+                      isEditMode={isEditMode}
+                      currentValue={isEditMode 
+                        ? (formData.lastName || '') 
+                        : (profileData.lastName || '')}
+                      onFieldChange={handleFieldChange}
+                      t={t}
+                    />
+
+                    <div className="md:col-span-2">
+                      <DisplayField
+                        field="birthDay"
+                        label={t('profile.birthday')}
+                        icon={Calendar}
+                        type="date"
+                        isEditMode={isEditMode}
+                        currentValue={isEditMode 
+                          ? (formData.birthDay || '') 
+                          : (profileData.birthDay || '')}
+                        onFieldChange={handleFieldChange}
+                        t={t}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-6 text-center">
-                  <h1 className="text-3xl font-bold mb-2">
-                    {profileData.fullName || `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || 'User'}
-                  </h1>
-                  <p className="text-muted-foreground mb-1">
-                    {profileData.email || t('profile.noEmail')}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {profileData.birthDay ? new Date(profileData.birthDay).toLocaleDateString("vi-VN") : t('profile.noBirthday')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Information Section */}
-              <div className="lg:col-span-2 space-y-6">
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                    <User className="w-6 h-6" />
-                    {t('profile.title')}
-                    {isEditMode && (
-                      <span className="ml-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
-                        Đang chỉnh sửa
-                      </span>
-                    )}
-                  </h2>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <DisplayField
-                    field="firstName"
-                    label={t('profile.firstName')}
-                    icon={User}
-                    isEditMode={isEditMode}
-                    currentValue={isEditMode 
-                      ? (formData.firstName || '') 
-                      : (profileData.firstName || '')}
-                    onFieldChange={handleFieldChange}
-                    t={t}
-                  />
-
-                  <DisplayField
-                    field="lastName"
-                    label={t('profile.lastName')}
-                    icon={User}
-                    isEditMode={isEditMode}
-                    currentValue={isEditMode 
-                      ? (formData.lastName || '') 
-                      : (profileData.lastName || '')}
-                    onFieldChange={handleFieldChange}
-                    t={t}
-                  />
-
-                  <DisplayField
-                    field="email"
-                    label={t('profile.email')}
-                    icon={Mail}
-                    type="email"
-                    isEditMode={isEditMode}
-                    currentValue={isEditMode 
-                      ? (formData.email || '') 
-                      : (profileData.email || '')}
-                    onFieldChange={handleFieldChange}
-                    t={t}
-                  />
-
-                  <DisplayField
-                    field="phone"
-                    label={t('profile.phone')}
-                    icon={Phone}
-                    type="tel"
-                    isEditMode={isEditMode}
-                    currentValue={isEditMode 
-                      ? (formData.phone || '') 
-                      : (profileData.phone || '')}
-                    onFieldChange={handleFieldChange}
-                    t={t}
-                  />
-
-                  <div className="md:col-span-2">
+                {/* Contact Information Section */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-muted-foreground">
+                    Thông tin liên lạc
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6">
                     <DisplayField
-                      field="birthDay"
-                      label={t('profile.birthday')}
-                      icon={Calendar}
-                      type="date"
+                      field="email"
+                      label={t('profile.email')}
+                      icon={Mail}
+                      type="email"
                       isEditMode={isEditMode}
                       currentValue={isEditMode 
-                        ? (formData.birthDay || '') 
-                        : (profileData.birthDay || '')}
+                        ? (formData.email || '') 
+                        : (profileData.email || '')}
+                      onFieldChange={handleFieldChange}
+                      t={t}
+                    />
+
+                    <DisplayField
+                      field="phone"
+                      label={t('profile.phone')}
+                      icon={Phone}
+                      type="tel"
+                      isEditMode={isEditMode}
+                      currentValue={isEditMode 
+                        ? (formData.phone || '') 
+                        : (profileData.phone || '')}
                       onFieldChange={handleFieldChange}
                       t={t}
                     />
                   </div>
-
-                  <PasswordField
-                    field="password"
-                    label={t('profile.newPassword')}
-                    placeholder={t('profile.newPasswordPlaceholder')}
-                    isEditMode={isEditMode}
-                    value={formData.password || ''}
-                    onFieldChange={handleFieldChange}
-                  />
-
-                  <PasswordField
-                    field="repassword"
-                    label={t('profile.confirmPassword')}
-                    placeholder={t('profile.confirmPasswordPlaceholder')}
-                    isEditMode={isEditMode}
-                    value={formData.repassword || ''}
-                    onFieldChange={handleFieldChange}
-                  />
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-4 mt-8 pt-6 border-t">
-                  {!isEditMode ? (
-                    <Button 
-                      className="px-6 py-2" 
-                      onClick={handleEnterEditMode}
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Chỉnh sửa thông tin
-                    </Button>
-                  ) : (
-                    <>
+                {/* Security Section - Only in Edit Mode */}
+                {isEditMode && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 text-muted-foreground">
+                      Bảo mật
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <PasswordField
+                        field="password"
+                        label={t('profile.newPassword')}
+                        placeholder={t('profile.newPasswordPlaceholder')}
+                        isEditMode={isEditMode}
+                        value={formData.password || ''}
+                        onFieldChange={handleFieldChange}
+                      />
+
+                      <PasswordField
+                        field="repassword"
+                        label={t('profile.confirmPassword')}
+                        placeholder={t('profile.confirmPasswordPlaceholder')}
+                        isEditMode={isEditMode}
+                        value={formData.repassword || ''}
+                        onFieldChange={handleFieldChange}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons - Only in Edit Mode */}
+                {isEditMode && (
+                  <div className="pt-6 border-t">
+                    <div className="flex justify-end gap-4">
+                      <Button
+                        variant="outline"
+                        onClick={handleCancelEdit}
+                        disabled={saving}
+                      >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Hủy bỏ
+                      </Button>
                       <Button 
-                        className="px-6 py-2" 
                         onClick={handleSaveChanges}
                         disabled={!hasChanges || saving}
                       >
                         {saving ? (
                           <>
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            {t('profile.saving')}
+                            Đang lưu...
                           </>
                         ) : (
                           <>
                             <Save className="w-4 h-4 mr-2" />
-                            {t('profile.saveChanges')}
+                            Lưu thay đổi
                           </>
                         )}
                       </Button>
-                      <Button
-                        variant="outline"
-                        className="px-6 py-2"
-                        onClick={handleCancelEdit}
-                        disabled={saving}
-                      >
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        {t('profile.cancel')}
-                      </Button>
-                    </>
-                  )}
-                </div>
+                    </div>
 
-                {/* Changes indicator */}
-                {hasChanges && (
-                  <Alert className="mt-4">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      {t('profile.unsavedChanges')}
-                    </AlertDescription>
-                  </Alert>
+                    {/* Changes Indicator */}
+                    {hasChanges && (
+                      <Alert className="mt-6">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          {t('profile.unsavedChanges')}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
                 )}
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
         )}
       </div>
     </div>
