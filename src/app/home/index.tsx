@@ -1,7 +1,7 @@
 import { ScheduleCard } from "../../components/home/ScheduleCard";
 import { UpcomingExamsCard } from "../../components/home/UpcomingExamsCard";
-import { RecentActivitiesFeed } from "../../components/home/RecentActivitiesFeed";
-import { PracticeSuggestionsCard } from "../../components/home/PracticeSuggestionsCard";
+import { RecentQuizSubmissions } from "../../components/home/RecentQuizSubmissions";
+import { UpcomingExamQuizzesCard } from "../../components/home/UpcomingExamQuizzesCard";
 import { ScheduleWeekTable } from "../../components/home/ScheduleWeekTable";
 import { useEffect, useState } from "react";
 import { scheduleApi, ScheduleClass } from "@/lib/api";
@@ -35,8 +35,8 @@ export function HomePage() {
         <UpcomingExamsCard />
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
-        <RecentActivitiesFeed />
-        <PracticeSuggestionsCard />
+        <RecentQuizSubmissions />
+        <UpcomingExamQuizzesCard />
       </div>
     </div>
   );

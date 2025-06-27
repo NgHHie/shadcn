@@ -18,6 +18,7 @@ import { ContestWaitingData } from "@/types/contest-waiting";
 
 const API_BASE_URL = "https://api.learnsql.store/api/app";
 const API_AUTH_URL = "https://api.learnsql.store/api/auth";
+const API_MCS_URL = "https://api.learnsql.store/api/mcs";
 
 const PUBLIC_ENDPOINTS = [
   "/hiep", // GET /question (list questions)
@@ -350,6 +351,7 @@ export class ApiClient {
 // Initialize API client
 const apiClient = new ApiClient(API_BASE_URL);
 const apiAuth = new ApiClient(API_AUTH_URL);
+const apiMcs = new ApiClient(API_MCS_URL);
 
 // API Service Functions
 export const questionApi = {
@@ -659,6 +661,25 @@ export const scheduleApi = {
   syncFromPtit: async (): Promise<{ success: boolean; message?: string }> => {
     return apiAuth.post<{ success: boolean; message?: string }>(
       "/schedule/sync-from-ptit"
+    );
+  },
+};
+
+// MCS API for exam quiz and related features
+export const mcsApi = {
+  // Get upcoming exam quizzes for next month
+  getUpcomingExamQuizzes: async (userId: string): Promise<ExamQuizResponse> => {
+    return apiMcs.get<ExamQuizResponse>(
+      `/dashboard/user/get-exam-quiz-next-1-month?userId=${userId}`
+    );
+  },
+
+  // Get history of exam quiz submissions
+  getQuizSubmissionHistory: async (
+    userId: string
+  ): Promise<QuizSubmissionResponse> => {
+    return apiMcs.get<QuizSubmissionResponse>(
+      `/dashboard/user/get-history-exam-quizz-submissions?userId=${userId}`
     );
   },
 };
@@ -1051,6 +1072,7 @@ export const useApi = () => {
     contest: contestApi,
     auth: authApi,
     schedule: scheduleApi,
+    mcs: mcsApi,
     utils: apiUtils,
   };
 };
@@ -1062,6 +1084,7 @@ export default {
   contest: contestApi,
   auth: authApi,
   schedule: scheduleApi,
+  mcs: mcsApi,
   utils: apiUtils,
 };
 
@@ -1102,4 +1125,43 @@ export interface UpdateUserResponse {
     avatar: string;
     userCode: string;
   };
+}
+
+// Exam Quiz interfaces
+export interface ExamQuiz {
+  examQuizzesId: string;
+  classesId: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  createdBy: string;
+  totalQuestions: number;
+  createdAt: string;
+  updatedAt: string;
+  code: string;
+  questions: unknown[] | null;
+}
+
+export interface ExamQuizResponse {
+  message: string;
+  data: ExamQuiz[];
+  timestamp: string;
+}
+
+// Quiz Submission interfaces
+export interface QuizSubmission {
+  examQuizzSubmissionId: string;
+  score: number;
+  countCorrectAnswers: number;
+  countWrongAnswers: number;
+  totalQuestions: number;
+  examUserQuizzesId: string;
+  startTimeAt: string;
+  endTimeAt: string;
+}
+
+export interface QuizSubmissionResponse {
+  message: string;
+  data: QuizSubmission[];
+  timestamp: string;
 }

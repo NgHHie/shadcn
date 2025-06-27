@@ -111,5 +111,36 @@
       "title": "Quiz: GROUP BY & HAVING",
       "reason": "Not completed yet"
     }
+  },
+  "recentQuizSubmissions": {
+    "title": "Recent Quiz Results",
+    "description": "Results of recently completed quizzes",
+    "viewAll": "View All",
+    "loadError": "Cannot load quiz history",
+    "noSubmissions": "No quiz results yet",
+    "noSubmissionsDesc": "You haven't completed any quizzes yet",
+    "quiz": "Quiz",
+    "correctAnswers": "correct answers",
+    "status": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "average": "Average",
+      "poor": "Needs Improvement"
+    }
+  },
+  "upcomingExamQuizzes": {
+    "title": "Upcoming Exam Quizzes",
+    "loadError": "Cannot load exam quiz list",
+    "noExams": "No exam quizzes",
+    "noExamsDesc": "No exam quizzes scheduled in the next month",
+    "questions": "questions",
+    "timeStatus": {
+      "remaining": "Remaining",
+      "hours": "h",
+      "days": "days",
+      "ongoing": "Ongoing",
+      "ended": "Ended"
+    },
+    "duration": "minutes"
   }
 } 

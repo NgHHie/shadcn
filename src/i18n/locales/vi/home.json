@@ -111,5 +111,36 @@
       "title": "Quiz: GROUP BY & HAVING",
       "reason": "Chưa hoàn thành"
     }
+  },
+  "recentQuizSubmissions": {
+    "title": "Bài kiểm tra gần đây",
+    "description": "Kết quả các bài kiểm tra vừa hoàn thành",
+    "viewAll": "Xem tất cả",
+    "loadError": "Không thể tải lịch sử bài kiểm tra",
+    "noSubmissions": "Chưa có bài kiểm tra nào",
+    "noSubmissionsDesc": "Bạn chưa hoàn thành bài kiểm tra nào",
+    "quiz": "Bài kiểm tra",
+    "correctAnswers": "câu đúng",
+    "status": {
+      "excellent": "Xuất sắc",
+      "good": "Tốt",
+      "average": "Trung bình",
+      "poor": "Cần cải thiện"
+    }
+  },
+  "upcomingExamQuizzes": {
+    "title": "Bài kiểm tra sắp tới",
+    "loadError": "Không thể tải danh sách bài kiểm tra",
+    "noExams": "Không có bài kiểm tra nào",
+    "noExamsDesc": "Hiện tại không có bài kiểm tra nào trong tháng tới",
+    "questions": "câu hỏi",
+    "timeStatus": {
+      "remaining": "Còn",
+      "hours": "h",
+      "days": "ngày",
+      "ongoing": "Đang diễn ra",
+      "ended": "Đã kết thúc"
+    },
+    "duration": "phút"
   }
 } 

@@ -6,6 +6,7 @@ export { PerformanceCard } from "./PerformanceCard";
 export { PracticeSuggestionsCard } from "./PracticeSuggestionsCard";
 export { ProgressSection } from "./ProgressSection";
 export { RecentActivitiesFeed } from "./RecentActivitiesFeed";
+export { RecentQuizSubmissions } from "./RecentQuizSubmissions";
 export { ScheduleCard as ScheduleCardOld } from "./ScheduleCard";
 export { UpcomingExamsCard } from "./UpcomingExamsCard";
 export { ScheduleWeekTable } from "./ScheduleWeekTable";
