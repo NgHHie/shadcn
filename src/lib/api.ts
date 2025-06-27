@@ -890,7 +890,7 @@ export const authApi = {
     userData: UpdateUserRequest
   ): Promise<UpdateUserResponse> => {
     try {
-      const response = await apiAuth.put<UpdateUserResponse>(
+      const response = await apiAuth.post<UpdateUserResponse>(
         "/users/update",
         userData
       );
