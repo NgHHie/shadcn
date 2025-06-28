@@ -1,44 +1,43 @@
-import { OverviewCards } from "../../components/home/OverviewCards";
-import { ActivityChart } from "../../components/home/ActivityChart";
 import { ScheduleCard } from "../../components/home/ScheduleCard";
 import { UpcomingExamsCard } from "../../components/home/UpcomingExamsCard";
-import { PerformanceCard } from "../../components/home/PerformanceCard";
-import { ProgressSection } from "../../components/home/ProgressSection";
-import { RecentActivitiesFeed } from "../../components/home/RecentActivitiesFeed";
+import { RecentQuizSubmissions } from "../../components/home/RecentQuizSubmissions";
+import { UpcomingExamQuizzesCard } from "../../components/home/UpcomingExamQuizzesCard";
+import { ScheduleWeekTable } from "../../components/home/ScheduleWeekTable";
+import { useEffect, useState } from "react";
+import { scheduleApi, ScheduleClass } from "@/lib/api";
 
 export function HomePage() {
+  const [weekClasses, setWeekClasses] = useState<ScheduleClass[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    scheduleApi.getSchedule()
+      .then(res => setWeekClasses(Array.isArray(res?.classes) ? res.classes : []))
+      .catch(() => setWeekClasses([]))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="space-y-6 p-6">
-      {/* Overview Cards */}
-      <OverviewCards />
-
       {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* First Row - ActivityChart + ScheduleCard */}
-        <div className="lg:col-span-2">
-          <ActivityChart />
-        </div>
-        
-        <div className="lg:col-span-1">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-4">
           <ScheduleCard />
+          <div className="bg-card rounded-xl p-4 border">
+            <div className="font-semibold mb-2 text-base">Thời khóa biểu tuần này</div>
+            {loading ? (
+              <div className="text-muted-foreground text-sm">Đang tải thời khóa biểu...</div>
+            ) : (
+              <ScheduleWeekTable classes={weekClasses} />
+            )}
+          </div>
         </div>
-
-        {/* Second Row - Three cards with auto height */}
-        <div className="lg:col-span-1">
-          <RecentActivitiesFeed />
-        </div>
-        
-        <div className="lg:col-span-1">
-          <PerformanceCard />
-        </div>
-        
-        <div className="lg:col-span-1">
-          <UpcomingExamsCard />
-        </div>
+        <UpcomingExamsCard />
       </div>
-
-      {/* Progress Section */}
-      <ProgressSection />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <RecentQuizSubmissions />
+        <UpcomingExamQuizzesCard />
+      </div>
     </div>
   );
 }

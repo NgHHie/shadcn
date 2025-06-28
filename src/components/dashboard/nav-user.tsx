@@ -3,12 +3,9 @@ import {
   LogOutIcon,
   MoreVerticalIcon,
   UserCircleIcon,
-  Moon,
-  Sun,
-  Monitor,
   Loader2,
+  Settings,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -22,9 +19,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
@@ -34,6 +28,7 @@ import {
 } from "@/components/ui/sidebar";
 import { toastInfo, toastSuccess } from "@/lib/toast";
 import { useApi } from "@/lib/api";
+import { ThemeSettingsPanel } from "@/components/theme/theme-settings-panel";
 
 interface UserInfo {
   id: string;
@@ -48,7 +43,6 @@ interface UserInfo {
 export function NavUser() {
   const { t } = useTranslation('common');
   const { isMobile } = useSidebar();
-  const { setTheme } = useTheme();
   const navigate = useNavigate();
   const api = useApi();
 
@@ -93,13 +87,6 @@ export function NavUser() {
   const handleAccountClick = useCallback(() => {
     navigate("/profile");
   }, [navigate]);
-
-  const handleThemeChange = useCallback(
-    (newTheme: string) => {
-      setTheme(newTheme);
-    },
-    [setTheme]
-  );
 
   const handleLogout = useCallback(async () => {
     try {
@@ -262,27 +249,15 @@ export function NavUser() {
               )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span>{t('sidebar.interface')}</span>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem onClick={() => handleThemeChange("light")}>
-                  <Sun className="h-4 w-4" />
-                  <span>{t('sidebar.light')}</span>
+            <ThemeSettingsPanel 
+              variant="dialog"
+              trigger={
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <Settings />
+                  {t('sidebar.settings')}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
-                  <Moon className="h-4 w-4" />
-                  <span>{t('sidebar.dark')}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleThemeChange("system")}>
-                  <Monitor className="h-4 w-4" />
-                  <span>{t('sidebar.system')}</span>
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
+              }
+            />
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOutIcon />

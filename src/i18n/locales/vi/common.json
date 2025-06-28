@@ -67,10 +67,21 @@
     "authError": "Lỗi xác thực",
     "loadUserInfoError": "Lỗi khi tải thông tin người dùng",
     "noEmail": "Không có email",
-    "noBirthday": "Không có ngày sinh"
+    "noBirthday": "Không có ngày sinh",
+    "noChangesToSave": "Không có thay đổi nào để lưu",
+    "validationError": "Lỗi xác thực dữ liệu",
+    "updateError": "Lỗi khi cập nhật thông tin",
+    "saving": "Đang lưu...",
+    "noChanges": "Không có thay đổi nào để lưu",
+    "passwordMismatch": "Mật khẩu không khớp",
+    "passwordMismatchDesc": "Mật khẩu xác nhận không khớp với mật khẩu mới",
+    "changesSaved": "Tất cả thay đổi đã được lưu thành công",
+    "unsavedChanges": "Bạn có thay đổi chưa lưu. Vui lòng lưu hoặc hủy bỏ trước khi rời khỏi.",
+    "notSet": "Chưa thiết lập"
   },
   "sidebar": {
     "account": "Tài khoản",
+    "settings": "Cài đặt",
     "interface": "Giao diện",
     "logout": "Đăng xuất",
     "light": "Sáng",
@@ -81,5 +92,38 @@
     "logoutSuccess": "Đăng xuất thành công!",
     "seeYouSoon": "Hẹn gặp lại bạn!",
     "localSessionCleared": "Đã xóa phiên đăng nhập cục bộ"
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "description": "Tùy chỉnh giao diện và ngôn ngữ ứng dụng",
+    "appearance": {
+      "themeMode": "Chế độ giao diện",
+      "colorTheme": "Màu chủ đề",
+      "light": "Sáng",
+      "dark": "Tối",
+      "system": "Hệ thống"
+    },
+    "language": {
+      "title": "Ngôn ngữ",
+      "description": "Chọn ngôn ngữ bạn muốn sử dụng",
+      "chooseLanguage": "Chọn ngôn ngữ"
+    },
+    "colors": {
+      "blue": "Xanh dương",
+      "cyan": "Xanh lơ",
+      "green": "Xanh lá",
+      "purple": "Tím",
+      "orange": "Cam",
+      "pink": "Hồng"
+    },
+    "currentSettings": "Cài đặt hiện tại",
+    "theme": "Giao diện",
+    "color": "Màu sắc",
+    "languages": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    },
+    "openSettings": "Mở cài đặt",
+    "customizePreferences": "Tùy chỉnh các tùy chọn của bạn"
   }
 }

@@ -135,9 +135,9 @@ export default function QuizTakingPage() {
         block: 'center',
         inline: 'nearest'
       });
-      element.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+      element.classList.add('ring-2', 'ring-ring', 'ring-offset-2');
       setTimeout(() => {
-        element.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
+        element.classList.remove('ring-2', 'ring-ring', 'ring-offset-2');
       }, 2000);
     };
 

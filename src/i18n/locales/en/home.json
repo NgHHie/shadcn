@@ -25,7 +25,17 @@
     "description": "Class schedule for",
     "lecture": "lecture",
     "lab": "lab",
-    "practice": "practice"
+    "practice": "practice",
+    "ongoing": "Ongoing",
+    "upcoming": "Upcoming",
+    "completed": "Completed",
+    "noClasses": "You have no classes today!",
+    "noClassesSubtitle": "Enjoy your free time",
+    "andMore": "And {{count}} more classes...",
+    "viewFullSchedule": "View full schedule",
+    "loadError": "Cannot load schedule",
+    "retry": "Retry",
+    "periods": "periods"
   },
   "exams": {
     "title": "Upcoming Exams",
@@ -75,5 +85,62 @@
     "dayAgo": "day ago", 
     "minutesAgo": "minutes ago",
     "justNow": "just now"
+  },
+  "practiceSuggestions": {
+    "title": "Practice Suggestions",
+    "type": {
+      "quiz": "Quiz",
+      "practice": "Practice"
+    },
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "doNow": "Do now",
+    "noSuggestions": "No suggestions at this time",
+    "suggestion1": {
+      "title": "Advanced SQL JOIN",
+      "reason": "You often make mistakes in this topic"
+    },
+    "suggestion2": {
+      "title": "Advanced WHERE practice",
+      "reason": "Many mistakes in condition questions"
+    },
+    "suggestion3": {
+      "title": "Quiz: GROUP BY & HAVING",
+      "reason": "Not completed yet"
+    }
+  },
+  "recentQuizSubmissions": {
+    "title": "Recent Quiz Results",
+    "description": "Results of recently completed quizzes",
+    "viewAll": "View All",
+    "loadError": "Cannot load quiz history",
+    "noSubmissions": "No quiz results yet",
+    "noSubmissionsDesc": "You haven't completed any quizzes yet",
+    "quiz": "Quiz",
+    "correctAnswers": "correct answers",
+    "status": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "average": "Average",
+      "poor": "Needs Improvement"
+    }
+  },
+  "upcomingExamQuizzes": {
+    "title": "Upcoming Exam Quizzes",
+    "loadError": "Cannot load exam quiz list",
+    "noExams": "No exam quizzes",
+    "noExamsDesc": "No exam quizzes scheduled in the next month",
+    "questions": "questions",
+    "timeStatus": {
+      "remaining": "Remaining",
+      "hours": "h",
+      "days": "days",
+      "ongoing": "Ongoing",
+      "ended": "Ended"
+    },
+    "duration": "minutes"
   }
 } 

@@ -153,10 +153,94 @@ export const getPasswordStrength = (
   if (/(?=.*[a-z])/.test(password)) strength++;
   if (/(?=.*[A-Z])/.test(password)) strength++;
   if (/(?=.*\d)/.test(password)) strength++;
-  if (/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(password)) strength++;
+  if (/(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])/.test(password)) strength++;
 
   if (strength <= 2) return "weak";
   if (strength <= 3) return "medium";
   if (strength <= 4) return "strong";
   return "very-strong";
+};
+
+// Profile update validation
+export const validateProfileUpdate = (data: {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  birthDay?: string;
+  password?: string;
+  repassword?: string;
+}): ValidationResult => {
+  // Validate first name
+  if (data.firstName !== undefined) {
+    const firstNameValidation = validateName(data.firstName, "Họ");
+    if (!firstNameValidation.isValid) {
+      return firstNameValidation;
+    }
+  }
+
+  // Validate last name
+  if (data.lastName !== undefined) {
+    const lastNameValidation = validateName(data.lastName, "Tên");
+    if (!lastNameValidation.isValid) {
+      return lastNameValidation;
+    }
+  }
+
+  // Validate email
+  if (data.email !== undefined && data.email.trim()) {
+    if (!isValidEmail(data.email)) {
+      return { isValid: false, message: "Email không hợp lệ" };
+    }
+  }
+
+  // Validate phone
+  if (data.phone !== undefined && data.phone.trim()) {
+    if (!isValidPhone(data.phone)) {
+      return { isValid: false, message: "Số điện thoại không hợp lệ" };
+    }
+  }
+
+  // Validate birth day
+  if (data.birthDay !== undefined && data.birthDay.trim()) {
+    const birthDayValidation = validateAge(data.birthDay);
+    if (!birthDayValidation.isValid) {
+      return birthDayValidation;
+    }
+  }
+
+  // Validate password if provided
+  if (data.password !== undefined && data.password.trim()) {
+    const passwordValidation = validatePassword(data.password);
+    if (!passwordValidation.isValid) {
+      return passwordValidation;
+    }
+
+    // Check password confirmation
+    if (data.repassword !== data.password) {
+      return { isValid: false, message: "Mật khẩu xác nhận không khớp" };
+    }
+  }
+
+  return { isValid: true };
+};
+
+// Format phone number for display
+export const formatPhoneNumber = (phone: string): string => {
+  const cleaned = phone.replace(/\D/g, "");
+  if (cleaned.startsWith("84")) {
+    return `+84 ${cleaned.slice(2, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(
+      8
+    )}`;
+  }
+  if (cleaned.startsWith("0")) {
+    return `0${cleaned.slice(1, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7)}`;
+  }
+  return phone;
+};
+
+// Format date for API (YYYY-MM-DD)
+export const formatDateForAPI = (date: string | Date): string => {
+  const d = new Date(date);
+  return d.toISOString().split("T")[0];
 };

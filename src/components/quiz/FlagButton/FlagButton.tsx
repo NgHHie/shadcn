@@ -19,8 +19,8 @@ export function FlagButton({ isFlagged, onToggle, className }: FlagButtonProps) 
       size="sm"
       onClick={onToggle}
       className={cn(
-        "h-8 w-8 p-0 hover:bg-yellow-100 dark:hover:bg-yellow-900/20",
-        isFlagged && "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400",
+        "h-8 w-8 p-0",
+        isFlagged ? "bg-primary/10 text-primary hover:bg-primary/20" : "hover:bg-muted",
         className
       )}
       title={isFlagged ? t("taking.removeFlagTooltip") : t("taking.addFlagTooltip")}

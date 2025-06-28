@@ -84,6 +84,9 @@
     "filterBy": "Lọc theo",
     "clearFilters": "Xóa bộ lọc"
   },
+  "semester": {
+    "label": "Học kỳ"
+  },
   "format": {
     "timeFormat": "HH:mm",
     "dateFormat": "dd/MM/yyyy",

@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   BookOpen,
   Play,
@@ -14,7 +20,7 @@ import {
   User,
   Eye,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 import { useQuiz } from "@/hooks/use-quiz";
 import type { PublicQuiz } from "@/services/quizService";
@@ -26,8 +32,8 @@ import "./style.css";
 const ITEMS_PER_PAGE = 9;
 
 export default function QuizListPage() {
-  const { t } = useTranslation(['quiz', 'common']);
-  
+  const { t } = useTranslation(["quiz", "common"]);
+
   // Search and filter state
   const [searchParams, setSearchParams] = useState({
     query: "",
@@ -36,14 +42,21 @@ export default function QuizListPage() {
     filters: {
       status: "all" as "all" | "available" | "upcoming" | "expired",
     },
-    sortBy: "newest" as "newest" | "oldest" | "title" | "questions" | "startTime",
+    sortBy: "newest" as
+      | "newest"
+      | "oldest"
+      | "title"
+      | "questions"
+      | "startTime",
   });
 
   // Get quizzes from hook
   const { quizzes, loading: quizLoading, error, fetchQuizzes } = useQuiz();
 
   // Get quiz status
-  const getQuizStatus = (quiz: PublicQuiz): "available" | "upcoming" | "expired" => {
+  const getQuizStatus = (
+    quiz: PublicQuiz
+  ): "available" | "upcoming" | "expired" => {
     const now = new Date();
     const startTime = new Date(quiz.startTime);
     const endTime = new Date(quiz.endTime);
@@ -59,16 +72,19 @@ export default function QuizListPage() {
 
     // Apply search filter
     if (searchParams.query.trim()) {
-      filtered = filtered.filter(quiz =>
-        quiz.title.toLowerCase().includes(searchParams.query.toLowerCase()) ||
-        quiz.code?.toLowerCase().includes(searchParams.query.toLowerCase()) ||
-        quiz.createdBy.toLowerCase().includes(searchParams.query.toLowerCase())
+      filtered = filtered.filter(
+        (quiz) =>
+          quiz.title.toLowerCase().includes(searchParams.query.toLowerCase()) ||
+          quiz.code?.toLowerCase().includes(searchParams.query.toLowerCase()) ||
+          quiz.createdBy
+            .toLowerCase()
+            .includes(searchParams.query.toLowerCase())
       );
     }
 
     // Apply status filter
     if (searchParams.filters.status !== "all") {
-      filtered = filtered.filter(quiz => {
+      filtered = filtered.filter((quiz) => {
         const status = getQuizStatus(quiz);
         return status === searchParams.filters.status;
       });
@@ -78,15 +94,21 @@ export default function QuizListPage() {
     filtered.sort((a, b) => {
       switch (searchParams.sortBy) {
         case "newest":
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         case "oldest":
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          return (
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
         case "title":
           return a.title.localeCompare(b.title);
         case "questions":
           return b.totalQuestions - a.totalQuestions;
         case "startTime":
-          return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+          return (
+            new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+          );
         default:
           return 0;
       }
@@ -100,24 +122,16 @@ export default function QuizListPage() {
     const status = getQuizStatus(quiz);
 
     switch (status) {
-      case 'available':
+      case "available":
         return (
-          <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-200 dark:border-green-800 shadow-sm">
+          <Badge className="bg-primary text-primary-foreground">
             {t("list.status.notStarted")}
           </Badge>
         );
-      case 'upcoming':
-        return (
-          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-800 shadow-sm">
-            {t("list.status.upcoming")}
-          </Badge>
-        );
-      case 'expired':
-        return (
-          <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 border-red-200 dark:border-red-800 shadow-sm">
-            {t("list.status.expired")}
-          </Badge>
-        );
+      case "upcoming":
+        return <Badge variant="secondary">{t("list.status.inProgress")}</Badge>;
+      case "expired":
+        return <Badge variant="outline">{t("list.status.completed")}</Badge>;
       default:
         return <Badge variant="outline">{t("list.status.expired")}</Badge>;
     }
@@ -125,10 +139,10 @@ export default function QuizListPage() {
 
   // Update search params helper
   const updateSearchParams = (updates: Partial<typeof searchParams>) => {
-    setSearchParams(prev => ({
+    setSearchParams((prev) => ({
       ...prev,
       ...updates,
-      page: updates.page || 1 // Reset to page 1 when changing filters
+      page: updates.page || 1, // Reset to page 1 when changing filters
     }));
   };
 
@@ -136,16 +150,22 @@ export default function QuizListPage() {
   const stats = useMemo(() => {
     return {
       total: filteredQuizzes.length,
-      available: filteredQuizzes.filter(q => getQuizStatus(q) === 'available').length,
-      upcoming: filteredQuizzes.filter(q => getQuizStatus(q) === 'upcoming').length,
-      expired: filteredQuizzes.filter(q => getQuizStatus(q) === 'expired').length,
+      available: filteredQuizzes.filter((q) => getQuizStatus(q) === "available")
+        .length,
+      upcoming: filteredQuizzes.filter((q) => getQuizStatus(q) === "upcoming")
+        .length,
+      expired: filteredQuizzes.filter((q) => getQuizStatus(q) === "expired")
+        .length,
     };
   }, [filteredQuizzes]);
 
   // Pagination
   const totalPages = Math.ceil(filteredQuizzes.length / searchParams.limit);
   const startIndex = (searchParams.page - 1) * searchParams.limit;
-  const paginatedQuizzes = filteredQuizzes.slice(startIndex, startIndex + searchParams.limit);
+  const paginatedQuizzes = filteredQuizzes.slice(
+    startIndex,
+    startIndex + searchParams.limit
+  );
 
   // Loading skeleton
   if (quizLoading) {
@@ -181,7 +201,9 @@ export default function QuizListPage() {
     return (
       <div className="container mx-auto p-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">{t("common.error")}</h2>
+          <h2 className="text-2xl font-bold text-red-600 mb-4">
+            {t("common.error")}
+          </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
           <Button onClick={() => fetchQuizzes()}>{t("common.retry")}</Button>
         </div>
@@ -210,7 +232,10 @@ export default function QuizListPage() {
           value={searchParams.filters.status}
           onValueChange={(value) =>
             updateSearchParams({
-              filters: { ...searchParams.filters, status: value as "all" | "available" | "upcoming" | "expired" },
+              filters: {
+                ...searchParams.filters,
+                status: value as "all" | "available" | "upcoming" | "expired",
+              },
             })
           }
         >
@@ -219,15 +244,26 @@ export default function QuizListPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t("list.sortBy.all")}</SelectItem>
-            <SelectItem value="available">{t("list.sortBy.available")}</SelectItem>
-            <SelectItem value="upcoming">{t("list.sortBy.upcoming")}</SelectItem>
+            <SelectItem value="available">
+              {t("list.sortBy.available")}
+            </SelectItem>
+            <SelectItem value="upcoming">
+              {t("list.sortBy.upcoming")}
+            </SelectItem>
             <SelectItem value="expired">{t("list.sortBy.expired")}</SelectItem>
           </SelectContent>
         </Select>
         <Select
           value={searchParams.sortBy}
           onValueChange={(value) =>
-            updateSearchParams({ sortBy: value as "newest" | "oldest" | "title" | "questions" | "startTime" })
+            updateSearchParams({
+              sortBy: value as
+                | "newest"
+                | "oldest"
+                | "title"
+                | "questions"
+                | "startTime",
+            })
           }
         >
           <SelectTrigger className="w-[180px]">
@@ -237,8 +273,12 @@ export default function QuizListPage() {
             <SelectItem value="newest">{t("list.sortBy.newest")}</SelectItem>
             <SelectItem value="oldest">{t("list.sortBy.oldest")}</SelectItem>
             <SelectItem value="title">{t("list.sortBy.title")}</SelectItem>
-            <SelectItem value="questions">{t("list.sortBy.questions")}</SelectItem>
-            <SelectItem value="startTime">{t("list.sortBy.startTime")}</SelectItem>
+            <SelectItem value="questions">
+              {t("list.sortBy.questions")}
+            </SelectItem>
+            <SelectItem value="startTime">
+              {t("list.sortBy.startTime")}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -249,10 +289,14 @@ export default function QuizListPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">{t("list.totalQuizzes")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("list.totalQuizzes")}
+                </p>
                 <h3 className="text-2xl font-bold">{stats.total}</h3>
               </div>
-              <BookOpen className="w-8 h-8 text-muted-foreground" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <BookOpen className="w-6 h-6 text-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -260,10 +304,14 @@ export default function QuizListPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">{t("list.status.notStarted")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("list.status.notStarted")}
+                </p>
                 <h3 className="text-2xl font-bold">{stats.available}</h3>
               </div>
-              <Play className="w-8 h-8 text-green-500" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Play className="w-6 h-6 text-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -271,10 +319,14 @@ export default function QuizListPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">{t("list.status.upcoming")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("list.status.upcoming")}
+                </p>
                 <h3 className="text-2xl font-bold">{stats.upcoming}</h3>
               </div>
-              <Calendar className="w-8 h-8 text-blue-500" />
+              <div className="p-2 bg-secondary/50 rounded-lg">
+                <Calendar className="w-6 h-6 text-secondary-foreground" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -282,10 +334,14 @@ export default function QuizListPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">{t("list.status.expired")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("list.status.expired")}
+                </p>
                 <h3 className="text-2xl font-bold">{stats.expired}</h3>
               </div>
-              <Users className="w-8 h-8 text-gray-500" />
+              <div className="p-2 bg-muted rounded-lg">
+                <Users className="w-6 h-6 text-muted-foreground" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -294,12 +350,15 @@ export default function QuizListPage() {
       {/* Quiz List */}
       <div className={`gap-6 grid md:grid-cols-2 lg:grid-cols-3`}>
         {paginatedQuizzes.map((quiz) => (
-          <Card key={quiz.examQuizzesId} className="hover:shadow-lg transition-all duration-200 relative flex flex-col h-full group">
+          <Card
+            key={quiz.examQuizzesId}
+            className="hover:shadow-lg transition-all duration-200 relative flex flex-col h-full group"
+          >
             {/* Status Badge - positioned at top-right corner */}
             <div className="absolute top-3 right-3 z-10">
               {getStatusBadge(quiz)}
             </div>
-            
+
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg pr-24 line-clamp-2">
                 <BookOpen className="w-5 h-5 flex-shrink-0" />
@@ -316,12 +375,14 @@ export default function QuizListPage() {
                 )}
               </div>
             </CardHeader>
-            
+
             <CardContent className="pt-0 flex-1 flex flex-col">
               <div className="space-y-3 flex-1">
                 <div className="flex items-center gap-2 text-sm">
                   <Users className="w-4 h-4 text-muted-foreground" />
-                  <span>{quiz.totalQuestions} {t("list.questions")}</span>
+                  <span>
+                    {quiz.totalQuestions} {t("list.questions")}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
@@ -331,19 +392,24 @@ export default function QuizListPage() {
                   </span>
                 </div>
               </div>
-              
+
               {/* Action button at the bottom */}
               <div className="mt-6">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  asChild
-                >
-                  <Link to={`/quiz/quiz-detail/${quiz.examQuizzesId}`}>
-                    <Eye className="w-4 h-4 mr-2" />
-                    {t("list.viewDetail")}
-                  </Link>
-                </Button>
+                {getQuizStatus(quiz) === "available" ? (
+                  <Button className="w-full" asChild>
+                    <Link to={`/quiz/quiz-detail/${quiz.examQuizzesId}`}>
+                      <Play className="w-4 h-4 mr-2" />
+                      {t("list.startQuiz")}
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link to={`/quiz/quiz-detail/${quiz.examQuizzesId}`}>
+                      <Eye className="w-4 h-4 mr-2" />
+                      {t("list.viewDetail")}
+                    </Link>
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -382,7 +448,9 @@ export default function QuizListPage() {
           {quizzes.length === 0 ? (
             // No quizzes at all
             <>
-              <h3 className="text-lg font-medium mb-2">{t("list.noQuizzes")}</h3>
+              <h3 className="text-lg font-medium mb-2">
+                {t("list.noQuizzes")}
+              </h3>
               <p className="text-muted-foreground">
                 {t("list.noQuizzesDescription")}
               </p>
@@ -390,7 +458,9 @@ export default function QuizListPage() {
           ) : (
             // Has quizzes but filtered out
             <>
-              <h3 className="text-lg font-medium mb-2">{t("list.noQuizzesFound")}</h3>
+              <h3 className="text-lg font-medium mb-2">
+                {t("list.noQuizzesFound")}
+              </h3>
               <p className="text-muted-foreground">
                 {t("list.noQuizzesFoundDescription")}
               </p>

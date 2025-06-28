@@ -1,8 +1,6 @@
 // src/components/dashboard/site-header.tsx
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { LanguageSwitcher } from "@/components/language-switcher";
 
 export function SiteHeader() {
   return (
@@ -13,13 +11,6 @@ export function SiteHeader() {
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
         />
-        <h1 className="text-base font-medium"></h1>
-
-        {/* Theme toggle button and language switcher - positioned at the right */}
-        <div className="ml-auto flex items-center gap-2">
-          <LanguageSwitcher variant="compact" />
-          <ThemeToggle />
-        </div>
       </div>
     </header>
   );

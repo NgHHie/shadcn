@@ -1,6 +1,12 @@
-export { OverviewCards } from "./OverviewCards";
 export { ActivityChart } from "./ActivityChart";
 export { ScheduleCard } from "./ScheduleCard";
-export { UpcomingExamsCard } from "./UpcomingExamsCard";
+export { ScheduleCountdown } from "./ScheduleCountdown";
+export { OverviewCards } from "./OverviewCards";
 export { PerformanceCard } from "./PerformanceCard";
+export { PracticeSuggestionsCard } from "./PracticeSuggestionsCard";
 export { ProgressSection } from "./ProgressSection";
+export { RecentActivitiesFeed } from "./RecentActivitiesFeed";
+export { RecentQuizSubmissions } from "./RecentQuizSubmissions";
+export { ScheduleCard as ScheduleCardOld } from "./ScheduleCard";
+export { UpcomingExamsCard } from "./UpcomingExamsCard";
+export { ScheduleWeekTable } from "./ScheduleWeekTable";

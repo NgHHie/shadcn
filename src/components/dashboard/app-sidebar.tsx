@@ -7,7 +7,6 @@ import {
   LayoutDashboardIcon,
   FolderIcon,
   Home,
-  CalendarDays,
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -57,12 +56,6 @@ export function AppSidebar({
         url: "/quiz/quiz-list",
         icon: BookOpen,
         isActive: location.pathname.startsWith("/quiz/"),
-      },
-      {
-        title: t("navigation.schedule"),
-        url: "/schedule",
-        icon: CalendarDays,
-        isActive: location.pathname === "/schedule",
       },
       // {
       //   title: t("navigation.history"),

@@ -18,6 +18,7 @@ import { ContestWaitingData } from "@/types/contest-waiting";
 
 const API_BASE_URL = "https://api.learnsql.store/api/app";
 const API_AUTH_URL = "https://api.learnsql.store/api/auth";
+const API_MCS_URL = "https://api.learnsql.store/api/mcs";
 
 const PUBLIC_ENDPOINTS = [
   "/hiep", // GET /question (list questions)
@@ -111,15 +112,15 @@ export interface LoginResponse {
 }
 
 export interface RegisterRequest {
+  email: string;
   username: string;
   password: string;
-  fullName?: string;
 }
 
 export interface RegisterResponse {
   status: number;
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 export interface QuestionListItem {
@@ -132,6 +133,42 @@ export interface QuestionListItem {
   enable: boolean;
   totalSub: number;
   status?: "AC" | "WA" | "TLE" | "CE" | "Not Started";
+}
+
+export interface ScheduleClass {
+  id: string;
+  subject: string;
+  code: string;
+  group: string;
+  room: string;
+  building: string;
+  instructor: string;
+  startTime: string;
+  endTime: string;
+  dayOfWeek: number;
+  startTimeSlot: number;
+  duration: number;
+  color?: string;
+  type: "lecture" | "lab" | "practice";
+}
+
+export interface ScheduleResponse {
+  weekStart: string;
+  classes: ScheduleClass[];
+  // Add more fields if needed based on actual API response
+}
+
+export interface Semester {
+  id: string;
+  semesterCode: number;
+  semesterName: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface SemestersResponse {
+  semesters: Semester[];
+  totalSemesters: number;
 }
 
 // HTTP Client with error handling and auto token refresh
@@ -156,22 +193,32 @@ export class ApiClient {
       ...options,
     };
 
+    console.log(`🔍 Making request to: ${url}`);
+    console.log(`🔍 Method: ${options.method || "GET"}`);
+    console.log(`🔍 Is public endpoint: ${isPublicEndpoint(endpoint)}`);
+
     if (!isPublicEndpoint(endpoint)) {
       const token = TokenManager.getAccessToken();
       const refreshToken = TokenManager.getRefreshToken();
+
+      console.log(`🔍 Token exists: ${!!token}`);
+      console.log(`🔍 Refresh token exists: ${!!refreshToken}`);
 
       if (token) {
         defaultOptions.headers = {
           ...defaultOptions.headers,
           Authorization: `Bearer ${token}`,
         };
+        console.log(`🔍 Added Authorization header with token`);
       } else if (refreshToken && retryCount === 0) {
         try {
+          console.log(`🔍 Attempting token refresh...`);
           const newToken = await TokenManager.refreshAccessToken();
           defaultOptions.headers = {
             ...defaultOptions.headers,
             Authorization: `Bearer ${newToken}`,
           };
+          console.log(`🔍 Token refreshed successfully`);
         } catch (refreshError) {
           console.error("Token refresh failed:", refreshError);
           // Delay trước khi redirect để tránh race condition
@@ -182,11 +229,18 @@ export class ApiClient {
           }, 1000);
           throw new Error("Authentication failed. Please login again.");
         }
+      } else {
+        console.log(`🔍 No token available, request will be made without auth`);
       }
     }
 
+    console.log(`🔍 Final headers:`, defaultOptions.headers);
+
     try {
       const response = await fetch(url, defaultOptions);
+
+      console.log(`🔍 Response status: ${response.status}`);
+      console.log(`🔍 Response ok: ${response.ok}`);
 
       if (
         response.status === 401 &&
@@ -194,6 +248,7 @@ export class ApiClient {
         !isPublicEndpoint(endpoint)
       ) {
         try {
+          console.log(`🔍 401 received, attempting token refresh...`);
           const newToken = await TokenManager.refreshAccessToken();
 
           const newHeaders = {
@@ -235,7 +290,7 @@ export class ApiClient {
         ) as Error & {
           response?: {
             status: number;
-            data: any;
+            data: unknown;
           };
           status?: number;
         };
@@ -250,8 +305,20 @@ export class ApiClient {
         throw error;
       }
 
-      const data = await response.json();
-      return data;
+      // Handle empty response
+      const responseText = await response.text();
+      if (!responseText.trim()) {
+        console.warn("⚠️ Empty response from server");
+        return {} as T;
+      }
+
+      try {
+        const data = JSON.parse(responseText);
+        return data;
+      } catch (parseError) {
+        console.error("❌ Failed to parse JSON response:", responseText);
+        throw new Error(`Invalid JSON response: ${responseText}`);
+      }
     } catch (error) {
       console.error(`API Error [${endpoint}]:`, error);
       throw error;
@@ -262,7 +329,7 @@ export class ApiClient {
     return this.request<T>(endpoint, { method: "GET" });
   }
 
-  async post<T>(endpoint: string, body?: any): Promise<T> {
+  async post<T>(endpoint: string, body?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: "POST",
       body: body ? JSON.stringify(body) : undefined,
@@ -278,7 +345,7 @@ export class ApiClient {
     });
   }
 
-  async put<T>(endpoint: string, body?: any): Promise<T> {
+  async put<T>(endpoint: string, body?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: "PUT",
       body: body ? JSON.stringify(body) : undefined,
@@ -293,6 +360,7 @@ export class ApiClient {
 // Initialize API client
 const apiClient = new ApiClient(API_BASE_URL);
 const apiAuth = new ApiClient(API_AUTH_URL);
+const apiMcs = new ApiClient(API_MCS_URL);
 
 // API Service Functions
 export const questionApi = {
@@ -395,7 +463,7 @@ export const questionApi = {
     typeDatabaseId: string;
   }): Promise<{
     status: number;
-    result: any[] | string;
+    result: unknown[] | string;
     typeQuery: string;
     timeExec: number;
     testPass: number;
@@ -438,7 +506,7 @@ export const questionApi = {
       size?: number;
     }
   ): Promise<{
-    content: any[];
+    content: unknown[];
     totalElements: number;
     totalPages: number;
     number: number;
@@ -481,7 +549,13 @@ export const userApi = {
     pointsByType: Record<string, number>;
     submissionsByMonth: Array<{ month: string; count: number }>;
   }> => {
-    return apiClient.get("/user/statistics");
+    return apiClient.get<{
+      totalSolved: number;
+      totalSubmissions: number;
+      acceptanceRate: number;
+      pointsByType: Record<string, number>;
+      submissionsByMonth: Array<{ month: string; count: number }>;
+    }>("/user/statistics");
   },
 };
 
@@ -576,6 +650,45 @@ export const contestJoinedApi = {
     return apiClient.post<ContestQuestionStatus[]>(
       "/submit-contest/check/complete",
       payload
+    );
+  },
+};
+
+export const scheduleApi = {
+  // Get authenticated schedule (thời khóa biểu)
+  getSchedule: async (semesterCode?: number): Promise<ScheduleResponse> => {
+    const params = semesterCode ? `?semesterCode=${semesterCode}` : "";
+    return apiAuth.get<ScheduleResponse>(`/schedule${params}`);
+  },
+
+  // Get semesters list
+  getSemesters: async (): Promise<SemestersResponse> => {
+    return apiAuth.get<SemestersResponse>("/schedule/semesters");
+  },
+
+  // Đồng bộ thời khóa biểu từ QLDT/PTIT
+  syncFromPtit: async (): Promise<{ success: boolean; message?: string }> => {
+    return apiAuth.post<{ success: boolean; message?: string }>(
+      "/schedule/sync-from-ptit"
+    );
+  },
+};
+
+// MCS API for exam quiz and related features
+export const mcsApi = {
+  // Get upcoming exam quizzes for next month
+  getUpcomingExamQuizzes: async (userId: string): Promise<ExamQuizResponse> => {
+    return apiMcs.get<ExamQuizResponse>(
+      `/dashboard/user/get-exam-quiz-next-1-month?userId=${userId}`
+    );
+  },
+
+  // Get history of exam quiz submissions
+  getQuizSubmissionHistory: async (
+    userId: string
+  ): Promise<QuizSubmissionResponse> => {
+    return apiMcs.get<QuizSubmissionResponse>(
+      `/dashboard/user/get-history-exam-quizz-submissions?userId=${userId}`
     );
   },
 };
@@ -710,7 +823,7 @@ export const authApi = {
       body: JSON.stringify({
         username: userData.username,
         password: userData.password,
-        fullName: userData.fullName,
+        email: userData.email,
       }),
     });
 
@@ -758,9 +871,9 @@ export const authApi = {
   },
 
   // Get user info from API (not from token)
-  getCurrentUser: async (): Promise<any> => {
+  getCurrentUser: async (): Promise<unknown> => {
     // Call API to get current user info instead of parsing token
-    return apiClient.get("/users/info");
+    return apiClient.get<unknown>("/users/info");
   },
 
   // Get user info (moved from userApi - uses auth domain)
@@ -782,7 +895,50 @@ export const authApi = {
     fullName: string;
     isPremium: boolean;
   }> => {
-    return apiAuth.get("/users/info");
+    return apiAuth.get<{
+      id: string;
+      createdAt: string;
+      createdBy: string;
+      lastModifiedAt: string;
+      firstName: string;
+      lastName: string;
+      username: string;
+      avatar: string;
+      email: string;
+      phone: string;
+      birthDay: string;
+      role: string;
+      userCode: string;
+      userPrefix: string;
+      fullName: string;
+      isPremium: boolean;
+    }>("/users/info");
+  },
+
+  // Update user information
+  updateUserInfo: async (
+    userData: UpdateUserRequest
+  ): Promise<UpdateUserResponse> => {
+    try {
+      const response = await apiAuth.post<UpdateUserResponse>(
+        "/users/update",
+        userData
+      );
+      return response;
+    } catch (error) {
+      if (error instanceof Error && "response" in error) {
+        const errorResponse = (error as Error & { response?: Response })
+          .response;
+        console.error("❌ Response status:", errorResponse?.status);
+        console.error("❌ Response headers:", errorResponse?.headers);
+        if (errorResponse?.text) {
+          const responseText = await errorResponse.text();
+          console.error("❌ Response text:", responseText);
+        }
+      }
+
+      throw error;
+    }
   },
 };
 
@@ -805,7 +961,7 @@ export const apiUtils = {
   },
 
   // Helper function to check if error is auth-related
-  isAuthError: (error: any): boolean => {
+  isAuthError: (error: unknown): boolean => {
     if (typeof error === "string") {
       return (
         error.toLowerCase().includes("authentication") ||
@@ -815,8 +971,13 @@ export const apiUtils = {
       );
     }
 
-    if (error?.message) {
-      const message = error.message.toLowerCase();
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error &&
+      typeof (error as { message: unknown }).message === "string"
+    ) {
+      const message = (error as { message: string }).message.toLowerCase();
       return (
         message.includes("authentication") ||
         message.includes("unauthorized") ||
@@ -830,13 +991,18 @@ export const apiUtils = {
   },
 
   // Simple error message formatting without JWT parsing
-  formatErrorMessage: (error: any): string => {
+  formatErrorMessage: (error: unknown): string => {
     let message = "";
 
     if (typeof error === "string") {
       message = error;
-    } else if (error?.message) {
-      message = error.message;
+    } else if (
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error &&
+      typeof (error as { message: unknown }).message === "string"
+    ) {
+      message = (error as { message: string }).message;
     } else {
       message = "An unexpected error occurred";
     }
@@ -909,10 +1075,13 @@ export const useApi = () => {
       ...userApi,
       getUserInfo: authApi.getUserInfo, // Reference to auth getUserInfo
       getUserInfo2: authApi.getCurrentUser,
+      updateUserInfo: authApi.updateUserInfo, // Add update method
     },
     ranking: rankingApi,
     contest: contestApi,
     auth: authApi,
+    schedule: scheduleApi,
+    mcs: mcsApi,
     utils: apiUtils,
   };
 };
@@ -923,6 +1092,8 @@ export default {
   ranking: rankingApi,
   contest: contestApi,
   auth: authApi,
+  schedule: scheduleApi,
+  mcs: mcsApi,
   utils: apiUtils,
 };
 
@@ -936,4 +1107,70 @@ export interface QuestionCompletionStatus {
 export interface CheckCompletionRequest {
   questionIds: string[];
   userId: string;
+}
+
+export interface UpdateUserRequest {
+  password?: string;
+  repassword?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  email?: string;
+  avatar?: string;
+  birthDay?: string; // ISO date string
+  userCode?: string;
+}
+
+export interface UpdateUserResponse {
+  status: number;
+  message: string;
+  data?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    birthDay: string;
+    avatar: string;
+    userCode: string;
+  };
+}
+
+// Exam Quiz interfaces
+export interface ExamQuiz {
+  examQuizzesId: string;
+  classesId: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  createdBy: string;
+  totalQuestions: number;
+  createdAt: string;
+  updatedAt: string;
+  code: string;
+  questions: unknown[] | null;
+}
+
+export interface ExamQuizResponse {
+  message: string;
+  data: ExamQuiz[];
+  timestamp: string;
+}
+
+// Quiz Submission interfaces
+export interface QuizSubmission {
+  examQuizzSubmissionId: string;
+  score: number;
+  countCorrectAnswers: number;
+  countWrongAnswers: number;
+  totalQuestions: number;
+  examUserQuizzesId: string;
+  startTimeAt: string;
+  endTimeAt: string;
+}
+
+export interface QuizSubmissionResponse {
+  message: string;
+  data: QuizSubmission[];
+  timestamp: string;
 }
