@@ -66,7 +66,7 @@ export const useQuestions = (params: UseQuestionsParams) => {
 
         // Use provided params or fall back to hook params
         const pageable = paginationParams || params.pagination;
-        const criteria = filterCriteria || params.criteria || {};
+        let criteria = filterCriteria || params.criteria || {};
 
         // Get user info to get userId (only once and cache it)
         if (!userInfoRef.current) {
@@ -76,6 +76,13 @@ export const useQuestions = (params: UseQuestionsParams) => {
           } catch (userError) {
             console.warn("Could not get user info, will use default status");
           }
+        }
+
+        if (userInfoRef.current?.id && !criteria.userId) {
+          criteria = {
+            ...criteria,
+            userId: userInfoRef.current.id,
+          };
         }
 
         // Call new search API
