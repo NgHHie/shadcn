@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { toastError, toastWarning } from "@/lib/toast";
 import { QuestionDetail, useApi } from "@/lib/api";
+import { contestApi, FileSubmissionRequest } from "@/lib/apiContest";
 import { useSubmissionHistory } from "@/hooks/use-submission-history";
 
 import { SqlEditor } from "./sql-editor";
@@ -202,28 +203,15 @@ export function SalesAnalyticsDashboard({
         return;
       }
 
-      // Prepare form data
-      const formData = new FormData();
-      formData.append("file", file);
-
+      const payload: FileSubmissionRequest = {
+        questionId: question.id,
+        typeDatabaseId: selectedDbDetail.id,
+        isSubmitContest: false,
+        questionContestId: "",
+        file,
+      };
       // Call API
-      const response = await fetch(
-        `https://api.learnsql.store/api/app/executor/submit-file?questionId=${question.id}&typeDatabaseId=${selectedDbDetail.id}&isSubmitContest=false`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage
-              .getItem("access_token")
-              ?.replace(/"/g, "")}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
+      const response = await contestApi.submitFile(payload);
       // Update SQL editor with file content
       setSqlQuery(fileContent);
     } catch (error: any) {
@@ -402,7 +390,7 @@ export function SalesAnalyticsDashboard({
       duration: `${submission.timeout}ms`,
       result: `${submission.testPass}/${submission.totalTest}`,
       dbType: submission.database.name,
-      sqlCode: "", // SQL code is not returned from the API
+      sqlCode: submission.querySub,
     }));
   }, [submissions, question]);
 
@@ -604,7 +592,7 @@ export function SalesAnalyticsDashboard({
                 )}
               </Button>
 
-              <Button
+              {/* <Button
                 variant="outline"
                 className={`border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 whitespace-nowrap flex-shrink-0 transition-all duration-200 hover:border-primary/50 font-medium ${
                   isMobile ? "text-xs h-7" : "text-xs h-8"
@@ -612,7 +600,7 @@ export function SalesAnalyticsDashboard({
                 onClick={handleSaveQuery}
               >
                 {t("sqlEditor.saveQuery")}
-              </Button>
+              </Button> */}
             </div>
 
             {/* Results table */}

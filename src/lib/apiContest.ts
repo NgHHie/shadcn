@@ -41,7 +41,7 @@ export interface ContestExecutionResponse {
 export interface FileSubmissionRequest {
   questionId: string;
   typeDatabaseId: string;
-  contestId: string;
+  isSubmitContest: boolean;
   questionContestId: string;
   file: File;
 }
@@ -159,18 +159,21 @@ export const contestApi = {
   ): Promise<ContestSubmissionResponse> => {
     try {
       const formData = new FormData();
+      console.log(payload);
       formData.append("file", payload.file);
+      formData.append("questionId", payload.questionId);
+      formData.append("typeDatabaseId", payload.typeDatabaseId);
+      formData.append("questionContestId", payload.questionContestId);
+      formData.append(
+        "isSubmitContest",
+        String(payload.isSubmitContest ?? true)
+      );
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
 
-      const params = new URLSearchParams({
-        questionId: payload.questionId,
-        typeDatabaseId: payload.typeDatabaseId,
-        isSubmitContest: "true",
-        contestId: payload.contestId,
-        questionContestId: payload.questionContestId,
-      });
-
-      const response = await apiClient.post<ContestSubmissionResponse>(
-        `/executor/submit-file?${params.toString()}`,
+      const response = await apiClient.postFormData<ContestSubmissionResponse>(
+        `/executor/submit-file`,
         formData
       );
       return response;

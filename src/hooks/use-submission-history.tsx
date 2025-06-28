@@ -30,6 +30,7 @@ export interface SubmissionHistoryItem {
     id: string;
     name: string;
   };
+  querySub: string;
 }
 
 export interface SubmissionHistoryResponse {
@@ -262,6 +263,7 @@ export const useSubmissionHistory = (
               id: payload.typeDatabaseId,
               name: additionalInfo?.databaseName || "Unknown",
             },
+            querySub: result.querySub,
           };
 
           setSubmissions((prev) => [

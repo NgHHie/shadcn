@@ -268,6 +268,15 @@ export class ApiClient {
       body: body ? JSON.stringify(body) : undefined,
     });
   }
+  async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "POST",
+      body: formData,
+      headers: {
+        // Không set Content-Type để browser tự động thêm boundary
+      },
+    });
+  }
 
   async put<T>(endpoint: string, body?: any): Promise<T> {
     return this.request<T>(endpoint, {
