@@ -5,6 +5,7 @@ import { useWebSocket } from "@/hooks/use-websocket";
 import { SocketMessage } from "@/lib/websocket";
 import { toastError } from "@/lib/toast";
 import { handleDataFetchError } from "@/lib/error-handler";
+import contestApi, { FileSubmissionRequest } from "@/lib/apiContest";
 
 export interface SubmissionHistoryItem {
   id: string;
@@ -216,25 +217,9 @@ export const useSubmissionHistory = (
       }
     ) => {
       try {
-        const response = await fetch(
-          "https://api.learnsql.store/api/app/executor/submit",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${localStorage
-                .getItem("access_token")
-                ?.replace(/"/g, "")}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          }
-        );
+        const result = await api.question.submitSolution(payload);
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const result = await response.json();
+        // const result = await response.json();
 
         // Add pending submission to the list immediately với đầy đủ thông tin
         if (result.submitId && userInfo) {
@@ -263,7 +248,7 @@ export const useSubmissionHistory = (
               id: payload.typeDatabaseId,
               name: additionalInfo?.databaseName || "Unknown",
             },
-            querySub: result.querySub,
+            querySub: payload.sql,
           };
 
           setSubmissions((prev) => [
@@ -276,6 +261,89 @@ export const useSubmissionHistory = (
       } catch (err: unknown) {
         const errorMessage = handleDataFetchError(err);
         toastError("Lỗi khi submit", {
+          description: errorMessage,
+        });
+        throw err;
+      }
+    },
+    [userInfo, pageSize, questionInfo]
+  );
+
+  // Submit file solution (tương tự submitSolution)
+  const submitFile = useCallback(
+    async (
+      file: File,
+      payload: {
+        questionId: string;
+        typeDatabaseId: string;
+      },
+      additionalInfo?: {
+        databaseName: string;
+        questionCode?: string;
+        questionTitle?: string;
+      }
+    ) => {
+      try {
+        // Đọc file content để lưu vào querySub
+        const fileContent = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.onerror = reject;
+          reader.readAsText(file);
+        });
+
+        // Tạo payload cho contestApi
+        const filePayload: FileSubmissionRequest = {
+          questionId: payload.questionId,
+          typeDatabaseId: payload.typeDatabaseId,
+          isSubmitContest: false,
+          questionContestId: "",
+          file,
+        };
+
+        // Gọi API submitFile
+        const result = await contestApi.submitFile(filePayload);
+
+        // Add pending submission giống hệt submitSolution
+        if (result.submitId && userInfo) {
+          const pendingSubmission: SubmissionHistoryItem = {
+            id: result.submitId,
+            createdAt: result.timeSubmit,
+            createdBy: userInfo.id,
+            lastModifiedAt: result.timeSubmit,
+            timeSubmit: result.timeSubmit,
+            timeout: result.timeExec || 0,
+            status: "PENDING",
+            user: {
+              firstName: userInfo.firstName,
+              lastName: userInfo.lastName,
+              userCode: userInfo.userCode,
+              fullName: userInfo.fullName,
+            },
+            testPass: result.testPass || 0,
+            totalTest: result.totalTest || 0,
+            question: {
+              questionCode:
+                additionalInfo?.questionCode || questionInfo?.code || "",
+              title: additionalInfo?.questionTitle || questionInfo?.title || "",
+            },
+            database: {
+              id: payload.typeDatabaseId,
+              name: additionalInfo?.databaseName || "Unknown",
+            },
+            querySub: fileContent, // Nội dung file
+          };
+
+          setSubmissions((prev) => [
+            pendingSubmission,
+            ...prev.slice(0, pageSize - 1),
+          ]);
+        }
+
+        return { result, fileContent }; // Return cả result và fileContent
+      } catch (err: unknown) {
+        const errorMessage = handleDataFetchError(err);
+        toastError("Lỗi khi submit file", {
           description: errorMessage,
         });
         throw err;
@@ -327,6 +395,7 @@ export const useSubmissionHistory = (
     totalElements,
     isWebSocketConnected: isConnected,
     submitSolution,
+    submitFile,
     refresh,
     loadPage,
   };

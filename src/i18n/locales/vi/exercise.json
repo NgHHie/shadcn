@@ -35,7 +35,8 @@
     "medium": "Trung bình",
     "hard": "Khó",
     "allCategories": "Tất cả loại",
-    "allDifficulties": "Tất cả độ khó"
+    "allDifficulties": "Tất cả độ khó",
+    "allStatuses": "Tất cả trạng thái"
   },
   "filter": {
     "search": "Tìm kiếm",
@@ -44,7 +45,8 @@
     "keyword": "Từ khóa",
     "code": "Mã",
     "title": "Tiêu đề",
-    "type": "Loại"
+    "type": "Loại",
+    "status": "Trạng thái"
   },
   "common": {
     "retry": "Thử lại"

@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toastError, toastWarning } from "@/lib/toast";
+import { toastError, toastSuccess, toastWarning } from "@/lib/toast";
 import { QuestionDetail, useApi } from "@/lib/api";
 import { contestApi, FileSubmissionRequest } from "@/lib/apiContest";
 import { useSubmissionHistory } from "@/hooks/use-submission-history";
@@ -36,13 +36,14 @@ export function SalesAnalyticsDashboard({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Use submission history hook for WebSocket integration
-  const { submissions, submitSolution: submitToAPI } = useSubmissionHistory(
-    question?.id,
-    {
-      code: question?.questionCode || "",
-      title: question?.title || "",
-    }
-  );
+  const {
+    submissions,
+    submitSolution: submitToAPI,
+    submitFile: submitFileToAPI,
+  } = useSubmissionHistory(question?.id, {
+    code: question?.questionCode || "",
+    title: question?.title || "",
+  });
 
   const [sqlQuery, setSqlQuery] = useState(""); // Empty by default
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -186,14 +187,6 @@ export function SalesAnalyticsDashboard({
     try {
       setIsUploading(true);
 
-      // Read file content
-      const fileContent = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target?.result as string);
-        reader.onerror = reject;
-        reader.readAsText(file);
-      });
-
       // Find the selected database ID
       const selectedDbDetail = availableDatabases.find(
         (db) => db.name === selectedDatabase
@@ -203,17 +196,25 @@ export function SalesAnalyticsDashboard({
         return;
       }
 
-      const payload: FileSubmissionRequest = {
+      const payload = {
         questionId: question.id,
         typeDatabaseId: selectedDbDetail.id,
-        isSubmitContest: false,
-        questionContestId: "",
-        file,
       };
-      // Call API
-      const response = await contestApi.submitFile(payload);
-      // Update SQL editor with file content
+
+      // Dùng hook method - giống hệt submit thường
+      const { result, fileContent } = await submitFileToAPI(file, payload, {
+        databaseName: selectedDatabase,
+        questionCode: question.questionCode,
+        questionTitle: question.title,
+      });
+
+      // Set file content vào editor
       setSqlQuery(fileContent);
+
+      // Auto-open history panel
+      setTimeout(() => {
+        setIsHistoryOpen(true);
+      }, 500);
     } catch (error: any) {
       console.error("Upload error:", error);
       toastError("Lỗi khi upload file", {
@@ -222,7 +223,6 @@ export function SalesAnalyticsDashboard({
       });
     } finally {
       setIsUploading(false);
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }

@@ -35,7 +35,8 @@
     "medium": "Medium",
     "hard": "Hard",
     "allCategories": "All categories",
-    "allDifficulties": "All difficulties"
+    "allDifficulties": "All difficulties",
+    "allStatuses": "All statuses"
   },
   "filter": {
     "search": "Search",
@@ -44,7 +45,8 @@
     "keyword": "Keyword",
     "code": "Code",
     "title": "Title",
-    "type": "Type"
+    "type": "Type",
+    "status": "Status"
   },
   "common": {
     "retry": "Retry"

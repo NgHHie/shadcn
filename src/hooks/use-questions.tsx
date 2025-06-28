@@ -1,6 +1,12 @@
 // src/hooks/use-questions.tsx - Updated to use new search API
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  SetStateAction,
+} from "react";
 import { useApi } from "@/lib/api";
 import { QuestionListItem, QuestionCompletionStatus } from "@/lib/api";
 import { toastError } from "@/lib/toast";
@@ -23,8 +29,9 @@ export interface QuestionFilterCriteria {
     | "TRIGGER"
     | "TRUNCATE";
   level?: "EASY" | "MEDIUM" | "HARD";
+  answerStatus?: "AC" | "WA" | "TLE" | "CE" | "Not Started";
+  userId?: string;
 }
-
 export interface PaginationParams {
   page: number;
   size: number;
@@ -73,14 +80,20 @@ export const useQuestions = (params: UseQuestionsParams) => {
             console.warn("Could not get user info, will use default status");
           }
         }
-
-        let questionsWithStatus = response.content.map((question) => ({
-          ...question,
-          status: "Not Started" as "AC" | "WA" | "TLE" | "CE" | "Not Started",
-        }));
+        let questionsWithStatus: SetStateAction<QuestionListItem[]> = [];
+        if (response.content) {
+          questionsWithStatus = response.content.map((question) => ({
+            ...question,
+            status: "Not Started" as "AC" | "WA" | "TLE" | "CE" | "Not Started",
+          }));
+        }
 
         // If we have user info, check completion status
-        if (userInfoRef.current && response.content.length > 0) {
+        if (
+          userInfoRef.current &&
+          response.content &&
+          response.content.length > 0
+        ) {
           try {
             const questionIds = response.content.map((q) => q.id);
             const completionStatuses = await api.question.checkCompletionStatus(
@@ -184,7 +197,7 @@ export const useQuestions = (params: UseQuestionsParams) => {
 
   // Method to search with new criteria
   const searchWithFilter = useCallback(
-    (
+    async (
       criteria: QuestionFilterCriteria,
       pagination?: Partial<PaginationParams>
     ) => {
@@ -194,9 +207,25 @@ export const useQuestions = (params: UseQuestionsParams) => {
         page: pagination?.page ?? 0, // Reset to first page when searching
       };
 
-      return fetchQuestions(newPagination, criteria);
+      // Get user info if not available
+      if (!userInfoRef.current) {
+        try {
+          const userInfo = await api.user.getUserInfo();
+          userInfoRef.current = { id: userInfo.id };
+        } catch (userError) {
+          console.warn("Could not get user info, will use default status");
+        }
+      }
+
+      // Check if userId is not provided and add it if user info is available
+      const enhancedCriteria = {
+        ...criteria,
+        userId: criteria.userId || userInfoRef.current?.id,
+      };
+
+      return fetchQuestions(newPagination, enhancedCriteria);
     },
-    [fetchQuestions, params.pagination]
+    [fetchQuestions, params.pagination, api.user]
   );
 
   // Method to change page

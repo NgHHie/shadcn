@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { sql } from "@codemirror/lang-sql";
 import { vscodeDark, vscodeLight } from "@uiw/codemirror-theme-vscode";
@@ -20,6 +20,11 @@ export function SqlEditor({
 }: SqlEditorProps) {
   const [value, setValue] = useState(initialValue);
   const { theme } = useTheme();
+
+  // THÊM: Sync internal state với initialValue prop
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
 
   const handleChange = React.useCallback(
     (val: string) => {

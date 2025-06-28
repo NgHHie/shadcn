@@ -30,6 +30,7 @@ interface SubmissionHistoryItem {
     id: string;
     name: string;
   };
+  querySub: string;
 }
 
 export const useContestSubmissionHistory = (
@@ -158,6 +159,7 @@ export const useContestSubmissionHistory = (
               id: payload.typeDatabaseId,
               name: additionalInfo?.databaseName || "Unknown",
             },
+            querySub: payload.sql,
           };
 
           setSubmissions((prev) => [pendingSubmission, ...prev]);

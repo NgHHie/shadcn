@@ -141,11 +141,7 @@ export function Page() {
           <h3 className="text-lg font-medium mb-2">
             {hasActiveFilters ? t("noResults") : t("noAssignments")}
           </h3>
-          <p className="text-muted-foreground mb-4">
-            {hasActiveFilters
-              ? t("noResultsDescription")
-              : t("noAssignmentsDescription")}
-          </p>
+
           {hasActiveFilters && (
             <Button variant="outline" onClick={handleClearAllFilters}>
               {t("filter.clearFilter")}
@@ -243,6 +239,14 @@ export function Page() {
                     : filterCriteria.level === "MEDIUM"
                     ? t("questionCard.medium")
                     : t("questionCard.hard")}
+                </span>
+              )}
+              {filterCriteria.answerStatus && (
+                <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md">
+                  {t("filter.status")}:{" "}
+                  {filterCriteria.answerStatus === "Not Started"
+                    ? t("questionCard.notStarted")
+                    : filterCriteria.answerStatus}
                 </span>
               )}
             </div>

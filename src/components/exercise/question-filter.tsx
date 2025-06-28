@@ -27,12 +27,16 @@ export type TypeQuestion =
 
 export type LevelQuestion = "EASY" | "MEDIUM" | "HARD";
 
+export type AnswerStatus = "AC" | "WA" | "TLE" | "CE" | "Not Started";
+
 export interface QuestionFilterCriteria {
   keyword?: string;
   questionCode?: string;
   title?: string;
   type?: TypeQuestion;
   level?: LevelQuestion;
+  answerStatus?: AnswerStatus;
+  userId?: string;
 }
 
 interface QuestionFilterProps {
@@ -55,17 +59,6 @@ const TYPE_OPTIONS: { value: TypeQuestion; label: string }[] = [
   { value: "TRUNCATE", label: "TRUNCATE" },
 ];
 
-const LEVEL_OPTIONS: { value: LevelQuestion; label: string; color: string }[] =
-  [
-    { value: "EASY", label: "Easy", color: "" },
-    {
-      value: "MEDIUM",
-      label: "Medium",
-      color: "",
-    },
-    { value: "HARD", label: "Hard", color: "" },
-  ];
-
 export function QuestionFilter({
   onFilter,
   loading,
@@ -77,6 +70,31 @@ export function QuestionFilter({
   const [selectedLevel, setSelectedLevel] = useState<LevelQuestion | "ALL">(
     "ALL"
   );
+  const [selectedStatus, setSelectedStatus] = useState<AnswerStatus | "ALL">(
+    "ALL"
+  );
+
+  const LEVEL_OPTIONS: {
+    value: LevelQuestion;
+    label: string;
+    color: string;
+  }[] = [
+    { value: "EASY", label: t("questionCard.easy"), color: "" },
+    { value: "MEDIUM", label: t("questionCard.medium"), color: "" },
+    { value: "HARD", label: t("questionCard.hard"), color: "" },
+  ];
+
+  const STATUS_OPTIONS: {
+    value: AnswerStatus;
+    label: string;
+    color: string;
+  }[] = [
+    { value: "AC", label: "AC", color: "" },
+    { value: "WA", label: "WA", color: "" },
+    { value: "TLE", label: "TLE", color: "" },
+    { value: "CE", label: "CE", color: "" },
+    { value: "Not Started", label: t("questionCard.notStarted"), color: "" },
+  ];
 
   // Handle search
   const handleSearch = useCallback(() => {
@@ -97,8 +115,13 @@ export function QuestionFilter({
       criteria.level = selectedLevel;
     }
 
+    // Thêm status filter nếu được chọn
+    if (selectedStatus !== "ALL") {
+      criteria.answerStatus = selectedStatus;
+    }
+
     onFilter(criteria);
-  }, [searchInput, selectedType, selectedLevel, onFilter]);
+  }, [searchInput, selectedType, selectedLevel, selectedStatus, onFilter]);
 
   const handleKeyPress = useCallback(
     (e: React.KeyboardEvent) => {
@@ -114,12 +137,16 @@ export function QuestionFilter({
     setSearchInput("");
     setSelectedType("ALL");
     setSelectedLevel("ALL");
+    setSelectedStatus("ALL");
     onFilter({});
   }, [onFilter]);
 
   // Check if any filter is active
   const hasActiveFilters =
-    searchInput.trim() || selectedType !== "ALL" || selectedLevel !== "ALL";
+    searchInput.trim() ||
+    selectedType !== "ALL" ||
+    selectedLevel !== "ALL" ||
+    selectedStatus !== "ALL";
 
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
@@ -191,6 +218,33 @@ export function QuestionFilter({
               {LEVEL_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   <div className="flex items-center gap-2">{option.label}</div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Status Dropdown */}
+        <div className="min-w-[160px]">
+          <Select
+            value={selectedStatus}
+            onValueChange={(value) =>
+              setSelectedStatus(value as AnswerStatus | "ALL")
+            }
+            disabled={loading}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">
+                {t("questionCard.allStatuses")}
+              </SelectItem>
+              {STATUS_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  <div className={`flex items-center gap-2 ${option.color}`}>
+                    {option.label}
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>

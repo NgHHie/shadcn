@@ -77,6 +77,7 @@ export interface ContestSubmissionHistoryResponse {
       id: string;
       name: string;
     };
+    querySub: string;
   }>;
   totalElements: number;
   totalPages: number;

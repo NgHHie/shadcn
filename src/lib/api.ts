@@ -478,6 +478,7 @@ export const questionApi = {
     sql: string;
     typeDatabaseId: string;
   }): Promise<{
+    querySub: string;
     status: number;
     timeExec: number;
     testPass: number;
