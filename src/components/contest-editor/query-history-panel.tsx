@@ -1,6 +1,6 @@
 // src/components/editor/query-history-panel.tsx
 import { Button } from "@/components/ui/button";
-import { ChevronRight, X } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { QueryHistoryItem } from "@/types/sales";
 import { useState } from "react";
 import {

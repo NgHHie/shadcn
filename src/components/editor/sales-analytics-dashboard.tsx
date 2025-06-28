@@ -16,9 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toastError, toastSuccess, toastWarning } from "@/lib/toast";
+import { toastError, toastWarning } from "@/lib/toast";
 import { QuestionDetail, useApi } from "@/lib/api";
-import { contestApi, FileSubmissionRequest } from "@/lib/apiContest";
 import { useSubmissionHistory } from "@/hooks/use-submission-history";
 
 import { SqlEditor } from "./sql-editor";
@@ -202,7 +201,7 @@ export function SalesAnalyticsDashboard({
       };
 
       // Dùng hook method - giống hệt submit thường
-      const { result, fileContent } = await submitFileToAPI(file, payload, {
+      const { fileContent } = await submitFileToAPI(file, payload, {
         databaseName: selectedDatabase,
         questionCode: question.questionCode,
         questionTitle: question.title,
@@ -319,10 +318,10 @@ export function SalesAnalyticsDashboard({
     }
   };
 
-  const handleSaveQuery = () => {
-    toastWarning(t("sqlEditor.errors.saveFailed"));
-    return;
-  };
+  // const handleSaveQuery = () => {
+  //   toastWarning(t("sqlEditor.errors.saveFailed"));
+  //   return;
+  // };
 
   // Existing drag handling code...
   const startDragging = (e: React.MouseEvent) => {

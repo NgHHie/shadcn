@@ -215,7 +215,7 @@ export function SalesAnalyticsDashboard({
       };
 
       // Dùng hook method - giống hệt submit thường
-      const { result, fileContent } = await submitFileToAPI(file, payload, {
+      const { fileContent } = await submitFileToAPI(file, payload, {
         databaseName: selectedDatabase,
         questionCode: question.questionCode,
         questionTitle: question.title,
@@ -335,10 +335,10 @@ export function SalesAnalyticsDashboard({
     }
   };
 
-  const handleSaveQuery = () => {
-    toastWarning("Chưa có chức năng này.");
-    return;
-  };
+  // const handleSaveQuery = () => {
+  //   toastWarning("Chưa có chức năng này.");
+  //   return;
+  // };
 
   // Existing drag handling code...
   const startDragging = (e: React.MouseEvent) => {
