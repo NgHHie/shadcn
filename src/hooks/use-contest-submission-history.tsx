@@ -3,7 +3,11 @@ import { useState, useEffect, useCallback } from "react";
 import { toastError } from "@/lib/toast";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { SocketMessage } from "@/lib/websocket";
-import { contestApi, ContestSubmissionRequest } from "@/lib/apiContest";
+import {
+  contestApi,
+  ContestSubmissionRequest,
+  FileSubmissionRequest,
+} from "@/lib/apiContest";
 import { authApi } from "@/lib/api";
 
 interface SubmissionHistoryItem {
@@ -172,6 +176,89 @@ export const useContestSubmissionHistory = (
       }
     },
     [userInfo, contestId, outerQuestionId]
+  );
+
+  // Submit file solution (tương tự submitSolution)
+  const submitFile = useCallback(
+    async (
+      file: File,
+      payload: {
+        questionId: string;
+        typeDatabaseId: string;
+      },
+      additionalInfo?: {
+        databaseName: string;
+        questionCode?: string;
+        questionTitle?: string;
+      }
+    ) => {
+      try {
+        // Đọc file content để lưu vào querySub
+        const fileContent = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.onerror = reject;
+          reader.readAsText(file);
+        });
+
+        // Tạo payload cho contestApi
+        const filePayload: FileSubmissionRequest = {
+          questionId: payload.questionId,
+          typeDatabaseId: payload.typeDatabaseId,
+          isSubmitContest: true,
+          questionContestId: outerQuestionId ?? "",
+          file,
+        };
+
+        // Gọi API submitFile
+        const result = await contestApi.submitFile(filePayload);
+
+        // Add pending submission giống hệt submitSolution
+        if (result.submitId && userInfo) {
+          const pendingSubmission: SubmissionHistoryItem = {
+            id: result.submitId,
+            createdAt: result.timeSubmit,
+            createdBy: userInfo.id,
+            lastModifiedAt: result.timeSubmit,
+            timeSubmit: result.timeSubmit,
+            timeout: result.timeExec || 0,
+            status: "PENDING",
+            user: {
+              firstName: userInfo.firstName,
+              lastName: userInfo.lastName,
+              userCode: userInfo.userCode,
+              fullName: userInfo.fullName,
+            },
+            testPass: result.testPass || 0,
+            totalTest: result.totalTest || 0,
+            question: {
+              questionCode:
+                additionalInfo?.questionCode || questionInfo?.code || "",
+              title: additionalInfo?.questionTitle || questionInfo?.title || "",
+            },
+            database: {
+              id: payload.typeDatabaseId,
+              name: additionalInfo?.databaseName || "Unknown",
+            },
+            querySub: fileContent, // Nội dung file
+          };
+
+          setSubmissions((prev) => [
+            pendingSubmission,
+            ...prev.slice(0, pageSize - 1),
+          ]);
+        }
+
+        return { result, fileContent }; // Return cả result và fileContent
+      } catch (err: unknown) {
+        const errorMessage = handleDataFetchError(err);
+        toastError("Lỗi khi submit file", {
+          description: errorMessage,
+        });
+        throw err;
+      }
+    },
+    [userInfo, pageSize, questionInfo]
   );
 
   // Initialize
