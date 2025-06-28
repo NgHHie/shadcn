@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { QueryHistoryItem } from "@/types/sales";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,11 +26,32 @@ export function QueryHistoryPanel({
   queryHistory,
 }: QueryHistoryPanelProps) {
   const { t } = useTranslation("editor");
-
+  const panelRef = useRef<HTMLDivElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedQuery, setSelectedQuery] = useState<QueryHistoryItem | null>(
     null
   );
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    }
+
+    // Chỉ thêm event listener khi panel đang mở
+    if (isOpen && !dialogOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup function
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, dialogOpen, onClose]);
 
   const handleQueryClick = (query: QueryHistoryItem) => {
     setSelectedQuery(query);
@@ -39,6 +60,7 @@ export function QueryHistoryPanel({
 
   return (
     <div
+      ref={panelRef}
       className={`fixed top-0 right-0 h-full w-100 bg-background border-l border-border shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
         isOpen ? "translate-x-0" : "translate-x-full"
       }`}

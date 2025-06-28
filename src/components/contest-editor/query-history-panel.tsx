@@ -1,6 +1,6 @@
 // src/components/editor/query-history-panel.tsx
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import { QueryHistoryItem } from "@/types/sales";
 import { useState } from "react";
 import {
@@ -40,15 +40,15 @@ export function QueryHistoryPanel({
       }`}
     >
       <div className="flex items-center justify-between p-3 border-b border-border bg-background">
-        <h3 className="font-medium text-sm text-foreground">Query History</h3>
         <Button
           variant="ghost"
           size="icon"
           onClick={onClose}
           className="h-8 w-8 text-muted-foreground hover:text-foreground"
         >
-          <X className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
+        <h3 className="font-medium text-sm text-foreground">Query History</h3>
       </div>
 
       <div className="p-4 bg-background">

@@ -39,6 +39,7 @@ export interface ContestExecutionResponse {
 }
 
 export interface FileSubmissionRequest {
+  contestId?: string;
   questionId: string;
   typeDatabaseId: string;
   isSubmitContest: boolean;
@@ -169,6 +170,7 @@ export const contestApi = {
         "isSubmitContest",
         String(payload.isSubmitContest ?? true)
       );
+      formData.append("contestId", payload.contestId || "");
       for (const [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }

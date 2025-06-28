@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { toastError } from "@/lib/toast";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { SocketMessage } from "@/lib/websocket";
+import { handleDataFetchError } from "@/lib/error-handler"; // Added missing import
 import {
   contestApi,
   ContestSubmissionRequest,
@@ -37,14 +38,22 @@ interface SubmissionHistoryItem {
   querySub: string;
 }
 
+interface QuestionInfo {
+  code: string;
+  title: string;
+}
+
 export const useContestSubmissionHistory = (
   onOpenHistory?: () => void,
   contestId?: string,
-  outerQuestionId?: string
+  outerQuestionId?: string,
+  questionInfo?: QuestionInfo // Added missing parameter
 ) => {
   const [submissions, setSubmissions] = useState<SubmissionHistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState<any>(null);
+
+  const pageSize = 20; // Define pageSize
 
   const handleSocketMessage = useCallback(
     (message: SocketMessage) => {
@@ -156,8 +165,9 @@ export const useContestSubmissionHistory = (
             testPass: 0,
             totalTest: 0,
             question: {
-              questionCode: additionalInfo?.questionCode || "",
-              title: additionalInfo?.questionTitle || "",
+              questionCode:
+                additionalInfo?.questionCode || questionInfo?.code || "",
+              title: additionalInfo?.questionTitle || questionInfo?.title || "",
             },
             database: {
               id: payload.typeDatabaseId,
@@ -175,10 +185,10 @@ export const useContestSubmissionHistory = (
         throw error;
       }
     },
-    [userInfo, contestId, outerQuestionId]
+    [userInfo, contestId, outerQuestionId, questionInfo]
   );
 
-  // Submit file solution (tương tự submitSolution)
+  // Submit file solution
   const submitFile = useCallback(
     async (
       file: File,
@@ -206,9 +216,12 @@ export const useContestSubmissionHistory = (
           questionId: payload.questionId,
           typeDatabaseId: payload.typeDatabaseId,
           isSubmitContest: true,
-          questionContestId: outerQuestionId ?? "",
+          questionContestId: outerQuestionId || "",
+          contestId: contestId,
           file,
         };
+
+        console.log(filePayload);
 
         // Gọi API submitFile
         const result = await contestApi.submitFile(filePayload);
@@ -258,7 +271,7 @@ export const useContestSubmissionHistory = (
         throw err;
       }
     },
-    [userInfo, pageSize, questionInfo]
+    [userInfo, contestId, pageSize, questionInfo, outerQuestionId]
   );
 
   // Initialize
@@ -277,6 +290,7 @@ export const useContestSubmissionHistory = (
     loading,
     userInfo,
     submitToAPI,
+    submitFile, // Added missing submitFile
     isConnected,
   };
 };

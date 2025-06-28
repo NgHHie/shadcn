@@ -45,7 +45,11 @@ export function SalesAnalyticsDashboard({
   }, []);
 
   // Use submission history hook for WebSocket integration
-  const { submissions, submitToAPI } = useContestSubmissionHistory(
+  const {
+    submissions,
+    submitToAPI,
+    submitFile: submitFileToAPI,
+  } = useContestSubmissionHistory(
     handleOpenHistory,
     contestId,
     outerQuestionId
@@ -193,14 +197,6 @@ export function SalesAnalyticsDashboard({
     try {
       setIsUploading(true);
 
-      // Read file content
-      const fileContent = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target?.result as string);
-        reader.onerror = reject;
-        reader.readAsText(file);
-      });
-
       // Find the selected database ID
       const selectedDbDetail = availableDatabases.find(
         (db) => db.name === selectedDatabase
@@ -210,30 +206,28 @@ export function SalesAnalyticsDashboard({
         return;
       }
 
-      // Prepare form data
-      const formData = new FormData();
-      formData.append("file", file);
+      const payload = {
+        questionId: innerQuestionId!,
+        typeDatabaseId: selectedDbDetail.id,
+        contestId: contestId!,
+        isSubmitContest: true,
+        questionContestId: outerQuestionId!,
+      };
 
-      // Call API
-      const response = await fetch(
-        `https://api.learnsql.store/api/app/executor/submit-file?questionId=${innerQuestionId}&typeDatabaseId=${selectedDbDetail.id}&isSubmitContest=true&contestId=${contestId}&questionContestId=${outerQuestionId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage
-              .getItem("access_token")
-              ?.replace(/"/g, "")}`,
-          },
-          body: formData,
-        }
-      );
+      // Dùng hook method - giống hệt submit thường
+      const { result, fileContent } = await submitFileToAPI(file, payload, {
+        databaseName: selectedDatabase,
+        questionCode: question.questionCode,
+        questionTitle: question.title,
+      });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      // Update SQL editor with file content
+      // Set file content vào editor
       setSqlQuery(fileContent);
+
+      // Auto-open history panel
+      setTimeout(() => {
+        setIsHistoryOpen(true);
+      }, 500);
     } catch (error: any) {
       console.error("Upload error:", error);
       toastError("Lỗi khi upload file", {
@@ -242,7 +236,6 @@ export function SalesAnalyticsDashboard({
       });
     } finally {
       setIsUploading(false);
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -413,7 +406,7 @@ export function SalesAnalyticsDashboard({
       duration: `${submission.timeout}ms`,
       result: `${submission.testPass}/${submission.totalTest}`,
       dbType: submission.database.name,
-      sqlCode: "", // SQL code is not returned from the API
+      sqlCode: submission.querySub,
     }));
   }, [submissions, question]);
 
