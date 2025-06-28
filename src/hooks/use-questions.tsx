@@ -68,9 +68,6 @@ export const useQuestions = (params: UseQuestionsParams) => {
         const pageable = paginationParams || params.pagination;
         const criteria = filterCriteria || params.criteria || {};
 
-        // Call new search API
-        const response = await api.question.searchQuestions(pageable, criteria);
-
         // Get user info to get userId (only once and cache it)
         if (!userInfoRef.current) {
           try {
@@ -80,6 +77,10 @@ export const useQuestions = (params: UseQuestionsParams) => {
             console.warn("Could not get user info, will use default status");
           }
         }
+
+        // Call new search API
+        const response = await api.question.searchQuestions(pageable, criteria);
+
         let questionsWithStatus: SetStateAction<QuestionListItem[]> = [];
         if (response.content) {
           questionsWithStatus = response.content.map((question) => ({
